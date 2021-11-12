@@ -12,11 +12,6 @@
 
 #include "lib.hpp"
 
-void									Clear()
-{
-    std::cout << "\x1B[2J\x1B[H";
-}
-
 bool									syntax_bracket_open(std::ifstream &file_config, std::string line)
 {
 	if (line.find("{") != std::string::npos)
