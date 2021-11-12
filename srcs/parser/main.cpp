@@ -27,7 +27,7 @@ void					add_infos_server(ServerConf &serv_conf, std::pair<std::string, std::str
 		serv_conf.set_root(infos.second);
 	else if (infos.first == "limit_client_body_size")
 		serv_conf.set_limite_body_size(infos.second);
-	else if (infos.first == "error")
+	else
 	{
 		std::string code_error = infos.second.substr(0, infos.second.find(","));
 		std::string html_error = infos.second.substr(code_error.length() + 1, infos.second.length() - code_error.length() - 1);
@@ -160,6 +160,7 @@ Route						createRoute(std::ifstream &file_config, std::string &line)
 void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, std::string &line)
 {
 	std::pair<std::string, std::string>		infos;
+	int										ret;
 
 	if (!syntax_bracket_open(file_config, line))
 		throw std::string("Erreur de bracket pour le bloc server.");							//ERROR
@@ -180,8 +181,11 @@ void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, s
 		else if (line != "" && line.find("}") == std::string::npos)
 		{
 			infos = get_infos_line(line);
-			if (!is_valid_infos_server(infos))
-				throw std::string("Server : Mot clé invalide ou \";\" manquant.");					//ERROR
+			ret = is_valid_infos_server(infos);
+			if (ret == 1)
+				throw std::string("Server " + server_conf.get_server_name() + ": [" + infos.second + "] --> \";\" manquant");					//ERROR
+			if (ret == 2)
+				throw std::string("Server " + server_conf.get_server_name() + ": " + infos.first + " invalide");					//ERROR
 			try {
 				add_infos_server(server_conf, infos);
 			}
@@ -256,7 +260,8 @@ int	run(std::ifstream &file_config, std::string &path)
 int     main(int argc, char **argv)
 {
 	(void)argc;
-	std::ifstream file_config("Config/default.conf");
+	std::string path = "Config/default.conf";
+	std::ifstream file_config(path.c_str());
 	std::string file;
 	
 	if (argv[1])
@@ -269,7 +274,7 @@ int     main(int argc, char **argv)
 	}
 	else
 	{
-		if (run(file_config, file) < 0)
+		if (run(file_config, path) < 0)
 			return (-1);
 	}
 	return (0);

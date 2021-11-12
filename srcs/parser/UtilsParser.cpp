@@ -12,6 +12,11 @@
 
 #include "lib.hpp"
 
+void									Clear()
+{
+    std::cout << "\x1B[2J\x1B[H";
+}
+
 bool									syntax_bracket_open(std::ifstream &file_config, std::string line)
 {
 	if (line.find("{") != std::string::npos)
@@ -52,7 +57,7 @@ void									syntax_bracket(std::string &path)
 		throw std::string("Erreur de bracket dans le fichier de configuration.");
 }
 
-bool									is_valid_infos_server(std::pair<std::string, std::string> &infos)
+int										is_valid_infos_server(std::pair<std::string, std::string> &infos)
 {
 	std::string opt_server[] = { "listen", "host", "server_name", "root", "error", "limit_client_body_size" };
 	int			i = 0;
@@ -64,14 +69,14 @@ bool									is_valid_infos_server(std::pair<std::string, std::string> &infos)
 			if (infos.second[infos.second.size() - 1] == ';')
 			{
 				infos.second.erase(infos.second.size() - 1);
-				return (true);
+				return (0);
 			}
 			else
-				return (false);
+				return (1);
 		}
 		i++;
 	}
-	return (false);
+	return (2);
 }
 
 bool									is_valid_infos_location(std::pair<std::string, std::string> &infos)

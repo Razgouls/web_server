@@ -48,7 +48,7 @@
 bool									syntax_bracket_open(std::ifstream &file_config, std::string line);
 void									syntax_bracket(std::string &path);
 std::pair<std::string, std::string>		get_infos_line(std::string &line);
-bool									is_valid_infos_server(std::pair<std::string, std::string> &infos);
+int	    								is_valid_infos_server(std::pair<std::string, std::string> &infos);
 std::pair<bool, std::string>			get_path_location(std::string line);
 bool									is_valid_infos_location(std::pair<std::string, std::string> &infos);
 bool									is_valid_code(int code);
