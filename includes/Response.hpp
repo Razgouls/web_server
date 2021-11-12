@@ -48,19 +48,19 @@ class Response
 		void						set_code_etat(int code_etat);
 		void						set_limit_body_size(int limit_body_size);
 
-		std::string					get_url_request(void) const;
-		std::string					get_method(void) const;
-		std::string					get_host(void) const;
-		std::string					get_content_location(void) const;
-		std::string					get_content_type(void) const;
-		std::string					get_name_server(void) const;
-		std::string					get_transfer_encoding(void) const;
-		std::string					get_version_http(void) const;
-		time_t						get_date(void) const;
-		int							get_content_length(void) const;
-		int							get_code_etat(void) const;
-		std::list<std::string>		get_body(void) const;
-		std::string					get_reponse(void);
+		std::string					&get_url_request(void);
+		std::string					&get_method(void);
+		std::string					&get_host(void);
+		std::string					&get_content_location(void);
+		std::string					&get_content_type(void);
+		std::string					&get_name_server(void);
+		std::string					&get_transfer_encoding(void);
+		std::string					&get_version_http(void);
+		time_t						&get_date(void);
+		int							&get_content_length(void);
+		int							&get_code_etat(void);
+		std::list<std::string>		&get_body(void);
+		std::string					fill_reponse(void);
 
 
 	private:

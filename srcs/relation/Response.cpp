@@ -97,7 +97,7 @@ void					Response::get_length_body(void)
 /*
 ** Cette fonction va transformer la list<std::string> en une seule string car le body d'une reponse est composé par une longue std::string
 */
-std::string				Response::get_reponse(void)
+std::string				Response::fill_reponse(void)
 {
 	std::list<std::string>::iterator	it_begin = _body.begin();
 	std::list<std::string>::iterator	it_end = _body.end();
@@ -365,52 +365,51 @@ void				Response::set_code_etat(int code_etat)
 }
 
 
-std::string			Response::get_url_request(void) const
+std::string			&Response::get_url_request(void)
 {
 	return (this->_url_request);
 }
 
-std::string			Response::get_method(void) const
+std::string			&Response::get_method(void)
 {
 	return (this->_method);
 }
 
-std::string			Response::get_host(void) const
+std::string			&Response::get_host(void)
 {
 	return (this->_host);
 }
 
-std::string			Response::get_content_location(void) const
+std::string			&Response::get_content_location(void)
 {
 	return (this->_content_location);
 }
 
-std::string			Response::get_content_type(void) const
+std::string			&Response::get_content_type(void)
 {
 	return (this->_content_type);
 }
 
-std::string			Response::get_name_server(void) const
+std::string			&Response::get_name_server(void)
 {
 	return (this->_name_server);
 }
 
-std::string			Response::get_transfer_encoding(void) const
+std::string			&Response::get_transfer_encoding(void)
 {
 	return (this->_transfert_encoding);
 }
 
-std::string			Response::get_version_http(void) const
+std::string			&Response::get_version_http(void)
 {
 	return (this->_version_http);
 }
 
-int					Response::get_content_length(void) const
+int					&Response::get_content_length(void)
 {
 	return (this->_content_length);
 }
-
-int					Response::get_code_etat(void) const
+int					&Response::get_code_etat(void)
 {
 	return (this->_code_etat);
 }

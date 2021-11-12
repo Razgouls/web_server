@@ -243,8 +243,9 @@ std::pair<bool, bool>	Server::gestion_auto_index(void)
 {
 	std::ifstream		myfile;
 	std::string			index;
+	std::string			&path = _current_req.get_path();
 
-	index = _current_req.get_path().append("index.html");
+	index = path.append("index.html");
 	myfile.open(index.c_str());
 	if (myfile.good() && !_current_route.get_index().empty())
 		return (std::make_pair(true, true));
@@ -427,7 +428,7 @@ int						Server::s_send(int i, int *nfds)
 	std::string	reponse;
 
 	gestion_file_dir();
-	reponse = _current_rep.get_reponse();
+	reponse = _current_rep.fill_reponse();
 	std::cout << reponse << std::endl;
 	if (send(_pfds[i].fd, reponse.c_str(), reponse.size(), 0) < 0)
 		perror("send");
@@ -557,17 +558,17 @@ void					Server::run(void)
 ** GETTEURS ET SETTEURS
 */
 
-int						Server::get_server_fd(void) const
+int						&Server::get_server_fd(void)
 {
 	return (this->_server_fd);
 }
 
-std::vector<ServerConf>	Server::get_list_server(void) const
+std::vector<ServerConf>	&Server::get_list_server(void)
 {
 	return (this->_list_server);
 }
 
-struct sockaddr_in		Server::get_address(void) const
+struct sockaddr_in		&Server::get_address(void)
 {
 	return (this->_address);
 }

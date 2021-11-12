@@ -25,10 +25,10 @@ class Route
 
 		Route						&operator=(const Route &r);
 
-		std::string					get_path(void) const;
-		std::string					get_index(void) const;
-		std::list<std::string>		get_list_methods(void) const;
-		std::string					get_auto_index(void) const;
+		std::string					&get_path(void);
+		std::string					&get_index(void);
+		std::list<std::string>		&get_list_methods(void);
+		std::string					&get_auto_index(void);
 
 		void						set_path(std::string path);
 		void						set_index(std::string index);

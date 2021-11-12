@@ -35,13 +35,13 @@ class	ServerConf
 		void								set_map_error(std::pair<int, std::string> &error);
 		void								set_limite_body_size(std::string &limit_body_size);
 
-		int									get_listen(void) const;
-		std::string							get_host(void) const;
-		std::string							get_server_name(void) const;
-		std::string							get_root(void) const;
-		std::list<Route>					get_list_routes(void) const;
-		std::map<int, std::string>			get_map_error(void) const;
-		int									get_limite_body_size(void) const;
+		int									&get_listen(void);
+		std::string							&get_host(void);
+		std::string							&get_server_name(void);
+		std::string							&get_root(void);
+		std::list<Route>					&get_list_routes(void);
+		std::map<int, std::string>			&get_map_error(void);
+		int									&get_limite_body_size(void);
 
 	private:
 		int									_listen;

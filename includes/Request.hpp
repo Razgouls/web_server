@@ -26,15 +26,15 @@ class Request
 		Request												&operator=(Request &r);
 		void												set_request(std::string &r);
 
-		std::string											get_request(void) const;
-		std::string											get_url_request(void) const;
-		std::map<std::string, std::string>					get_map_request(void) const;
-		std::string											get_method(void) const;
-		std::string											get_path(void) const;
-		std::string											get_host(void) const;
-		std::string											get_body(void) const;
-		std::string											get_content_type(void) const;
-		std::list<std::pair<std::string, std::string> >		get_query_string(void) const;
+		std::string											&get_request(void);
+		std::string											&get_url_request(void);
+		std::map<std::string, std::string>					&get_map_request(void);
+		std::string											&get_method(void);
+		std::string											&get_path(void);
+		std::string											&get_host(void);
+		std::string											&get_body(void);
+		std::string											&get_content_type(void);
+		std::list<std::pair<std::string, std::string> >		&get_query_string(void);
 		void												clear(void);
 
 		void												set_path(std::string path);

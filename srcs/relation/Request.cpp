@@ -159,57 +159,57 @@ void				Request::parse_request(void)
 	_url_request = ss.str();
 }
 
-std::string			Request::get_request(void) const
+std::string			&Request::get_request(void)
 {
 	return (this->_request);
 }
 
-// std::map<int, std::string>							Request::get_map_request(void) const
+// std::map<int, std::string>							Request::get_map_request(void)
 // {
 // 	return (this->_map_request);
 // }
 
-std::string											Request::get_method(void) const
+std::string										&Request::get_method(void)
 {
 	return (this->_method);
 }
 
-std::string											Request::get_path(void) const
+std::string										&Request::get_path(void)
 {
 	return (this->_path);
 }
 
-std::string											Request::get_host(void) const
+std::string										&Request::get_host(void)
 {
 	return (this->_host);
 }
 
-std::string											Request::get_body(void) const
+std::string										&Request::get_body(void)
 {
 	return (this->_body);
 }
 
-std::string											Request::get_content_type(void) const
+std::string										&Request::get_content_type(void)
 {
 	return (this->_content_type);
 }
 
-std::string											Request::get_url_request(void) const
+std::string										&Request::get_url_request(void)
 {
 	return (this->_url_request);
 }
 
-std::map<std::string, std::string>					Request::get_map_request(void) const
+std::map<std::string, std::string>				&Request::get_map_request(void)
 {
 	return (this->_map_request);
 }
 
-std::list<std::pair<std::string, std::string> >		Request::get_query_string(void) const
+std::list<std::pair<std::string, std::string> >	&Request::get_query_string(void)
 {
 	return (this->_query_string);
 }
 
-void												Request::set_path(std::string path)
+void													Request::set_path(std::string path)
 {
 	this->_path = path;
 }

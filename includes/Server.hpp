@@ -27,9 +27,9 @@ class Server
 
 		Server													&operator=(const Server &s);
 
-		std::vector<ServerConf>									get_list_server(void) const;
-		int														get_server_fd(void) const;
-		struct sockaddr_in										get_address(void) const;
+		std::vector<ServerConf>									&get_list_server(void);
+		int														&get_server_fd(void);
+		struct sockaddr_in										&get_address(void);
 
 		void													set_list_server(std::vector<ServerConf> &list_server);
 		void													set_server_fd(int server_fd);
@@ -38,7 +38,7 @@ class Server
 		void													run(void);
 		int														s_recv(int fd, int i, int *nfds);
 		int														s_send(int i, int *nfds);
-		// int														s_accept();
+		// int													s_accept();
 		int														s_accept(int j);
 		void													init_pfds(void);
 		void													init_listen_fd(void);

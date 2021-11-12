@@ -45,22 +45,22 @@ Route::~Route()
 
 }
 
-std::string				Route::get_path(void) const
+std::string				&Route::get_path(void)
 {
 	return (this->_path);
 }
 
-std::string				Route::get_index(void) const
+std::string				&Route::get_index(void)
 {
 	return (this->_index);
 }
 
-std::list<std::string>	Route::get_list_methods(void) const
+std::list<std::string>	&Route::get_list_methods(void)
 {
 	return (this->_list_methods);
 }
 
-std::string				Route::get_auto_index(void) const
+std::string				&Route::get_auto_index(void)
 {
 	return (this->_auto_index);
 }

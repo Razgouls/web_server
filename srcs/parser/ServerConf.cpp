@@ -98,37 +98,37 @@ void					ServerConf::set_limite_body_size(std::string &limit_body_size)
 	this->_limit_body_size = tmp;
 }
 
-int						ServerConf::get_listen(void) const
+int						&ServerConf::get_listen(void)
 {
 	return (this->_listen);
 }
 
-std::string				ServerConf::get_host(void) const
+std::string				&ServerConf::get_host(void)
 {
 	return (this->_host);
 }
 
-std::string				ServerConf::get_server_name(void) const
+std::string				&ServerConf::get_server_name(void)
 {
 	return (this->_server_name);
 }
 
-std::string				ServerConf::get_root(void) const
+std::string				&ServerConf::get_root(void)
 {
 	return (this->_root);
 }
 
-std::list<Route>		ServerConf::get_list_routes(void) const
+std::list<Route>			&ServerConf::get_list_routes(void)
 {
 	return (this->_list_routes);
 }
 
-std::map<int, std::string>	ServerConf::get_map_error(void) const
+std::map<int, std::string>	&ServerConf::get_map_error(void)
 {
 	return (this->_map_error);
 }
 
-int							ServerConf::get_limite_body_size(void) const
+int								&ServerConf::get_limite_body_size(void)
 {
 	return (this->_limit_body_size);
 }
