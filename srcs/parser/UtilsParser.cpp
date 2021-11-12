@@ -35,10 +35,10 @@ std::pair<bool, std::string>			get_path_location(std::string line)
 	
 }
 
-void									syntax_bracket(void)
+void									syntax_bracket(std::string &path)
 {
 	std::string					line;
-	std::ifstream				file_config("Config/default.conf");
+	std::ifstream				file_config(path.c_str());
 	std::multimap<char, char>	map_bracket;
 
 	while (getline(file_config, line))

@@ -27,7 +27,7 @@ void					add_infos_server(ServerConf &serv_conf, std::pair<std::string, std::str
 		serv_conf.set_root(infos.second);
 	else if (infos.first == "limit_client_body_size")
 		serv_conf.set_limite_body_size(infos.second);
-	else
+	else if (infos.first == "error")
 	{
 		std::string code_error = infos.second.substr(0, infos.second.find(","));
 		std::string html_error = infos.second.substr(code_error.length() + 1, infos.second.length() - code_error.length() - 1);
@@ -90,6 +90,8 @@ void					infos_server_conf_valide(ServerConf &server_conf)
 		throw std::string("Name du server " + server_conf.get_server_name() + " inconnu");
 	if (server_conf.get_root().empty())
 		throw std::string("Racine du server " + server_conf.get_server_name() + " inconnu");
+	if (server_conf.get_map_error().empty())
+		throw std::string("Pas de fichier d'erreur par default dans le server " + server_conf.get_server_name());
 }
 
 void					server_conf_valide(ServerConf &server_conf)
@@ -198,6 +200,8 @@ std::vector<ServerConf>		createListServerConf(std::ifstream &file_config)
 	if (file_config.is_open())
 	{
 		getline(file_config, line);
+		if (line.find("server") == std::string::npos)
+			throw std::string("Erreur bloc server");
 		while (line.find("server") != std::string::npos)
 		{
 			try {
@@ -217,13 +221,13 @@ std::vector<ServerConf>		createListServerConf(std::ifstream &file_config)
 	return (list_server_conf);
 }
 
-int	run(std::ifstream &file_config)
+int	run(std::ifstream &file_config, std::string &path)
 {
 	std::vector<ServerConf>		list_servers;
 	Server						server;
 
 	try {
-		syntax_bracket();
+		syntax_bracket(path);
 		list_servers = createListServerConf(file_config);
 	}
 	catch(std::string const &chaine) {
@@ -260,12 +264,12 @@ int     main(int argc, char **argv)
 	std::ifstream file_config_argv(file.c_str());
 	if (file_config_argv.is_open())
 	{
-		if (run(file_config_argv) < 0)
+		if (run(file_config_argv, file) < 0)
 			return (-1);
 	}
 	else
 	{
-		if (run(file_config) < 0)
+		if (run(file_config, file) < 0)
 			return (-1);
 	}
 	return (0);
