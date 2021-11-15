@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 14:59:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/06 11:31:45 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 12:48:38 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ Route::Route(const Route &r)
 	this->_index = r._index;
 	this->_list_methods = r._list_methods;
 	this->_auto_index = r._auto_index;
+	this->_path_uploads = r._path_uploads;
 }
 
 Route					&Route::operator=(const Route &r)
@@ -37,6 +38,7 @@ Route					&Route::operator=(const Route &r)
 	this->_index = r._index;
 	this->_auto_index = r._auto_index;
 	this->_list_methods = r._list_methods;
+	this->_path_uploads = r._path_uploads;
 	return (*this);
 }
 
@@ -65,9 +67,19 @@ std::string				&Route::get_auto_index(void)
 	return (this->_auto_index);
 }
 
+std::string				&Route::get_path_uploads(void)
+{
+	return (this->_path_uploads);
+}
+
 void					Route::set_path(std::string path)
 {
 	this->_path = path;
+}
+
+void					Route::set_path_uploads(std::string path_uploads)
+{
+	this->_path_uploads = path_uploads;
 }
 
 void					Route::set_index(std::string index)
@@ -107,5 +119,7 @@ std::ostream			&operator<<(std::ostream &os, Route &r)
 	}
 	os << std::endl;
 	os << BOLDCYAN << "  ➜ autoindex : " << WHITE << r.get_auto_index() << std::endl;
+	if (!r.get_path_uploads().empty())
+		os << BOLDCYAN << "  ➜ path uploads : " << WHITE << r.get_path_uploads() << std::endl;
 	return (os);
 }

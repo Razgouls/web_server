@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 15:38:51 by elie              #+#    #+#             */
-/*   Updated: 2021/11/05 18:26:26 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 12:15:50 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,5 +54,6 @@ bool									is_valid_infos_location(std::pair<std::string, std::string> &infos)
 bool									is_valid_code(int code);
 int		                                hex_to_dec(std::string hexVal);
 std::string			                    transform_query_char(std::string str);
+void									is_dir(std::string path);
 
 #endif

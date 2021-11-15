@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/08 19:04:01 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 13:03:59 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ class Server
 		void													delete_resource(void);
 		void													post_resource(void);
 		void													get_resource(void);
+		void													put_resource(void);
 		void													fill_current_rep(void);
 		void													get_index(void);
 		void													compress_array(int *nfds);

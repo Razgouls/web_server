@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/08 16:03:54 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 13:00:46 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ void					location_is_valide(Route &r)
 
 	while (it_begin != it_end)
 	{
-		if (*it_begin != "GET" && *it_begin != "POST" && *it_begin != "DELETE")
+		if (*it_begin != "GET" && *it_begin != "POST" && *it_begin != "DELETE" && *it_begin != "PUT")
 			throw std::string("Nom de methode " + *it_begin + " de la route " + r.get_path() + " non autorisée");
 		it_begin++;
 	}
@@ -114,6 +114,16 @@ void					add_location_server(Route &r, std::pair<std::string, std::string> &info
 		r.set_index(infos.second);
 	else if (infos.first == "autoindex")
 		r.set_auto_index(infos.second);
+	else if (infos.first == "upload_dir")
+	{
+		try {
+			is_dir(infos.second);
+			r.set_path_uploads(infos.second);
+		}
+		catch(std::string const &chaine) {
+			throw;
+		}
+	}
 	else
 	{
 		if (infos.second.empty())

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 15:38:18 by elie              #+#    #+#             */
-/*   Updated: 2021/11/06 12:20:37 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 12:33:21 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,10 +76,11 @@ int										is_valid_infos_server(std::pair<std::string, std::string> &infos)
 
 bool									is_valid_infos_location(std::pair<std::string, std::string> &infos)
 {
-	std::string opt_location[] = { "methods", "index", "autoindex", "root" };
-	int			i = 0;
+	std::string opt_location[] = { "methods", "index", "autoindex", "root", "upload_dir" };
+	size_t		i = 0;
+	size_t		size = opt_location->size();
 
-	while (i < 4)
+	while (i < size)
 	{
 		if (opt_location[i] == infos.first)
 		{
@@ -131,4 +132,15 @@ bool									is_valid_code(int code)
 	if (code > 527)
 		return (false);
 	return (true);
+}
+
+void									is_dir(std::string path)
+{
+	DIR		*dir = opendir(path.c_str());
+
+	if (!dir)
+	{
+		throw std::string("Le dossier " + path + " n'existe pas.");
+	}
+	closedir(dir);
 }

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/11 19:13:16 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 13:05:26 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -331,6 +331,11 @@ void					Server::post_resource(void)
 	_current_rep.build_response_file(_list_server[_index].get_map_error(), tmp_path, _current_req);
 }
 
+void					Server::put_resource(void)
+{
+	
+}
+
 
 /*
 **		1.	On ouvre le dossier correspondant au path
@@ -388,24 +393,18 @@ void					Server::get_resource(void)
 */
 void					Server::gestion_file_dir()
 {
-
+	std::string			&method = _current_req.get_method();
 	get_req_route();
 	if (!gestion_valid_method())
-	{
 		_current_rep.build_body_response(_list_server[_index].get_map_error()[405], 405, _current_req);
-	}
-	else if (_current_req.get_method() == "GET")
-	{
+	else if (method == "GET")
 		get_resource();
-	}
-	else if (_current_req.get_method() == "POST")
-	{
+	else if (method == "POST")
 		post_resource();
-	}
+	else if (method == "PUT")
+		put_resource();
 	else
-	{
 		delete_resource();
-	}
 	_current_req.clear();
 }
 
