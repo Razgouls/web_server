@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 13:05:26 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/16 10:25:08 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@
 
 
 # define RECV_SIZE 131072
+# define SIZE_PFDS 50
 
 /*
 ** FORME COPLIEN
@@ -30,15 +31,29 @@ Server::Server()
 
 }
 
-
 /*
 ** Constructeur par copie
 */
 Server::Server(const Server &s)
 {
-	this->_list_server = s._list_server;
-	this->_address = s._address;
+	this->_current_rep = s._current_rep;
+	this->_current_route = s._current_route;
 	this->_server_fd = s._server_fd;
+	this->_vect_address = s._vect_address;
+	this->_vect_listen_fd = s._vect_listen_fd;
+	this->_index = s._index;
+	this->_list_server = s._list_server;
+	this->_server_fd = s._server_fd;
+	
+	int i = 0;
+	while (i < SIZE_PFDS)
+	{
+		if ((size_t)i < _vect_listen_fd.size())
+			_pfds[i] = s._pfds[i];
+		else
+			_pfds[i].fd = -1;
+		i++;
+	}
 }
 
 
@@ -47,9 +62,27 @@ Server::Server(const Server &s)
 */
 Server					&Server::operator=(const Server &s)
 {
-	this->_list_server = s._list_server;
-	this->_address = s._address;
+	this->_vect_address.clear();
+	this->_vect_listen_fd.clear();
+	this->_list_server.clear();
+	this->_current_rep = s._current_rep;
+	this->_current_route = s._current_route;
 	this->_server_fd = s._server_fd;
+	this->_vect_address = s._vect_address;
+	this->_vect_listen_fd = s._vect_listen_fd;
+	this->_index = s._index;
+	this->_list_server = s._list_server;
+	this->_server_fd = s._server_fd;
+	
+	int i = 0;
+	while (i < SIZE_PFDS)
+	{
+		if ((size_t)i < _vect_listen_fd.size())
+			_pfds[i] = s._pfds[i];
+		else
+			_pfds[i].fd = -1;
+		i++;
+	}
 	return (*this);
 }
 
@@ -59,7 +92,7 @@ Server					&Server::operator=(const Server &s)
 */
 Server::~Server()
 {
-	
+	memset(_pfds, 0, SIZE_PFDS);
 }
 
 
@@ -89,9 +122,10 @@ void					Server::init_listen_fd(void)
 	{
 		int		on = 1;
 		struct sockaddr_in add;
+
 		int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_fd < 0)
-			listen_fd = -1;
+			continue ;
 		setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 		memset(&add, 0, sizeof(add));
 		add.sin_family = AF_INET;
@@ -99,9 +133,15 @@ void					Server::init_listen_fd(void)
 		add.sin_addr.s_addr = inet_addr(_list_server[0].get_host().c_str());
 		fcntl(listen_fd, F_SETFL, O_NONBLOCK);
 		if (bind(listen_fd, (struct sockaddr *)&add, sizeof(add)) < 0)
-			listen_fd = -1;
+		{
+			close(listen_fd);
+			continue ;
+		}
 		if (listen(listen_fd, 10) < 0)
-			listen_fd = -1;
+		{
+			close(listen_fd);
+			continue ;
+		}
 		_vect_address.push_back(add);
 		_vect_listen_fd.push_back(listen_fd);
 		i++;
@@ -120,6 +160,7 @@ int						Server::s_accept(int j)
 
 	if ((new_fd = accept(_vect_listen_fd[j], (struct sockaddr *)&_vect_address[j], (socklen_t *)&len)) < 0)
 		perror("1accept");
+	fcntl(new_fd, F_SETFL, O_NONBLOCK);
 	return (new_fd);
 }
 
@@ -139,15 +180,12 @@ void					Server::init_pfds(void)
 	int		i = 0;
 
 	init_listen_fd();
-	bzero(_pfds, 200);
+	bzero(_pfds, SIZE_PFDS);
 	size = _vect_listen_fd.size();
 	while (i < size)
 	{
-		if (_vect_listen_fd[i] >= 0)
-		{
-			_pfds[i].fd = _vect_listen_fd[i];
-			_pfds[i].events = POLLIN;
-		}
+		_pfds[i].fd = _vect_listen_fd[i];
+		_pfds[i].events = POLLIN;
 		i++;
 	}
 }
@@ -425,12 +463,19 @@ int						Server::s_send(int i, int *nfds)
 {
 	(void)nfds;
 	std::string	reponse;
+	int			ret = 0;
 
 	gestion_file_dir();
 	reponse = _current_rep.fill_reponse();
 	std::cout << reponse << std::endl;
-	if (send(_pfds[i].fd, reponse.c_str(), reponse.size(), 0) < 0)
+	if ((ret = send(_pfds[i].fd, reponse.c_str(), reponse.size(), 0)) < 0)
 		perror("send");
+	if ((size_t)ret == reponse.size())
+	{
+		close(_pfds[i].fd);
+		_pfds[i].fd = -1;
+		compress_array(nfds);
+	}
 	return (0);
 }
 
@@ -459,23 +504,32 @@ int					Server::s_recv(int fd, int i, int *nfds)
 	std::string			request;
 	char				requete[131072] = { 0 };
 	int					ret_read;
+	(void)fd;
+	(void)nfds;
 
-	ret_read = recv(fd, requete, RECV_SIZE - 1, 0);
-	if (ret_read < 0)
+	ret_read = recv(_pfds[i].fd, requete, RECV_SIZE - 1, 0);
+	if (ret_read == -1)
+		return (-1);
+	if (ret_read == 0)
 	{
 		close(_pfds[i].fd);
 		_pfds[i].fd = -1;
-		// compress_array(nfds);
 		return (-1);
 	}
 	request = requete;
-	if (ret_read == 0)
-		return (-1);
 	if (!request.empty())
 	{
-		// (void)nfds;
-		// char	hello[] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 32\n\nHello et Bonjour tout le monde !" ;
-		// send(_pfds[i].fd, hello, 100, 0);
+		// std::string str("HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 32\n\nHello et Bonjour tout le monde !");
+		// int ret = send(_pfds[i].fd, str.c_str(), str.size() + 1, 0);
+		// if ((size_t)ret ==  str.size() + 1)
+		// {
+		// 	std::cout << "JIFJRJIF" << std::endl;
+		// 	close(_pfds[i].fd);
+		// 	_pfds[i].fd = -1;
+			// _pfds[i].events = POLLOUT;
+			// compress_array(nfds);
+		// }
+		// free(hello);
 		_current_req.set_request(request);
 		_current_req.parse_request();
 		get_index();
@@ -497,13 +551,12 @@ void					Server::compress_array(int *nfds)
 		if (_pfds[i].fd == -1)
 		{
 			for(j = i; j < *nfds; j++)
-			{
 				_pfds[j].fd = _pfds[j + 1].fd;
-			}
 			i--;
 			(*nfds)--;
 		}
 	}
+	std::cout << "!" << std::endl;
 }
 
 void					Server::run(void)
@@ -538,16 +591,13 @@ void					Server::run(void)
 				}
 				if (j == nfds)
 				{
-					s_recv(_pfds[i].fd, i, &nfds);
-					close(_pfds[i].fd);
-					_pfds[i].fd = -1;
-					// compress_array(&nfds);
+					s_recv(_pfds[nfds].fd, i, &nfds);
+					compress_array(&nfds);
 				}
 			}
 			i++;
 		}
 	}
-	
 }
 
 

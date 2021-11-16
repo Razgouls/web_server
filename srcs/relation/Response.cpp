@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/08 18:44:03 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 16:49:05 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ Response::~Response()
 
 Response					&Response::operator=(const Response &r)
 {
+	clear();
 	this->_url_request = r._url_request;
 	this->_method = r._method;
 	this->_host = r._host;
@@ -218,7 +219,7 @@ void				Response::gestion_errors(std::string &path)
 ** Elle prend en parametre la path, correspondant au fichier en question et une map_error<int, std::string>. (int -> code_erreur et std::string -> path du fichier a afficher en reponse)
 ** A la fin de cette fonction, la reponse est completement build et peut etre envoyée au navigateur
 */
-void				Response::build_response_string(std::string mess)
+void				Response::build_response_string(std::string &mess)
 {
 	_code_etat = 200;
 	build_head_response();
@@ -229,7 +230,7 @@ void				Response::build_response_string(std::string mess)
 	_body.push_back("</html>");
 }
 
-void				Response::build_response_file(std::map<int, std::string> map_error, std::string &path, Request &req)
+void				Response::build_response_file(std::map<int, std::string> &map_error, std::string &path, Request &req)
 {
 	std::stringstream	tmp;
 
@@ -308,23 +309,23 @@ void				Response::build_response_dir(std::list<std::pair<std::string, unsigned c
 
 
 
-void				Response::set_url_request(std::string url_request)
+void				Response::set_url_request(std::string &url_request)
 {
 	this->_url_request = url_request;
 }
 
 
-void				Response::set_method(std::string method)
+void				Response::set_method(std::string &method)
 {
 	this->_method = method;
 }
 
-void				Response::set_host(std::string host)
+void				Response::set_host(std::string &host)
 {
 	this->_host = host;
 }
 
-void				Response::set_content_location(std::string content_location)
+void				Response::set_content_location(std::string &content_location)
 {
 	this->_content_location = content_location;
 }
@@ -339,7 +340,7 @@ void				Response::set_name_server(std::string name_server)
 	this->_name_server = name_server;
 }
 
-void				Response::set_transfer_encoding(std::string transfer_encoding)
+void				Response::set_transfer_encoding(std::string &transfer_encoding)
 {
 	this->_transfert_encoding = transfer_encoding;
 }

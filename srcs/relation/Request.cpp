@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/08 15:19:47 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/16 09:09:58 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,7 @@ Request::~Request()
 
 Request				&Request::operator=(Request &r)
 {
+	this->_map_request.clear();
 	this->_request = r._request;
 	this->_method = r._method;
 	this->_path = r._path;
@@ -48,7 +49,7 @@ Request				&Request::operator=(Request &r)
 	return (*this);
 }
 
-void				Request::get_infos_space(std::string str, std::string &new_str, size_t &dep, size_t &last, char delim)
+void				Request::get_infos_space(std::string &str, std::string &new_str, size_t &dep, size_t &last, char delim)
 {
 	new_str = str.substr(dep, last - dep);
 	dep = last + 1;
@@ -74,7 +75,7 @@ void				Request::make_query_post()
 	_query_string.push_back(std::make_pair(transform_query_char(_body.substr(dep, rep_find_equal - dep)), transform_query_char(_body.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
 }
 
-bool				Request::fill_query_string_aux(size_t &last, size_t &dep, std::string tmp_path, bool id)
+bool				Request::fill_query_string_aux(size_t &last, size_t &dep, std::string &tmp_path, bool id)
 {
 	std::pair<std::string, std::string>	tmp_pair;
 	size_t								tmp_occ = tmp_path.find('=', dep);

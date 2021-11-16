@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 14:59:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 12:48:38 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 16:47:25 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,11 +34,14 @@ Route::Route(const Route &r)
 
 Route					&Route::operator=(const Route &r)
 {
+	this->_list_methods.clear();
+
 	this->_path = r._path;
 	this->_index = r._index;
 	this->_auto_index = r._auto_index;
 	this->_list_methods = r._list_methods;
 	this->_path_uploads = r._path_uploads;
+
 	return (*this);
 }
 
@@ -72,27 +75,27 @@ std::string				&Route::get_path_uploads(void)
 	return (this->_path_uploads);
 }
 
-void					Route::set_path(std::string path)
+void					Route::set_path(std::string &path)
 {
 	this->_path = path;
 }
 
-void					Route::set_path_uploads(std::string path_uploads)
+void					Route::set_path_uploads(std::string &path_uploads)
 {
 	this->_path_uploads = path_uploads;
 }
 
-void					Route::set_index(std::string index)
+void					Route::set_index(std::string &index)
 {
 	this->_index = index;
 }
 
-void					Route::set_list_methods(std::string method)
+void					Route::set_list_methods(std::string &method)
 {
 	this->_list_methods.push_back(method);
 }
 
-void					Route::set_auto_index(std::string auto_index)
+void					Route::set_auto_index(std::string &auto_index)
 {
 	this->_auto_index = auto_index;
 }

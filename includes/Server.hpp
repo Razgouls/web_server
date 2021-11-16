@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 13:03:59 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/16 09:00:52 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,7 @@ class Server
 		struct sockaddr_in				_address2;
 		std::vector<struct sockaddr_in>	_vect_address;
 		std::vector<int>				_vect_listen_fd;
-		struct pollfd					_pfds[300];
+		struct pollfd					_pfds[50];
 		int								_listen_fd;
 		int								_listen_fd2;
 		int								_index;

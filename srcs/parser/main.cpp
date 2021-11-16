@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 13:00:46 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 16:52:19 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,11 +140,10 @@ void					add_location_server(Route &r, std::pair<std::string, std::string> &info
 	}
 }
 
-Route						createRoute(std::ifstream &file_config, std::string &line)
+void				createRoute(std::ifstream &file_config, std::string &line, Route &r)
 {
 	std::pair<std::string, std::string>		infos;
 	std::pair<bool, std::string>			path_location;
-	Route									r;
 
 	path_location = get_path_location(line);
 	if (!path_location.first)
@@ -164,7 +163,6 @@ Route						createRoute(std::ifstream &file_config, std::string &line)
 		}
 	}
 	r.set_path(path_location.second);
-	return (r);
 }
 
 void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, std::string &line)
@@ -181,7 +179,8 @@ void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, s
 		else if (line.find("location") != std::string::npos)
 		{
 			try {
-				Route tmp = createRoute(file_config, line);
+				Route tmp;
+				createRoute(file_config, line, tmp);
 				server_conf.set_list_routes(tmp);
 			}
 			catch(std::string const &chaine) {
@@ -235,7 +234,7 @@ std::vector<ServerConf>		createListServerConf(std::ifstream &file_config)
 	return (list_server_conf);
 }
 
-int	run(std::ifstream &file_config, std::string &path)
+void	run(std::ifstream &file_config, std::string &path)
 {
 	std::vector<ServerConf>		list_servers;
 	Server						server;
@@ -245,8 +244,8 @@ int	run(std::ifstream &file_config, std::string &path)
 		list_servers = createListServerConf(file_config);
 	}
 	catch(std::string const &chaine) {
-		std::cerr << chaine << std::endl;
-		return (-1);
+		file_config.close();
+		throw;
 	}
 	std::vector<ServerConf>::iterator		it_begin = list_servers.begin();
 	std::vector<ServerConf>::iterator		it_end = list_servers.end();
@@ -260,12 +259,17 @@ int	run(std::ifstream &file_config, std::string &path)
 		server.run();
 	}
 	catch(std::string const &chaine) {
-		std::cerr << chaine << std::endl;
-		return (-1);
+		file_config.close();
+		throw;
 	}
-	return (0);
+	file_config.close();
 }
 
+void signal_callback_handler(int signum)
+{
+	(void)signum;
+	exit(0);
+}
 
 int     main(int argc, char **argv)
 {
@@ -274,18 +278,20 @@ int     main(int argc, char **argv)
 	std::ifstream file_config(path.c_str());
 	std::string file;
 	
+	signal(SIGINT, signal_callback_handler);
 	if (argv[1])
 		file = argv[1];
 	std::ifstream file_config_argv(file.c_str());
 	if (file_config_argv.is_open())
 	{
-		if (run(file_config_argv, file) < 0)
-			return (-1);
+		// run(file_config_argv, file);
+		file_config_argv.close();
+		file_config.close();
 	}
 	else
 	{
-		if (run(file_config, path) < 0)
-			return (-1);
+		run(file_config, path);
+		file_config.close();
 	}
 	return (0);
 }

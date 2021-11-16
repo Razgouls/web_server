@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/08 11:32:17 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/16 09:10:06 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@ class Request
 
 		void												parse_request(void);
 		void												fill_query_string(void);
-		bool												fill_query_string_aux(size_t &last, size_t &dep, std::string tmp_path, bool id);
-		void												get_infos_space(std::string str, std::string &new_str, size_t &dep, size_t &last, char delim);
+		bool												fill_query_string_aux(size_t &last, size_t &dep, std::string &tmp_path, bool id);
+		void												get_infos_space(std::string &str, std::string &new_str, size_t &dep, size_t &last, char delim);
 		void												make_query_post();
 		void												fill_map_request(void);
 

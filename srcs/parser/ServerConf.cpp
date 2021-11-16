@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:16:44 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 12:44:36 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 16:44:57 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,9 @@ ServerConf::ServerConf(const ServerConf &s)
 
 ServerConf	&ServerConf::operator=(const ServerConf &s)
 {
+	_list_routes.clear();
+	_map_error.clear();
+
 	_listen = s._listen;
 	_host = s._host;
 	_root = s._root;

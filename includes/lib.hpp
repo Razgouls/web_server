@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 15:38:51 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 12:15:50 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/15 16:00:58 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <dirent.h>
 # include <fcntl.h>
 # include <errno.h>
+# include <signal.h>
 
 # define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
 # define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
