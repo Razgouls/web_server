@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/16 09:00:52 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/17 18:36:01 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,14 +36,15 @@ class Server
 		void													set_address(struct sockaddr_in &address);
 
 		void													run(void);
-		int														s_recv(int fd, int i, int *nfds);
+		void													run2(void);
+		int														s_recv(int &fd, int i, int *nfds);
 		int														s_send(int i, int *nfds);
 		// int													s_accept();
 		int														s_accept(int j);
 		void													init_pfds(void);
 		void													init_listen_fd(void);
 		void													parse_request(Request &r);
-		void													init_poll(int *nfds);
+		int														init_poll(int *nfds);
 		void													gestion_file_dir(void);
 		void													get_req_route(void);
 		bool													gestion_valid_method(void);
@@ -55,7 +56,7 @@ class Server
 		void													put_resource(void);
 		void													fill_current_rep(void);
 		void													get_index(void);
-		void													compress_array(int *nfds);
+		int														get_pos_socket(void);
 
 
 

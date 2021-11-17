@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/16 10:25:08 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/17 18:35:55 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 
 
 # define RECV_SIZE 131072
-# define SIZE_PFDS 50
+# define SIZE_PFDS 20
 
 /*
 ** FORME COPLIEN
@@ -80,7 +80,7 @@ Server					&Server::operator=(const Server &s)
 		if ((size_t)i < _vect_listen_fd.size())
 			_pfds[i] = s._pfds[i];
 		else
-			_pfds[i].fd = -1;
+			_pfds[i].fd = 0;
 		i++;
 	}
 	return (*this);
@@ -172,7 +172,7 @@ int						Server::s_accept(int j)
 **			-> On malloc (200 correspond a la taille du tableau de socket -> socket a surveiller)
 **			-> On initialise la premiere case :
 **					- .fd : correspond au socket
-**					- .events : aux evenements (POLLIN : Données en attente de lecture)
+**					- .events : aux evenements (POLLRDNORM : Données en attente de lecture)
 */
 void					Server::init_pfds(void)
 {
@@ -182,23 +182,29 @@ void					Server::init_pfds(void)
 	init_listen_fd();
 	bzero(_pfds, SIZE_PFDS);
 	size = _vect_listen_fd.size();
-	while (i < size)
+	while (i < SIZE_PFDS)
 	{
-		_pfds[i].fd = _vect_listen_fd[i];
-		_pfds[i].events = POLLIN;
+		if (i < size)
+		{
+			_pfds[i].fd = _vect_listen_fd[i];
+			_pfds[i].events = POLLIN;
+			_pfds[i].revents = 0;
+		}
+		else
+			_pfds[i].fd = -1;
 		i++;
 	}
 }
 
 
 /*
-** Cette fonction va appeler la fonction poll qui permet de verifier s'il y a des données en attente de lecture (POLLIN) -> Si oui la fonction poll(...) nous avertira
+** Cette fonction va appeler la fonction poll qui permet de verifier s'il y a des données en attente de lecture (POLLRDNORM) -> Si oui la fonction poll(...) nous avertira
 **		1.	_pfds : correspond au tableau de sockets
 **		2.	*nfds : correspond au nombre de socket present dans _pfds (donc a ca size)
 **		3.	-1 : delai d'attente en millisecondes (-1 correspond a un delai d'attente infini)
 **		4.	nbr_count : la fonction poll(...) renvoie le nombre d'éléments du tableau ayant eu un évènement
 */
-void					Server::init_poll(int *nfds)
+int					Server::init_poll(int *nfds)
 {
 	int		nbr_count = poll(_pfds, *nfds, -1);
 
@@ -206,6 +212,7 @@ void					Server::init_poll(int *nfds)
 		throw std::string("Erreur lors du pull");
 	if (nbr_count == 0)
 		throw std::string("Timeout lors du pull");
+	return (nbr_count);
 }
 
 
@@ -470,12 +477,6 @@ int						Server::s_send(int i, int *nfds)
 	std::cout << reponse << std::endl;
 	if ((ret = send(_pfds[i].fd, reponse.c_str(), reponse.size(), 0)) < 0)
 		perror("send");
-	if ((size_t)ret == reponse.size())
-	{
-		close(_pfds[i].fd);
-		_pfds[i].fd = -1;
-		compress_array(nfds);
-	}
 	return (0);
 }
 
@@ -499,37 +500,27 @@ void					Server::get_index()
 	}
 }
 
-int					Server::s_recv(int fd, int i, int *nfds)
+int					Server::s_recv(int &fd, int i, int *nfds)
 {
 	std::string			request;
+	int					ret = 0;
 	char				requete[131072] = { 0 };
 	int					ret_read;
-	(void)fd;
 	(void)nfds;
+	(void)i;
 
-	ret_read = recv(_pfds[i].fd, requete, RECV_SIZE - 1, 0);
+	ret_read = recv(fd, requete, RECV_SIZE, 0);
 	if (ret_read == -1)
 		return (-1);
 	if (ret_read == 0)
-	{
-		close(_pfds[i].fd);
-		_pfds[i].fd = -1;
-		return (-1);
-	}
+		return (0);
 	request = requete;
 	if (!request.empty())
 	{
-		// std::string str("HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 32\n\nHello et Bonjour tout le monde !");
-		// int ret = send(_pfds[i].fd, str.c_str(), str.size() + 1, 0);
-		// if ((size_t)ret ==  str.size() + 1)
-		// {
-		// 	std::cout << "JIFJRJIF" << std::endl;
-		// 	close(_pfds[i].fd);
-		// 	_pfds[i].fd = -1;
-			// _pfds[i].events = POLLOUT;
-			// compress_array(nfds);
-		// }
-		// free(hello);
+		// std::string str("HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 1\n\nHello et Bonjour tout le monde !");
+		// ret = send(fd, str.c_str(), str.size(), 0);
+		// ret = send(fd, "HELLO", 4, 0);
+		// std::cout << "RET : " << ret << std::endl;
 		_current_req.set_request(request);
 		_current_req.parse_request();
 		get_index();
@@ -538,25 +529,20 @@ int					Server::s_recv(int fd, int i, int *nfds)
 		if (s_send(i, nfds) == -1)
 			return (-1);
 	}
-	return (0);
+	return (ret);
 }
 
-void					Server::compress_array(int *nfds)
+int						Server::get_pos_socket(void)
 {
-	int		i;
-	int		j;
+	int		i = 0;
 
-	for (i = 0; i < *nfds; i++)
+	while (i < SIZE_PFDS)
 	{
 		if (_pfds[i].fd == -1)
-		{
-			for(j = i; j < *nfds; j++)
-				_pfds[j].fd = _pfds[j + 1].fd;
-			i--;
-			(*nfds)--;
-		}
+			return (i);
+		i++;
 	}
-	std::cout << "!" << std::endl;
+	return (0);
 }
 
 void					Server::run(void)
@@ -564,6 +550,7 @@ void					Server::run(void)
 	int				nfds;
 	int				i;
 	int				j;
+	int				nbr;
 
 	_index = 0;
 	init_pfds();
@@ -571,30 +558,53 @@ void					Server::run(void)
 	while (true)
 	{
 		i = 0;
-		init_poll(&nfds);
+		nbr = init_poll(&nfds);
 		while (i < nfds)
 		{
 			if (_pfds[i].revents == POLLIN)
 			{
 				j = 0;
+				nbr--;
 				int size = _vect_listen_fd.size();
+				int test = nfds;
 				while (j < nfds)
 				{
 					if (j < size && _pfds[i].fd == _vect_listen_fd[j])
 					{
-						_pfds[nfds].fd = s_accept(j);
-						_pfds[nfds].events = POLLIN;
-						nfds++;
+						int index = get_pos_socket();
+						if (index == 0)
+							index = nfds;
+						_pfds[index].fd = s_accept(j);
+						_pfds[index].events = POLLIN;
+						_pfds[index].revents = 0;
+						if (index >= nfds)
+							nfds++;
 						break ;
 					}
 					j++;
 				}
-				if (j == nfds)
+				if (j == test)
 				{
-					s_recv(_pfds[nfds].fd, i, &nfds);
-					compress_array(&nfds);
+					int ret;
+					if ((ret = s_recv(_pfds[i].fd, i, &nfds)) < 0)
+					{
+						struct pollfd new_p;
+						new_p.fd = -1;
+						new_p.events = POLLIN;
+						_pfds[i] = new_p;
+					}
+					else
+					{
+						close(_pfds[i].fd);
+						struct pollfd new_p;
+						new_p.fd = -1;
+						new_p.events = POLLIN;
+						_pfds[i] = new_p;
+					}
 				}
 			}
+			if (nbr == 0)
+				break ;
 			i++;
 		}
 	}
