@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 16:52:19 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/17 18:39:56 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -284,7 +284,7 @@ int     main(int argc, char **argv)
 	std::ifstream file_config_argv(file.c_str());
 	if (file_config_argv.is_open())
 	{
-		// run(file_config_argv, file);
+		run(file_config_argv, file);
 		file_config_argv.close();
 		file_config.close();
 	}
