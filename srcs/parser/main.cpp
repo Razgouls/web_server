@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/17 18:39:56 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 14:56:51 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,7 @@ void					add_location_server(Route &r, std::pair<std::string, std::string> &info
 	else if (infos.first == "upload_dir")
 	{
 		try {
-			is_dir(infos.second);
+			can_open_dir(infos.second);
 			r.set_path_uploads(infos.second);
 		}
 		catch(std::string const &chaine) {

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 16:49:05 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 15:27:27 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,24 +155,21 @@ void				Response::build_body_response(std::string &path, int code_etat, Request 
 
 	_code_etat = code_etat;
 	build_head_response();
-	if (!tmp_query_string.empty())
+	if (!tmp_query_string.empty() && (_code_etat / 100) != 4)
 	{
-		if (!tmp_query_string.empty())
+		std::list<std::pair<std::string, std::string> >::iterator	it_begin = tmp_query_string.begin();
+		std::list<std::pair<std::string, std::string> >::iterator	it_end = tmp_query_string.end();
+		std::string ret;
+		_body.push_back("INFORMATIONS PAGE");
+		_body.push_back("<ul>");
+		while (it_begin != it_end)
 		{
-			std::list<std::pair<std::string, std::string> >::iterator	it_begin = tmp_query_string.begin();
-			std::list<std::pair<std::string, std::string> >::iterator	it_end = tmp_query_string.end();
-			std::string ret;
-			_body.push_back("INFORMATIONS FORMULAIRE");
-			_body.push_back("<ul>");
-			while (it_begin != it_end)
-			{
-				ret.append("<li>").append((*it_begin).first).append(" -> ").append((*it_begin).second).append("</li>");
-				_body.push_back(ret);
-				ret = "";
-				it_begin++;
-			}
-			_body.push_back("</ul>");
+			ret.append("<li>").append((*it_begin).first).append(" -> ").append((*it_begin).second).append("</li>");
+			_body.push_back(ret);
+			ret = "";
+			it_begin++;
 		}
+		_body.push_back("</ul>");
 	}
 	else
 	{
@@ -219,9 +216,8 @@ void				Response::gestion_errors(std::string &path)
 ** Elle prend en parametre la path, correspondant au fichier en question et une map_error<int, std::string>. (int -> code_erreur et std::string -> path du fichier a afficher en reponse)
 ** A la fin de cette fonction, la reponse est completement build et peut etre envoyée au navigateur
 */
-void				Response::build_response_string(std::string &mess)
+void				Response::build_response_string(std::string mess)
 {
-	_code_etat = 200;
 	build_head_response();
 	_body.push_back("<p>");
 	_body.push_back(mess);

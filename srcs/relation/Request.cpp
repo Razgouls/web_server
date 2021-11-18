@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/16 09:09:58 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 14:14:51 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,23 +56,37 @@ void				Request::get_infos_space(std::string &str, std::string &new_str, size_t 
 	last = str.find(delim, dep);
 }
 
-void				Request::make_query_post()
+void				Request::make_query_post_put()
 {
-	size_t	dep = 0;
-	size_t	rep_find_equal;
-	size_t	rep_find_et;
+	size_t			dep = 0;
+	size_t			rep_find_equal;
+	size_t			rep_find_et;
+	std::string		copy_body;
+	int				check = false;
 
 	_body = _request.substr(_request.find("\r\n\r\n") + 4);
-	while (_body.find("&", dep) != std::string::npos)
+	copy_body = _body;
+	char *ptr = strtok((char *)copy_body.c_str(), " ");
+	while (ptr != NULL)
 	{
-		rep_find_equal = _body.find("=", dep);
-		rep_find_et = _body.find("&", rep_find_equal + 1);
-		_query_string.push_back(std::make_pair(transform_query_char(_body.substr(dep, rep_find_equal - dep)), transform_query_char(_body.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
-		dep = rep_find_et + 1;
+		std::string body_tmp(ptr);
+		while (body_tmp.find("&", dep) != std::string::npos)
+		{
+			check = true;
+			rep_find_equal = body_tmp.find("=", dep);
+			rep_find_et = body_tmp.find("&", rep_find_equal + 1);
+			_query_string.push_back(std::make_pair(transform_query_char(body_tmp.substr(dep, rep_find_equal - dep)), transform_query_char(body_tmp.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
+			dep = rep_find_et + 1;
+		}
+		if (check)
+		{
+			rep_find_equal = body_tmp.find("=", dep);
+			rep_find_et = body_tmp.find(" ", rep_find_equal + 1);
+			_query_string.push_back(std::make_pair(transform_query_char(body_tmp.substr(dep, rep_find_equal - dep)), transform_query_char(body_tmp.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
+			check = false;
+		}
+		ptr = strtok(NULL, " ");
 	}
-	rep_find_equal = _body.find("=", dep);
-	rep_find_et = _body.find("&", rep_find_equal + 1);
-	_query_string.push_back(std::make_pair(transform_query_char(_body.substr(dep, rep_find_equal - dep)), transform_query_char(_body.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
 }
 
 bool				Request::fill_query_string_aux(size_t &last, size_t &dep, std::string &tmp_path, bool id)
@@ -152,10 +166,13 @@ void				Request::parse_request(void)
 	get_infos_space(first_line, _path, dep, last, ' ');		//get path
 	_host = _map_request["Host"];							//get host
 	_content_type = _map_request["Content-Type"];			//get content-type
+	_content_length = _map_request["Content-Length"];
 	if (_method == "GET")
 		fill_query_string();
 	else if (_method == "POST")
-		make_query_post();
+		make_query_post_put();
+	else if (_method == "PUT")
+		make_query_post_put();
 	ss << "http://" << _host << _path;
 	_url_request = ss.str();
 }
@@ -193,6 +210,11 @@ std::string										&Request::get_body(void)
 std::string										&Request::get_content_type(void)
 {
 	return (this->_content_type);
+}
+
+std::string										&Request::get_content_length(void)
+{
+	return (this->_content_length);
 }
 
 std::string										&Request::get_url_request(void)
@@ -242,6 +264,7 @@ std::ostream		&operator<<(std::ostream &os, Request &r)
 	os << BOLDGREEN << "Path\t:  " << WHITE << r.get_path() << std::endl;
 	os << BOLDGREEN << "Url request\t:  " << WHITE << r.get_url_request() << std::endl;
 	os << BOLDGREEN << "Host\t:  " << WHITE << r.get_host() << std::endl;
+	os << BOLDGREEN << "Content-Length\t:  " << WHITE << r.get_content_length() << std::endl;
 	if (!r.get_query_string().empty())
 	{
 		os << BOLDGREEN << "Query string :" << WHITE << std::endl;

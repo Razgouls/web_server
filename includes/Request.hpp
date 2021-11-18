@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/16 09:10:06 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 13:46:16 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ class Request
 		std::string											&get_host(void);
 		std::string											&get_body(void);
 		std::string											&get_content_type(void);
+		std::string											&get_content_length(void);
 		std::list<std::pair<std::string, std::string> >		&get_query_string(void);
 		void												clear(void);
 
@@ -43,8 +44,9 @@ class Request
 		void												fill_query_string(void);
 		bool												fill_query_string_aux(size_t &last, size_t &dep, std::string &tmp_path, bool id);
 		void												get_infos_space(std::string &str, std::string &new_str, size_t &dep, size_t &last, char delim);
-		void												make_query_post();
+		void												make_query_post_put();
 		void												fill_map_request(void);
+		void												make_query_post_put2();
 
 
 	private:
@@ -56,6 +58,7 @@ class Request
 		std::string											_host;
 		std::string											_body;
 		std::string											_content_type;
+		std::string											_content_length;
 		std::list<std::pair<std::string, std::string> >		_query_string;
 };
 

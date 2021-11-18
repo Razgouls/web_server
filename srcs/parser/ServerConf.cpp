@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:16:44 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 16:44:57 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 15:07:50 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,14 @@ ServerConf::ServerConf()
 	this->_host = "";
 	this->_server_name = "";
 	this->_root = "";
+
+	this->_map_error[401] = "./www/errors/401.html";
+	this->_map_error[403] = "./www/errors/403.html";
+	this->_map_error[404] = "./www/errors/404.html";
+	this->_map_error[405] = "./www/errors/405.html";
+	this->_map_error[409] = "./www/errors/409.html";
+	this->_map_error[500] = "./www/errors/500.html";
+	this->_map_error[505] = "./www/errors/504.html";
 }
 
 ServerConf::ServerConf(int listen, std::string host, std::string server_name, std::string root, std::list<Route> list_routes,

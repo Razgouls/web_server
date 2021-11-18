@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 15:38:51 by elie              #+#    #+#             */
-/*   Updated: 2021/11/17 10:06:47 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 14:55:37 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@
 # include <errno.h>
 # include <signal.h>
 # include <sys/ioctl.h>
+# include <sys/stat.h>
 
 # define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
 # define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
@@ -56,6 +57,9 @@ bool									is_valid_infos_location(std::pair<std::string, std::string> &infos)
 bool									is_valid_code(int code);
 int		                                hex_to_dec(std::string hexVal);
 std::string			                    transform_query_char(std::string str);
-void									is_dir(std::string path);
+void									can_open_dir(const std::string &path);
+bool    								is_file(const std::string& filename);
+bool    								is_dir(const std::string& filename);
+
 
 #endif

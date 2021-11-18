@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/17 18:35:55 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 15:35:44 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -354,16 +354,15 @@ void					Server::fill_current_rep(void)
 void					Server::delete_resource(void)
 {
 	std::ifstream		myfile;
-	std::string			mess;
 
 	myfile.open(_current_req.get_path().c_str());
+	_current_rep.set_code_etat(200);
 	if (!myfile.good())
 		_current_rep.build_body_response(_list_server[_index].get_map_error()[404], 404, _current_req);
 	else
 	{
 		remove(_current_req.get_path().c_str());
-		mess.append("File ").append(_current_req.get_path()).append(" is deleted");
-		_current_rep.build_response_string(mess);
+		_current_rep.build_response_string("File " + _current_req.get_path() + " is deleted");
 	}
 }
 
@@ -378,7 +377,43 @@ void					Server::post_resource(void)
 
 void					Server::put_resource(void)
 {
-	
+	// std::cout << _current_req.get_path() << std::endl;
+	std::string		tmp_path(_current_req.get_path());
+	int				last_slash = tmp_path.find("/");
+	std::ofstream	myfile;
+
+	tmp_path.erase(0, last_slash + 1);
+	_current_rep.set_code_etat(200);
+	if (is_file(tmp_path))
+	{
+		myfile.open(tmp_path, std::ofstream::in | std::ofstream::out);
+		if (myfile.good())
+		{
+			if (_current_req.get_content_length() == "0")
+				_current_rep.set_code_etat(204);
+			else
+				myfile << _current_req.get_body();
+			myfile.close();
+			_current_rep.build_response_string("Le contenu a ete ajouté a " + tmp_path);
+		}
+		else
+			_current_rep.build_body_response(_list_server[_index].get_map_error()[403], 403, _current_req);
+	}
+	else if (is_dir(tmp_path))
+		_current_rep.build_body_response(_list_server[_index].get_map_error()[409], 409, _current_req);
+	else
+	{
+		myfile.open(tmp_path, std::ofstream::in | std::ofstream::out);
+		if (!myfile.is_open() || !myfile.good())
+			_current_rep.build_body_response(_list_server[_index].get_map_error()[403], 403, _current_req);
+		else
+		{
+			myfile << _current_req.get_body();
+			myfile.close();
+			_current_rep.set_code_etat(201);
+			_current_rep.build_response_string("Fichier " + tmp_path + " creer et contenu ajouté");
+		}
+	}
 }
 
 
@@ -402,7 +437,6 @@ void					Server::get_resource(void)
 
 	dir = opendir(path.c_str());
 	auto_index = gestion_auto_index();
-	fill_current_rep();
 	if (auto_index.first)
 		_current_rep.build_body_response(path.append("index.html"), 200, _current_req);
 	else if (!dir)
@@ -440,6 +474,7 @@ void					Server::gestion_file_dir()
 {
 	std::string			&method = _current_req.get_method();
 	get_req_route();
+	fill_current_rep();
 	if (!gestion_valid_method())
 		_current_rep.build_body_response(_list_server[_index].get_map_error()[405], 405, _current_req);
 	else if (method == "GET")

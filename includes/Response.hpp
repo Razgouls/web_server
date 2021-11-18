@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:48 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 16:49:21 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 15:22:47 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ class Response
 		void						gestion_errors(std::string &path);
 		void						build_head_response(void);
 		void						build_body_response(std::string &path, int code_etat, Request &req);
-		void						build_response_string(std::string &mess);
+		void						build_response_string(std::string mess);
 		void						add_header_index(void);
 		void						clear();
 

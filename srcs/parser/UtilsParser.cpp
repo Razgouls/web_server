@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 15:38:18 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 12:33:21 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/18 14:56:31 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,13 +134,33 @@ bool									is_valid_code(int code)
 	return (true);
 }
 
-void									is_dir(std::string path)
+void									can_open_dir(const std::string &path)
 {
 	DIR		*dir = opendir(path.c_str());
 
 	if (!dir)
-	{
 		throw std::string("Le dossier " + path + " n'existe pas.");
-	}
 	closedir(dir);
+}
+
+bool									is_dir(const std::string& filename)
+{
+	struct stat buf;
+	if (stat(filename.c_str(), &buf) != -1)
+	{
+		if (buf.st_mode & S_IFDIR)
+			return (true);
+	}
+	return (false);
+}
+
+bool									is_file(const std::string& filename)
+{
+	struct stat buf;
+	if (stat(filename.c_str(), &buf) != -1)
+	{
+		if (buf.st_mode & S_IFREG)
+			return (true);
+	}
+	return (false);
 }
