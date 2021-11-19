@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 11:41:04 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 20:50:57 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,11 +164,6 @@ void				Response::build_response_dir(std::list<std::pair<std::string, unsigned c
 	std::list<std::pair<std::string, unsigned char> >::iterator	it_begin_v = files.begin();
 	std::list<std::pair<std::string, unsigned char> >::iterator	it_end_v = files.end();
 
-	_body_response.append("<html>");
-	_body_response.append("<head>");
-	_body_response.append("<meta charset=\"utf-8\"/>");
-	_body_response.append("<title>Page</title>");
-	_body_response.append("</head>");
 	add_header_index();
 	while (it_begin_v != it_end_v)
 	{
@@ -184,7 +179,6 @@ void				Response::build_response_dir(std::list<std::pair<std::string, unsigned c
 		it_begin_v++;
 	}
 	_body_response.append("<hr />");
-	_body_response.append("</html>");
 }
 
 
@@ -215,12 +209,6 @@ void				Response::build_body_response_aux(std::string &str)
 void				Response::build_body_response(std::pair<int, std::string> infos)
 {
 	std::ifstream				myfile;
-
-	// _body_response.append("<html>");
-	// _body_response.append("<head>");
-	// _body_response.append("<meta charset=\"utf-8\"/>");
-	// _body_response.append("<title>Page</title>");
-	// _body_response.append("</head>");
 	
 	if (infos.first == MESSAGE)
 		_body_response.append(infos.second);
@@ -230,7 +218,6 @@ void				Response::build_body_response(std::pair<int, std::string> infos)
 		_body_response.append(Utils::get_file_content(infos.second));
 		myfile.close();
 	}	
-	_body_response.append("</html>");
 }
 
 
