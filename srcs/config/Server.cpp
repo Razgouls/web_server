@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 11:34:55 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 20:40:37 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 
 # define RECV_SIZE 131072
 # define SIZE_PFDS 20
+# define MAX_CONN 2000
 
 /*
 ** FORME COPLIEN
@@ -137,7 +138,7 @@ void					Server::init_listen_fd(void)
 			close(listen_fd);
 			continue ;
 		}
-		if (listen(listen_fd, 10) < 0)
+		if (listen(listen_fd, MAX_CONN) < 0)
 		{
 			close(listen_fd);
 			continue ;
@@ -580,10 +581,6 @@ int					Server::s_recv(int &fd, int i, int *nfds)
 	request = requete;
 	if (!request.empty())
 	{
-		// std::string str("HTTP/1.1 200 OK\nContent-Type: text/html\nContent-Length: 1\n\nHello et Bonjour tout le monde !");
-		// ret = send(fd, str.c_str(), str.size(), 0);
-		// ret = send(fd, "HELLO", 4, 0);
-		// std::cout << "RET : " << ret << std::endl;
 		_current_req.set_request(request);
 		_current_req.parse_request();
 		get_index();
