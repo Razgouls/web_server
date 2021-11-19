@@ -6,14 +6,14 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/17 18:36:01 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 10:38:24 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include "lib.hpp"
+# include "Utils.hpp"
 # include "ServerConf.hpp"
 # include "Request.hpp"
 # include "Response.hpp"
@@ -34,6 +34,7 @@ class Server
 		void													set_list_server(std::vector<ServerConf> &list_server);
 		void													set_server_fd(int server_fd);
 		void													set_address(struct sockaddr_in &address);
+		void													set_map_error(std::map<int, std::string> &_map_error);
 
 		void													run(void);
 		void													run2(void);
@@ -57,23 +58,26 @@ class Server
 		void													fill_current_rep(void);
 		void													get_index(void);
 		int														get_pos_socket(void);
+		void													init_mime(void);
 
 
 
 	private:
-		Request							_current_req;
-		Response						_current_rep;
-		Route							_current_route;
-		std::vector<ServerConf>			_list_server;
-		int								_server_fd;
-		struct sockaddr_in				_address;
-		struct sockaddr_in				_address2;
-		std::vector<struct sockaddr_in>	_vect_address;
-		std::vector<int>				_vect_listen_fd;
-		struct pollfd					_pfds[50];
-		int								_listen_fd;
-		int								_listen_fd2;
-		int								_index;
+		Request													_current_req;
+		Response												_current_rep;
+		Route													_current_route;
+		std::map<int, std::string>								_current_map_error;
+		std::vector<ServerConf>									_list_server;
+		int														_server_fd;
+		struct sockaddr_in										_address;
+		struct sockaddr_in										_address2;
+		std::vector<struct sockaddr_in>							_vect_address;
+		std::vector<int>										_vect_listen_fd;
+		struct pollfd											_pfds[50];
+		int														_listen_fd;
+		int														_listen_fd2;
+		int														_index;
+		std::map<std::string, std::string>						_mime;
 
 		int								get_socket_fd(void);	
 };

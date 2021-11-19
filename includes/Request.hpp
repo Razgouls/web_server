@@ -6,14 +6,14 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/18 13:46:16 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 10:10:08 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-# include "lib.hpp"
+# include "Utils.hpp"
 
 class Request
 {

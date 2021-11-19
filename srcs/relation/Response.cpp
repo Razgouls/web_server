@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/18 15:27:27 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 11:41:04 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 Response::Response()
 {
-	_code_etat = 404;
+	_code_etat = 200;
+	_content_length = 0;
 }
 
 Response::Response(const Response &r)
@@ -64,53 +65,21 @@ void						Response::clear(void)
 	_content_length = 0;
 	_code_etat = 200;
 	_body.clear();
+	_body2.clear();
+	_body_response.clear();
 }
-
-
-/*
-** Cette fonction va determiner la taille du body de la reponse que le serveur va envoyer au navigateur (le navigateur a besoin de cette info pour afficher le body)
-*/
-void					Response::get_length_body(void)
-{
-	std::list<std::string>::iterator	it_begin = _body.begin();
-	std::list<std::string>::iterator	it_end = _body.end();
-	std::stringstream					tmp_len;
-	int									len = 0;
-
-	while (*it_begin != "<html>")
-		it_begin++;
-	while (it_begin != it_end)
-	{
-		len += (*it_begin).length();
-		it_begin++;
-	}
-	it_begin = _body.begin();
-	while (*it_begin != ("Content-Type: " + _content_type + "\n"))
-		it_begin++;
-	it_begin++;
-	if (len > _limit_body_size)
-		len = _limit_body_size;
-	tmp_len << "Content-Length: " << len << "\n";
-	_body.insert(it_begin, tmp_len.str());
-}
-
 
 /*
 ** Cette fonction va transformer la list<std::string> en une seule string car le body d'une reponse est composé par une longue std::string
 */
 std::string				Response::fill_reponse(void)
 {
-	std::list<std::string>::iterator	it_begin = _body.begin();
-	std::list<std::string>::iterator	it_end = _body.end();
 	std::string							response;
 	
-	get_length_body();
-	while (it_begin != it_end)
-	{
-		response.append(*it_begin);
-		it_begin++;
-	}
-	_body.clear();
+	_content_length = _body_response.length();
+	build_head_response();
+	response = _body2.append(_body_response);
+	clear();
 	return (response);
 }
 
@@ -120,71 +89,18 @@ std::string				Response::fill_reponse(void)
 */
 void				Response::build_head_response(void)
 {
-	std::stringstream	tmp_stream;
-	std::stringstream	tmp_stream2;
+	std::stringstream	s_code_etat;
+	std::stringstream	s_content_length;
 
-	tmp_stream << _code_etat;
-	_body.push_back(_version_http + " " + tmp_stream.str() + "\n");
-	_body.push_back("Content-Type: " + _content_type + "\n");
-	_body.push_back("Location: " + _content_location + "\n");
-	_body.push_back("Server: " + _name_server + "\n");
-	_body.push_back("\n");
-	_body.push_back("<html>");
-	_body.push_back("<head>");
-	_body.push_back("<meta charset=\"utf-8\"/>");
-	_body.push_back("<title>Page</title>");
-	_body.push_back("</head>");
-	_body.push_back("<body>");
-}
+	s_code_etat << _code_etat;
+	s_content_length << _content_length;
 
-
-/*
-** Cette fonction prend en parametre un path (path qui correspond a un fichier ciblé)
-** Elle va créer toute la reponse, à savoir composée de :
-**		1.	L'en-tête
-**		2.	Le body
-** Pour faire cela elle va open le fichier en question et va lire une a une les lignes le composant.
-** Elles vont etre stocké dans une list<std::string>
-*/
-void				Response::build_body_response(std::string &path, int code_etat, Request &req)
-{
-	std::ifstream				myfile;
-	std::string					mytext;
-	std::string					link_page_error;
-	std::list<std::pair<std::string, std::string> >				tmp_query_string = req.get_query_string();
-
-	_code_etat = code_etat;
-	build_head_response();
-	if (!tmp_query_string.empty() && (_code_etat / 100) != 4)
-	{
-		std::list<std::pair<std::string, std::string> >::iterator	it_begin = tmp_query_string.begin();
-		std::list<std::pair<std::string, std::string> >::iterator	it_end = tmp_query_string.end();
-		std::string ret;
-		_body.push_back("INFORMATIONS PAGE");
-		_body.push_back("<ul>");
-		while (it_begin != it_end)
-		{
-			ret.append("<li>").append((*it_begin).first).append(" -> ").append((*it_begin).second).append("</li>");
-			_body.push_back(ret);
-			ret = "";
-			it_begin++;
-		}
-		_body.push_back("</ul>");
-	}
-	else
-	{
-		_body.push_back("<p>");
-		myfile.open(path.c_str());
-		if (!myfile.good())
-			_body.push_back("Le path [" + path + "] de la page d'erreur est introuvable (erreur fichier de configuration)");
-		else
-		{
-			while (getline(myfile, mytext))
-				_body.push_back(mytext);
-		}
-		myfile.close();
-		_body.push_back("</p>");
-	}
+	_body2.append(_version_http + " " + s_code_etat.str() + "\n");
+	_body2.append("Content-Type: " + _content_type + "\n");
+	_body2.append("Content-Length: " + s_content_length.str() + "\n");
+	_body2.append("Location: " + _content_location + "\n");
+	_body2.append("Server: " + _name_server + "\n");
+	_body2.append("\n");
 }
 
 
@@ -194,61 +110,28 @@ void				Response::build_body_response(std::string &path, int code_etat, Request 
 **		2. Si le fichier peut etre ouvert et lu sans soucis
 ** En fonction de cela, une erreur ou non sera retourné
 */
-void				Response::gestion_errors(std::string &path)
+int					Response::gestion_errors(std::string &path)
 {
 	std::ifstream		myfile;
+	int					code = 200;
 
-	myfile.open(path.substr(0, path.find("?")).c_str());
-	_code_etat = 200;
-	if (!myfile.good())
+	if (Utils::is_file(path))
 	{
-		if (errno == ENOENT)
-			_code_etat = 404;
-		else if (errno == EACCES)
-			_code_etat = 403;
-	}
-	myfile.close();
-}
-
-
-/*
-** Cette fonction va appeler toutes les fonctions nécessaires pour creer la reponse
-** Elle prend en parametre la path, correspondant au fichier en question et une map_error<int, std::string>. (int -> code_erreur et std::string -> path du fichier a afficher en reponse)
-** A la fin de cette fonction, la reponse est completement build et peut etre envoyée au navigateur
-*/
-void				Response::build_response_string(std::string mess)
-{
-	build_head_response();
-	_body.push_back("<p>");
-	_body.push_back(mess);
-	_body.push_back("</p>");
-	_body.push_back("</body>");
-	_body.push_back("</html>");
-}
-
-void				Response::build_response_file(std::map<int, std::string> &map_error, std::string &path, Request &req)
-{
-	std::stringstream	tmp;
-
-	gestion_errors(path);
-	if (_code_etat == 200)
-	{
-		if (path.find("favicon.ico") != std::string::npos || (_code_etat != 200 && _code_etat != 301))
+		myfile.open(path.substr(0, path.find("?")).c_str());
+		if (!myfile.good())
 		{
-			build_head_response();
-			_body.push_back("<p>");
-			tmp << "ERROR: " << _code_etat;
-			_body.push_back(tmp.str());
-			_body.push_back("</p>");
+			if (errno == ENOENT)
+				code = 404;
+			else if (errno == EACCES)
+				code = 403;
 		}
-		else
-			build_body_response(path, _code_etat, req);
-		_body.push_back("</body>");
-		_body.push_back("</html>");
+		myfile.close();
 	}
 	else
-		build_body_response(map_error[_code_etat], _code_etat, req);
+		code = -1;
+	return (code);
 }
+
 
 /*
 ** Cette fonction va juste permettre de creer l'entete (design) de la page quand on affiche les repertoire (index.html non present et autonindex on)
@@ -259,17 +142,15 @@ void				Response::build_response_file(std::map<int, std::string> &map_error, std
 */
 void				Response::add_header_index(void)
 {
-	std::string		index_of;
-	_body.push_back("<style>");
-	_body.push_back("hr {");
-	_body.push_back("width: 100%;");
-	_body.push_back("margin-left: auto;");
-	_body.push_back("margin-right: auto;");
-	_body.push_back("}");
-	_body.push_back("</style>");
-	index_of.append("<h1>Index of ").append(_content_location).append("</h1>");
-	_body.push_back(index_of);
-	_body.push_back("<hr />");
+	_body_response.append("<style>");
+	_body_response.append("hr {");
+	_body_response.append("width: 100%;");
+	_body_response.append("margin-left: auto;");
+	_body_response.append("margin-right: auto;");
+	_body_response.append("}");
+	_body_response.append("</style>");
+	_body_response.append("<h1>Index of ").append(_content_location).append("</h1>");
+	_body_response.append("<hr />");
 }
 
 
@@ -283,7 +164,11 @@ void				Response::build_response_dir(std::list<std::pair<std::string, unsigned c
 	std::list<std::pair<std::string, unsigned char> >::iterator	it_begin_v = files.begin();
 	std::list<std::pair<std::string, unsigned char> >::iterator	it_end_v = files.end();
 
-	build_head_response();
+	_body_response.append("<html>");
+	_body_response.append("<head>");
+	_body_response.append("<meta charset=\"utf-8\"/>");
+	_body_response.append("<title>Page</title>");
+	_body_response.append("</head>");
 	add_header_index();
 	while (it_begin_v != it_end_v)
 	{
@@ -295,12 +180,57 @@ void				Response::build_response_dir(std::list<std::pair<std::string, unsigned c
 		if ((*it_begin_v).second == DT_DIR)
 			line.append("/");
 		line.append("</a></p>");
-		_body.push_back(line);
+		_body_response.append(line);
 		it_begin_v++;
 	}
-	_body.push_back("<hr />");
-	_body.push_back("</body>");
-	_body.push_back("</html>");
+	_body_response.append("<hr />");
+	_body_response.append("</html>");
+}
+
+
+/*
+** Cette fonction prend en parametre un path (path qui correspond a un fichier ciblé)
+** Elle va créer toute la reponse, à savoir composée de :
+**		1.	L'en-tête
+**		2.	Le body
+** Pour faire cela elle va open le fichier en question et va lire une a une les lignes le composant.
+** Elles vont etre stocké dans une list<std::string>
+*/
+void				Response::build_body_response_aux(std::string &str)
+{
+	std::ifstream				myfile;
+	std::string					mytext;
+	std::string					link_page_error;
+
+	if (Utils::is_file(str))
+	{
+		myfile.open(str.c_str());
+		_body_response.append(Utils::get_file_content(str));
+		myfile.close();
+	}
+	else
+		_body_response.append(str);
+}
+
+void				Response::build_body_response(std::pair<int, std::string> infos)
+{
+	std::ifstream				myfile;
+
+	// _body_response.append("<html>");
+	// _body_response.append("<head>");
+	// _body_response.append("<meta charset=\"utf-8\"/>");
+	// _body_response.append("<title>Page</title>");
+	// _body_response.append("</head>");
+	
+	if (infos.first == MESSAGE)
+		_body_response.append(infos.second);
+	else if (infos.first == FILE)
+	{
+		myfile.open(infos.second.c_str());
+		_body_response.append(Utils::get_file_content(infos.second));
+		myfile.close();
+	}	
+	_body_response.append("</html>");
 }
 
 

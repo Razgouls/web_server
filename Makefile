@@ -6,7 +6,7 @@
 #    By: elie <elie@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/16 07:45:16 by eoliveir          #+#    #+#              #
-#    Updated: 2021/11/04 21:28:34 by elie             ###   ########.fr        #
+#    Updated: 2021/11/19 11:07:25 by elie             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,14 +30,13 @@ INC= -I ./includes
 
 SRC = srcs
 
-DIR_C = $(addprefix $(SRC)/, parser config relation)
+DIR_C = $(addprefix $(SRC)/, parser config relation utils)
 
-FILES_C = $(addprefix $(SRC)/, $(PARSER) $(CONFIG) $(RELATION))
+FILES_C = $(addprefix $(SRC)/, $(PARSER) $(CONFIG) $(RELATION) $(UTILS))
 
 PARSER		= $(addprefix parser/,			\
 				Route.cpp					\
 				ServerConf.cpp				\
-				UtilsParser.cpp				\
 				main.cpp					\
 			)
 
@@ -48,7 +47,10 @@ CONFIG		= $(addprefix config/,			\
 RELATION	= $(addprefix relation/,		\
 				Response.cpp				\
 				Request.cpp					\
-				UtilsRelation.cpp			\
+			)
+
+UTILS		= $(addprefix utils/,		\
+				Utils.cpp					\
 			)
 
 #############################################

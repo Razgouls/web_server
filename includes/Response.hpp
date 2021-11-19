@@ -6,35 +6,43 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:48 by elie              #+#    #+#             */
-/*   Updated: 2021/11/18 15:22:47 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 11:00:49 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include "lib.hpp"
+# include "Utils.hpp"
 # include "Request.hpp"
 
 class Response
 {
 	public:
+		/*
+		** COPLIEN
+		*/
 		Response();
 		Response(const Response &r);
 		~Response();
-
 		Response					&operator=(const Response &r);
-		void						build_response_dir(std::list<std::pair<std::string, unsigned char> > &files);
-		void						build_response_file(std::map<int, std::string> &map_error, std::string &path, Request &req);
-		void						get_length_body(void);
-		void						gestion_errors(std::string &path);
-		void						build_head_response(void);
-		void						build_body_response(std::string &path, int code_etat, Request &req);
-		void						build_response_string(std::string mess);
-		void						add_header_index(void);
+
+		/*
+		** FUNCTIONS
+		*/
 		void						clear();
+		std::string					fill_reponse(void);
+		void						build_head_response(void);
+		int							gestion_errors(std::string &path);
+		void						build_body_response_aux(std::string &path);
+		void						build_body_response(std::pair<int, std::string> infos);
+		void						add_header_index(void);
+		void						build_response_dir(std::list<std::pair<std::string, unsigned char> > &files);
 
 
+		/*
+		** SETTERS
+		*/
 		void						set_url_request(std::string &url_request);
 		void						set_method(std::string &method);
 		void						set_host(std::string &host);
@@ -48,6 +56,9 @@ class Response
 		void						set_code_etat(int code_etat);
 		void						set_limit_body_size(int limit_body_size);
 
+		/*
+		** GETTERS
+		*/
 		std::string					&get_url_request(void);
 		std::string					&get_method(void);
 		std::string					&get_host(void);
@@ -60,7 +71,6 @@ class Response
 		int							&get_content_length(void);
 		int							&get_code_etat(void);
 		std::list<std::string>		&get_body(void);
-		std::string					fill_reponse(void);
 
 
 	private:
@@ -77,6 +87,8 @@ class Response
 		int							_code_etat;
 		int							_limit_body_size;
 		std::list<std::string>		_body;
+		std::string					_body2;
+		std::string					_body_response;
 };
 
 std::ostream						&operator<<(std::ostream &os, Response &r);

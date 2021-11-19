@@ -6,11 +6,11 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/18 15:35:44 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 11:34:55 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "lib.hpp"
+#include "Utils.hpp"
 #include "Server.hpp"
 #include "Response.hpp"
 #include <errno.h>
@@ -354,64 +354,79 @@ void					Server::fill_current_rep(void)
 void					Server::delete_resource(void)
 {
 	std::ifstream		myfile;
+	std::string			mess("");
 
 	myfile.open(_current_req.get_path().c_str());
-	_current_rep.set_code_etat(200);
 	if (!myfile.good())
-		_current_rep.build_body_response(_list_server[_index].get_map_error()[404], 404, _current_req);
+	{
+		_current_rep.set_code_etat(404);
+		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[404]));
+	}
 	else
 	{
 		remove(_current_req.get_path().c_str());
-		_current_rep.build_response_string("File " + _current_req.get_path() + " is deleted");
+		mess = "File " + _current_req.get_path() + " is deleted";
+		_current_rep.set_code_etat(200);
+		_current_rep.build_body_response(std::make_pair(MESSAGE, mess));
 	}
 }
 
 /*
 ** Cette fonction est appelee si la methode utilisée eatit une methode POST (notammenent pour le formulaire)
 */
+//A RETRAIVAILLER AVEC LE CGI
 void					Server::post_resource(void)
 {
 	std::string tmp_path = _current_req.get_path();
-	_current_rep.build_response_file(_list_server[_index].get_map_error(), tmp_path, _current_req);
+	std::cout << "TMP PATH : [" << tmp_path << "]" << std::endl;
+	// _current_rep.build_body_response(_current_map_error, tmp_path, _current_req);
 }
 
 void					Server::put_resource(void)
 {
-	// std::cout << _current_req.get_path() << std::endl;
 	std::string		tmp_path(_current_req.get_path());
 	int				last_slash = tmp_path.find("/");
 	std::ofstream	myfile;
 
 	tmp_path.erase(0, last_slash + 1);
-	_current_rep.set_code_etat(200);
-	if (is_file(tmp_path))
+	if (Utils::is_file(tmp_path))
 	{
-		myfile.open(tmp_path, std::ofstream::in | std::ofstream::out);
+		myfile.open(tmp_path.c_str(), std::ofstream::in);
 		if (myfile.good())
 		{
 			if (_current_req.get_content_length() == "0")
 				_current_rep.set_code_etat(204);
 			else
 				myfile << _current_req.get_body();
+			_current_rep.set_code_etat(200);
+			_current_rep.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path));
 			myfile.close();
-			_current_rep.build_response_string("Le contenu a ete ajouté a " + tmp_path);
 		}
 		else
-			_current_rep.build_body_response(_list_server[_index].get_map_error()[403], 403, _current_req);
+		{
+			_current_rep.set_code_etat(403);
+			_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
+		}
 	}
-	else if (is_dir(tmp_path))
-		_current_rep.build_body_response(_list_server[_index].get_map_error()[409], 409, _current_req);
+	else if (Utils::is_dir(tmp_path))
+	{
+		_current_rep.set_code_etat(403);
+		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
+	}
 	else
 	{
-		myfile.open(tmp_path, std::ofstream::in | std::ofstream::out);
+		myfile.open(tmp_path.c_str(), std::ofstream::out);
 		if (!myfile.is_open() || !myfile.good())
-			_current_rep.build_body_response(_list_server[_index].get_map_error()[403], 403, _current_req);
+		{
+			_current_rep.set_code_etat(403);
+			_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
+		}
 		else
 		{
 			myfile << _current_req.get_body();
-			myfile.close();
 			_current_rep.set_code_etat(201);
-			_current_rep.build_response_string("Fichier " + tmp_path + " creer et contenu ajouté");
+			_current_rep.build_body_response(std::make_pair(MESSAGE, "Fichier " + tmp_path + " creer et contenu ajouté"));
+			myfile.close();
 		}
 	}
 }
@@ -437,11 +452,21 @@ void					Server::get_resource(void)
 
 	dir = opendir(path.c_str());
 	auto_index = gestion_auto_index();
+	_current_rep.set_content_type(_mime[Utils::get_extension(path)]);
+	_current_rep.set_code_etat(200);
+	if (_current_rep.get_content_type().empty())
+		_current_rep.set_content_type("text/html");
 	if (auto_index.first)
-		_current_rep.build_body_response(path.append("index.html"), 200, _current_req);
+		_current_rep.build_body_response(std::make_pair(FILE, path.append("index.html")));
 	else if (!dir)
 	{
-		_current_rep.build_response_file(_list_server[_index].get_map_error(), path, _current_req);
+		std::string tmp_path = path.substr(0, path.find("?"));
+		std::string new_path = tmp_path;
+		if (!Utils::is_file(new_path))
+			new_path = _current_map_error[404];
+		if (!Utils::permission_read(new_path))
+			new_path = _current_map_error[403];
+		_current_rep.build_body_response(std::make_pair(FILE, new_path));
 	}
 	else if (auto_index.second)
 	{
@@ -458,7 +483,10 @@ void					Server::get_resource(void)
 		_current_rep.build_response_dir(files);
 	}
 	else
-		_current_rep.build_body_response(_list_server[_index].get_map_error()[404], 404, _current_req);
+	{
+		_current_rep.set_code_etat(404);
+		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[404]));
+	}
 }
 
 
@@ -476,7 +504,10 @@ void					Server::gestion_file_dir()
 	get_req_route();
 	fill_current_rep();
 	if (!gestion_valid_method())
-		_current_rep.build_body_response(_list_server[_index].get_map_error()[405], 405, _current_req);
+	{
+		_current_rep.set_code_etat(405);
+		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[405]));
+	}
 	else if (method == "GET")
 		get_resource();
 	else if (method == "POST")
@@ -487,9 +518,6 @@ void					Server::gestion_file_dir()
 		delete_resource();
 	_current_req.clear();
 }
-
-
-
 
 
 /*
@@ -559,6 +587,7 @@ int					Server::s_recv(int &fd, int i, int *nfds)
 		_current_req.set_request(request);
 		_current_req.parse_request();
 		get_index();
+		_current_map_error = _list_server[_index].get_map_error();
 		_current_req.set_path(_list_server[_index].get_root() + _current_req.get_path());
 		std::cout << _current_req << std::endl;
 		if (s_send(i, nfds) == -1)
@@ -645,7 +674,64 @@ void					Server::run(void)
 	}
 }
 
-
+void					Server::init_mime(void)
+{
+	_mime[".acc"] = "audio/aac";
+	_mime[".abw"] = "application/x-abiword";
+	_mime[".arc"] = "application/octet-stream";
+	_mime[".avi"] = "video/x-msvideo";
+	_mime[".azw"] = "application/vnd.amazon.ebook";
+	_mime[".bin"] = "application/octet-stream";
+	_mime[".bmp"] = "image/bmp";
+	_mime[".bz"] = "application/x-bzip";
+	_mime[".bz2"] = "application/x-bzip2";
+	_mime[".csh"] = "application/x-csh";
+	_mime[".css"] = "text/css";
+	_mime[".csv"] = "text/csv";
+	_mime[".doc"] = "application/msword";
+	_mime[".eot"] = "application/vnd.ms-fontobject";
+	_mime[".epub"] = "application/epub+zip";
+	_mime[".gif"] = "image/gif";
+	_mime[".htm"] = "text/html";
+	_mime[".html"] = "text/html";
+	_mime[".ico"] = "image/x-icon";
+	_mime[".ics"] = "text/calendar";
+	_mime[".jar"] = "application/java-archive";
+	_mime[".jpeg"] = "image/jpeg";
+	_mime[".jpg"] = "image/jpeg";
+	_mime[".js"] = "application/javascript";
+	_mime[".json"] = "application/json";
+	_mime[".mid"] = "audio/midi";
+	_mime[".midi"] = "audio/midi";
+	_mime[".mpeg"] = "video/mpeg";
+	_mime[".mpkg"] = "application/vnd.apple.installer+xml";
+	_mime[".odp"] = "application/vnd.oasis.opendocument.presentation";
+	_mime[".ods"] = "application/vnd.oasis.opendocument.spreadsheet";
+	_mime[".odt"] = "application/vnd.oasis.opendocument.text";
+	_mime[".oga"] = "audio/ogg";
+	_mime[".ogv"] = "video/ogg";
+	_mime[".ogx"] = "application/ogg";
+	_mime[".otf"] = "font/otf";
+	_mime[".png"] = "image/png";
+	_mime[".pdf"] = "application/pdf";
+	_mime[".ppt"] = "application/vnd.ms-powerpoint";
+	_mime[".pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+	_mime[".rar"] = "application/x-rar-compressed";
+	_mime[".rtf"] = "application/rtf";
+	_mime[".sh"] = "application/x-sh";
+	_mime[".svg"] = "image/svg+xml";
+	_mime[".swf"] = "application/x-shockwave-flash";
+	_mime[".tar"] = "application/x-tar";
+	_mime[".ts"] = "application/typescript";
+	_mime[".wav"] = "audio/x-wav";
+	_mime[".weba"] = "audio/webm";
+	_mime[".webm"] = "video/webm";
+	_mime[".webp"] = "image/webp";
+	_mime[".xhtml"] = "application/xhtml+xml";
+	_mime[".xml"] = "application/xml";
+	_mime[".zip"] = "application/zip";
+	_mime[".7z"] = "application/x-7z-compressed";
+}
 
 
 /*
@@ -680,4 +766,9 @@ void					Server::set_list_server(std::vector<ServerConf> &list_server)
 void					Server::set_address(struct sockaddr_in &address)
 {
 	this->_address = address;
+}
+
+void					Server::set_map_error(std::map<int, std::string> &_map_error)
+{
+	this->_current_map_error = _map_error;
 }

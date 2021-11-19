@@ -6,14 +6,14 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 13:59:32 by elie              #+#    #+#             */
-/*   Updated: 2021/11/06 11:39:43 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/19 10:10:28 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVERCONF_HPP
 # define SERVERCONF_HPP
 
-# include "lib.hpp"
+# include "Utils.hpp"
 # include "Route.hpp"
 
 class	ServerConf
