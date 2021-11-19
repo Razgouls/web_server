@@ -6,7 +6,7 @@
 #    By: elie <elie@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/16 07:45:16 by eoliveir          #+#    #+#              #
-#    Updated: 2021/11/19 20:57:05 by elie             ###   ########.fr        #
+#    Updated: 2021/11/19 21:01:02 by elie             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ NAME = web_server
 
 CC = clang++ 
 
-FLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
+FLAGS = -Wall -Wextra -Werror -std=c++98
 
 INC= -I ./includes
 
