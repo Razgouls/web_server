@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 10:37:08 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 11:04:49 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -260,6 +260,7 @@ void	run(std::ifstream &file_config, std::string &path)
 		server.run();
 	}
 	catch(std::string const &chaine) {
+		server.clear();
 		file_config.close();
 		throw;
 	}
@@ -268,8 +269,7 @@ void	run(std::ifstream &file_config, std::string &path)
 
 void signal_callback_handler(int signum)
 {
-	(void)signum;
-	exit(0);
+	std::cout << "VOUS AVEZ QUITTE LE PROGRAMME AVEC LE SIGNAL " << signum << std::endl;
 }
 
 int     main(int argc, char **argv)
@@ -278,20 +278,30 @@ int     main(int argc, char **argv)
 	std::string path = "Config/default.conf";
 	std::ifstream file_config(path.c_str());
 	std::string file;
-	
+
 	signal(SIGINT, signal_callback_handler);
 	if (argv[1])
 		file = argv[1];
 	std::ifstream file_config_argv(file.c_str());
 	if (file_config_argv.is_open())
 	{
-		run(file_config_argv, file);
+		try {
+			run(file_config_argv, file);
+		}
+		catch(const std::string& e) {
+			std::cerr << e << std::endl;
+		}	
 		file_config_argv.close();
 		file_config.close();
 	}
 	else
 	{
-		run(file_config, path);
+		try {
+			run(file_config, path);
+		}
+		catch(const std::string &e) {
+			std::cerr << e << '\n';
+		}
 		file_config.close();
 	}
 	return (0);

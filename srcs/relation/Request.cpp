@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 10:13:19 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 10:12:25 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,16 @@
 
 Request::Request()
 {
-
+	_url_request = "";
+	_request = "";
+	_map_request.clear();
+	_method = "";
+	_path = "";
+	_host = "";
+	_body = "";
+	_content_type = "";
+	_content_length = "";
+	_query_string.clear();
 }
 
 Request::Request(const Request &r)
@@ -175,6 +184,16 @@ void				Request::parse_request(void)
 		make_query_post_put();
 	ss << "http://" << _host << _path;
 	_url_request = ss.str();
+}
+
+void				Request::is_valid(void)
+{
+	if (_method.empty())
+		throw std::string("Methode invalid");
+	if (_path.empty())
+		throw std::string("Path invalid");
+	if (_host.empty())
+		throw std::string("Host invalid");
 }
 
 std::string			&Request::get_request(void)

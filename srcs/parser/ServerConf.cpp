@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:16:44 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 10:12:36 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 10:40:45 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,23 @@ ServerConf::~ServerConf()
 
 }
 
+void					ServerConf::clear(void)
+{
+	std::list<Route>::iterator	it_begin = _list_routes.begin();
+	std::list<Route>::iterator	it_end = _list_routes.end();
+
+	_host.clear();
+	_server_name.clear();
+	_root.clear();
+	_map_error.clear();
+
+	while (it_begin != it_end)
+	{
+		(*it_begin).clear();
+		it_begin++;
+	}
+	_list_routes.clear();
+}
 void					ServerConf::set_listen(std::string &listen)
 {
 	int		tmp_port;

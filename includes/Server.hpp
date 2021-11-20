@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 10:38:24 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 11:00:23 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@
 # include "ServerConf.hpp"
 # include "Request.hpp"
 # include "Response.hpp"
+
+# define RECV_SIZE 131072
+# define SIZE_PFDS 20
+# define MAX_CONN 2000
 
 class Server
 {
@@ -59,6 +63,7 @@ class Server
 		void													get_index(void);
 		int														get_pos_socket(void);
 		void													init_mime(void);
+		void													clear(void);
 
 
 
@@ -73,7 +78,7 @@ class Server
 		struct sockaddr_in										_address2;
 		std::vector<struct sockaddr_in>							_vect_address;
 		std::vector<int>										_vect_listen_fd;
-		struct pollfd											_pfds[50];
+		struct pollfd											_pfds[SIZE_PFDS];
 		int														_listen_fd;
 		int														_listen_fd2;
 		int														_index;

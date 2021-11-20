@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 14:59:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/15 16:47:25 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 10:38:12 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,6 +48,15 @@ Route					&Route::operator=(const Route &r)
 Route::~Route()
 {
 
+}
+
+void					Route::clear(void)
+{
+	_path.clear();
+	_index.clear();
+	_list_methods.clear();
+	_auto_index.clear();
+	_path_uploads.clear();
 }
 
 std::string				&Route::get_path(void)

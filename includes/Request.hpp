@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 10:10:08 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 10:08:38 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,6 @@ class Request
 		std::string											&get_content_type(void);
 		std::string											&get_content_length(void);
 		std::list<std::pair<std::string, std::string> >		&get_query_string(void);
-		void												clear(void);
 
 		void												set_path(std::string path);
 
@@ -47,7 +46,9 @@ class Request
 		void												make_query_post_put();
 		void												fill_map_request(void);
 		void												make_query_post_put2();
-
+		void												is_valid(void);
+		void												clear(void);
+	
 
 	private:
 		std::string											_url_request;

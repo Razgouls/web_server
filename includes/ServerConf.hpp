@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 13:59:32 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 10:10:28 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 10:38:53 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,8 @@ class	ServerConf
 		std::list<Route>					&get_list_routes(void);
 		std::map<int, std::string>			&get_map_error(void);
 		int									&get_limite_body_size(void);
+
+		void								clear(void);
 
 	private:
 		int									_listen;

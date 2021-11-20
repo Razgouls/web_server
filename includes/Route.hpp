@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:06:11 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 10:10:21 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 10:37:16 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ class Route
 		void						set_auto_index(std::string &auto_index);
 		void						set_list_methods(std::string &method);
 		void						set_path_uploads(std::string &path_uploads);
+
+		void						clear();
 
 	private:
 		std::string					_path;

@@ -6,19 +6,13 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 21:10:42 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 11:07:53 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Utils.hpp"
 #include "Server.hpp"
 #include "Response.hpp"
-#include <errno.h>
-
-
-# define RECV_SIZE 131072
-# define SIZE_PFDS 20
-# define MAX_CONN 2000
 
 /*
 ** FORME COPLIEN
@@ -81,7 +75,7 @@ Server					&Server::operator=(const Server &s)
 		if ((size_t)i < _vect_listen_fd.size())
 			_pfds[i] = s._pfds[i];
 		else
-			_pfds[i].fd = 0;
+			_pfds[i].fd = -1;
 		i++;
 	}
 	return (*this);
@@ -160,7 +154,7 @@ int						Server::s_accept(int j)
 	int		new_fd;
 
 	if ((new_fd = accept(_vect_listen_fd[j], (struct sockaddr *)&_vect_address[j], (socklen_t *)&len)) < 0)
-		perror("1accept");
+		perror("accept");
 	fcntl(new_fd, F_SETFL, O_NONBLOCK);
 	return (new_fd);
 }
@@ -210,7 +204,7 @@ int					Server::init_poll(int *nfds)
 	int		nbr_count = poll(_pfds, *nfds, -1);
 
 	if (nbr_count < 0)
-		throw std::string("Erreur lors du pull");
+		throw std::string("");
 	if (nbr_count == 0)
 		throw std::string("Timeout lors du pull");
 	return (nbr_count);
@@ -583,6 +577,12 @@ int					Server::s_recv(int &fd, int i, int *nfds)
 	{
 		_current_req.set_request(request);
 		_current_req.parse_request();
+		try {
+			_current_req.is_valid();
+		}
+		catch(const std::string& e) {
+			throw ;
+		}
 		get_index();
 		_current_map_error = _list_server[_index].get_map_error();
 		_current_req.set_path(_list_server[_index].get_root() + _current_req.get_path());
@@ -604,6 +604,26 @@ int						Server::get_pos_socket(void)
 		i++;
 	}
 	return (0);
+}
+
+void					Server::clear(void)
+{
+	int		i = -1;
+	int		size = _list_server.size();
+	
+	_current_req.clear();
+	_current_rep.clear();
+	_current_route.clear();
+	_current_map_error.clear();
+	while (++i < size)
+		_list_server[i].clear();
+	_vect_address.clear();
+	_vect_listen_fd.clear();
+	_mime.clear();
+	i = -1;
+	while (++i < SIZE_PFDS)
+		if (Utils::fd_is_valid(_pfds[i].fd))
+			close(_pfds[i].fd);
 }
 
 void					Server::run(void)
@@ -647,14 +667,20 @@ void					Server::run(void)
 				if (j == test)
 				{
 					int ret;
-					if ((ret = s_recv(_pfds[i].fd, i, &nfds)) < 0)
+					try {
+						ret = s_recv(_pfds[i].fd, i, &nfds);
+					}
+					catch(const std::exception& e) {
+						throw ;
+					}
+					if (ret < 0)
 					{
 						struct pollfd new_p;
 						new_p.fd = -1;
 						new_p.events = POLLIN;
 						_pfds[i] = new_p;
 					}
-					else
+					else if (ret == 0)
 					{
 						close(_pfds[i].fd);
 						struct pollfd new_p;

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 11:43:06 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/20 10:56:51 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -282,6 +282,17 @@ namespace Utils
 		if (stat(filename.c_str(), &buf) != -1)
 		{
 			if (buf.st_mode & S_IXUSR)
+				return (true);
+		}
+		return (false);
+	}
+
+	bool					fd_is_valid(int fd)
+	{
+		struct stat buf;
+		if (fstat(fd, &buf) != -1)
+		{
+			if (buf.st_nlink == 0)
 				return (true);
 		}
 		return (false);
