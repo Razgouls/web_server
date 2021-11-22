@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 20:50:57 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/22 12:23:55 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 Response::Response()
 {
-	_code_etat = 200;
+	_code_etat.first = 200;
+	_code_etat.second = "OK";
 	_content_length = 0;
 }
 
@@ -63,9 +64,10 @@ void						Response::clear(void)
 	_transfert_encoding.clear();
 	_version_http.clear();
 	_content_length = 0;
-	_code_etat = 200;
+	_code_etat.first = 200;
+	_code_etat.second = "OK";
 	_body.clear();
-	_body2.clear();
+	_body_head.clear();
 	_body_response.clear();
 }
 
@@ -78,7 +80,7 @@ std::string				Response::fill_reponse(void)
 	
 	_content_length = _body_response.length();
 	build_head_response();
-	response = _body2.append(_body_response);
+	response = _body_head.append(_body_response);
 	clear();
 	return (response);
 }
@@ -91,16 +93,24 @@ void				Response::build_head_response(void)
 {
 	std::stringstream	s_code_etat;
 	std::stringstream	s_content_length;
+	std::stringstream	s_time_now;
+	time_t				now = time(0);
+	char				*dt = ctime(&now);
 
-	s_code_etat << _code_etat;
+	s_code_etat << _code_etat.first << " " << _code_etat.second;
 	s_content_length << _content_length;
+	s_time_now << "Date: " << dt;
 
-	_body2.append(_version_http + " " + s_code_etat.str() + "\n");
-	_body2.append("Content-Type: " + _content_type + "\n");
-	_body2.append("Content-Length: " + s_content_length.str() + "\n");
-	_body2.append("Location: " + _content_location + "\n");
-	_body2.append("Server: " + _name_server + "\n");
-	_body2.append("\n");
+	_body_head.append(_version_http + " " + s_code_etat.str() + "\n");
+	_body_head.append("Content-Type: " + _content_type + "\n");
+	_body_head.append(s_time_now.str());
+	// _body_head.append("Set-Cookie: yummy_cookie=choco\n");
+	// _body_head.append("Set-Cookie: tasty_cookie=strawberry\n");
+	_body_head.append("Content-Length: " + s_content_length.str() + "\n");
+	_body_head.append("Transfer-Encoding: chunked\n");
+	_body_head.append("Location: " + _content_location + "\n");
+	_body_head.append("Server: " + _name_server + "\n");
+	_body_head.append("\n");
 }
 
 
@@ -273,9 +283,10 @@ void				Response::set_content_length(int content_length)
 	this->_content_length = content_length;
 }
 
-void				Response::set_code_etat(int code_etat)
+void				Response::set_code_etat(int code_etat, std::string mess)
 {
-	this->_code_etat = code_etat;
+	this->_code_etat.first = code_etat;
+	this->_code_etat.second = mess;
 }
 
 
@@ -323,7 +334,7 @@ int					&Response::get_content_length(void)
 {
 	return (this->_content_length);
 }
-int					&Response::get_code_etat(void)
+std::pair<int, std::string>	&Response::get_code_etat(void)
 {
 	return (this->_code_etat);
 }

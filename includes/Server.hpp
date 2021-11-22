@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/20 11:00:23 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/22 13:11:26 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ class Server
 		void													init_listen_fd(void);
 		void													parse_request(Request &r);
 		int														init_poll(int *nfds);
-		void													gestion_file_dir(void);
+		void													gestion_req(void);
 		void													get_req_route(void);
 		bool													gestion_valid_method(void);
 		std::pair<bool, bool>									gestion_auto_index(void);

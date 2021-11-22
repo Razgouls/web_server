@@ -6,13 +6,11 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/20 11:07:53 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/22 13:08:25 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Utils.hpp"
 #include "Server.hpp"
-#include "Response.hpp"
 
 /*
 ** FORME COPLIEN
@@ -354,14 +352,14 @@ void					Server::delete_resource(void)
 	myfile.open(_current_req.get_path().c_str());
 	if (!myfile.good())
 	{
-		_current_rep.set_code_etat(404);
+		_current_rep.set_code_etat(404, "Not Found");
 		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[404]));
 	}
 	else
 	{
 		remove(_current_req.get_path().c_str());
 		mess = "File " + _current_req.get_path() + " is deleted";
-		_current_rep.set_code_etat(200);
+		_current_rep.set_code_etat(200, "OK");
 		_current_rep.build_body_response(std::make_pair(MESSAGE, mess));
 	}
 }
@@ -390,22 +388,22 @@ void					Server::put_resource(void)
 		if (myfile.good())
 		{
 			if (_current_req.get_content_length() == "0")
-				_current_rep.set_code_etat(204);
+				_current_rep.set_code_etat(204, "No Content");
 			else
 				myfile << _current_req.get_body();
-			_current_rep.set_code_etat(200);
+			_current_rep.set_code_etat(200, "OK");
 			_current_rep.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path));
 			myfile.close();
 		}
 		else
 		{
-			_current_rep.set_code_etat(403);
+			_current_rep.set_code_etat(403, "Forbidden");
 			_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
 		}
 	}
 	else if (Utils::is_dir(tmp_path))
 	{
-		_current_rep.set_code_etat(403);
+		_current_rep.set_code_etat(403, "Forbidden");
 		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
 	}
 	else
@@ -413,13 +411,13 @@ void					Server::put_resource(void)
 		myfile.open(tmp_path.c_str(), std::ofstream::out);
 		if (!myfile.is_open() || !myfile.good())
 		{
-			_current_rep.set_code_etat(403);
+			_current_rep.set_code_etat(403, "Forbidden");
 			_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
 		}
 		else
 		{
 			myfile << _current_req.get_body();
-			_current_rep.set_code_etat(201);
+			_current_rep.set_code_etat(201, "Created");
 			_current_rep.build_body_response(std::make_pair(MESSAGE, "Fichier " + tmp_path + " creer et contenu ajouté"));
 			myfile.close();
 		}
@@ -448,7 +446,7 @@ void					Server::get_resource(void)
 	dir = opendir(path.c_str());
 	auto_index = gestion_auto_index();
 	_current_rep.set_content_type(_mime[Utils::get_extension(path)]);
-	_current_rep.set_code_etat(200);
+	_current_rep.set_code_etat(200, "OK");
 	if (_current_rep.get_content_type().empty())
 		_current_rep.set_content_type("text/html");
 	if (auto_index.first)
@@ -458,9 +456,15 @@ void					Server::get_resource(void)
 		std::string tmp_path = path.substr(0, path.find("?"));
 		std::string new_path = tmp_path;
 		if (!Utils::is_file(new_path))
+		{
+			_current_rep.set_code_etat(404, "Not Found");
 			new_path = _current_map_error[404];
+		}
 		if (!Utils::permission_read(new_path))
+		{
+			_current_rep.set_code_etat(301, "Forbidden");
 			new_path = _current_map_error[403];
+		}
 		_current_rep.build_body_response(std::make_pair(FILE, new_path));
 	}
 	else if (auto_index.second)
@@ -469,17 +473,17 @@ void					Server::get_resource(void)
 		_current_rep.set_content_location(path);
 		if (*(path.rbegin()) != '/')
 		{
-			_current_rep.set_code_etat(301);
+			_current_rep.set_code_etat(301, "Moved Permanently");
 			std::size_t found = path.find_last_of("/");
 			_current_rep.set_content_location(path.substr(found + 1).append("/"));
 		}
 		else
-			_current_rep.set_code_etat(200);
+			_current_rep.set_code_etat(200, "OK");
 		_current_rep.build_response_dir(files);
 	}
 	else
 	{
-		_current_rep.set_code_etat(404);
+		_current_rep.set_code_etat(404, "Not Found");
 		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[404]));
 	}
 }
@@ -493,14 +497,14 @@ void					Server::get_resource(void)
 **				-> NON : On build le body de la reponse avec le fichier 405.html et on sort de la fonction (Method Not Allowed)
 **		3.	On appelle la fonction adequat en fonction de la methode (GET, POST ou DELETE)
 */
-void					Server::gestion_file_dir()
+void					Server::gestion_req()
 {
 	std::string			&method = _current_req.get_method();
 	get_req_route();
 	fill_current_rep();
 	if (!gestion_valid_method())
 	{
-		_current_rep.set_code_etat(405);
+		_current_rep.set_code_etat(405, "Method Not Allowed");
 		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[405]));
 	}
 	else if (method == "GET")
@@ -530,9 +534,9 @@ int						Server::s_send(int i, int *nfds)
 	std::string	reponse;
 	int			ret = 0;
 
-	gestion_file_dir();
+	gestion_req();
 	reponse = _current_rep.fill_reponse();
-	std::cout << reponse << std::endl;
+	std::cout << reponse.substr(0, 2000) << std::endl;
 	if ((ret = send(_pfds[i].fd, reponse.c_str(), reponse.size(), 0)) < 0)
 		perror("send");
 	return (0);

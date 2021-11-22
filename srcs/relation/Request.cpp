@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/20 10:12:25 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/22 11:03:05 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,7 @@ Request::Request()
 	_map_request.clear();
 	_method = "";
 	_path = "";
+	_path_query = "";
 	_host = "";
 	_body = "";
 	_content_type = "";
@@ -31,12 +32,13 @@ Request::Request(const Request &r)
 	this->_request = r._request;
 	this->_method = r._method;
 	this->_path = r._path;
+	this->_path_query = r._path_query;
 	this->_host = r._host;
 	this->_query_string = r._query_string;
 }
 
-Request::Request(std::string url_request, std::string request, std::string method, std::string path, std::string host, std::string body, std::list<std::pair<std::string, std::string> > query_string) :
-					_url_request(url_request), _request(request), _method(method), _path(path), _host(host), _body(body), _query_string(query_string)
+Request::Request(std::string url_request, std::string request, std::string method, std::string path, std::string path_query, std::string host, std::string body, std::list<std::pair<std::string, std::string> > query_string) :
+					_url_request(url_request), _request(request), _method(method), _path(path), _path_query(path_query), _host(host), _body(body), _query_string(query_string)
 {
 	
 }
@@ -52,6 +54,7 @@ Request				&Request::operator=(Request &r)
 	this->_request = r._request;
 	this->_method = r._method;
 	this->_path = r._path;
+	this->_path_query = r._path_query;
 	this->_host = r._host;
 	this->_query_string = r._query_string;
 
@@ -118,13 +121,13 @@ bool				Request::fill_query_string_aux(size_t &last, size_t &dep, std::string &t
 
 void				Request::fill_query_string(void)
 {
-	size_t			occ = _path.find("?");
+	size_t			occ = _path_query.find("?");
 
-	if (occ == std::string::npos || _path.length() - 1 == occ)
+	if (occ == std::string::npos || _path_query.length() - 1 == occ)
 		return ;
 
-	size_t			dep = (_path.find("?")) + 1;
-	std::string 	tmp_path = _path.substr(dep);
+	size_t			dep = (_path_query.find("?")) + 1;
+	std::string 	tmp_path = _path_query.substr(dep);
 	size_t			last = tmp_path.find("&");
 
 	dep = 0;
@@ -164,17 +167,28 @@ void				Request::parse_request(void)
 {
 	std::stringstream			ss;
 	size_t						last = 0;
+	size_t						last_tmp = 0;
 	size_t						dep = 0;
+	size_t						dep_tmp = 0;
 	std::string					first_line;
 	
 	last = _request.find("\n");
 	first_line = _request.substr(dep, last - 1);
-	fill_map_request();										//fill make_request
+	fill_map_request();														//fill make_request
 	last = first_line.find(" ");
-	get_infos_space(first_line, _method, dep, last, ' ');	//get method
-	get_infos_space(first_line, _path, dep, last, ' ');		//get path
-	_host = _map_request["Host"];							//get host
-	_content_type = _map_request["Content-Type"];			//get content-type
+	get_infos_space(first_line, _method, dep, last, ' ');					//get method
+	dep_tmp = dep;
+	last_tmp = first_line.find("?");
+	if (last_tmp != std::string::npos)
+		get_infos_space(first_line, _path, dep_tmp, last_tmp, '?');			//get path
+	else
+	{
+		last_tmp = last;
+		get_infos_space(first_line, _path, dep_tmp, last_tmp, ' ');			//get path
+	}
+	get_infos_space(first_line, _path_query, dep, last, '?');				//get path_query
+	_host = _map_request["Host"];											//get host
+	_content_type = _map_request["Content-Type"];							//get content-type
 	_content_length = _map_request["Content-Length"];
 	if (_method == "GET")
 		fill_query_string();
@@ -214,6 +228,11 @@ std::string										&Request::get_method(void)
 std::string										&Request::get_path(void)
 {
 	return (this->_path);
+}
+
+std::string										&Request::get_path_query(void)
+{
+	return (this->_path_query);
 }
 
 std::string										&Request::get_host(void)
@@ -281,6 +300,7 @@ std::ostream		&operator<<(std::ostream &os, Request &r)
 	os << BOLDRED << "=================================================================" << WHITE << std::endl;
 	os << BOLDGREEN << "Method\t:  " << WHITE << r.get_method() << std::endl;
 	os << BOLDGREEN << "Path\t:  " << WHITE << r.get_path() << std::endl;
+	os << BOLDGREEN << "Path Query\t:  " << WHITE << r.get_path_query() << std::endl;
 	os << BOLDGREEN << "Url request\t:  " << WHITE << r.get_url_request() << std::endl;
 	os << BOLDGREEN << "Host\t:  " << WHITE << r.get_host() << std::endl;
 	os << BOLDGREEN << "Content-Length\t:  " << WHITE << r.get_content_length() << std::endl;

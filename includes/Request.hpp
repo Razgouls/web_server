@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/20 10:08:38 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/22 10:54:41 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ class Request
 	public:
 		Request();
 		Request(const Request &r);
-		Request(std::string url_request, std::string request, std::string method, std::string path, std::string host, std::string body, std::list<std::pair<std::string, std::string> > query_string);
+		Request(std::string url_request, std::string request, std::string method, std::string path, std::string path_query, std::string host, std::string body, std::list<std::pair<std::string, std::string> > query_string);
 		~Request();
 
 		Request												&operator=(Request &r);
@@ -31,6 +31,7 @@ class Request
 		std::map<std::string, std::string>					&get_map_request(void);
 		std::string											&get_method(void);
 		std::string											&get_path(void);
+		std::string											&get_path_query(void);
 		std::string											&get_host(void);
 		std::string											&get_body(void);
 		std::string											&get_content_type(void);
@@ -56,6 +57,7 @@ class Request
 		std::map<std::string, std::string>					_map_request;
 		std::string											_method;
 		std::string											_path;
+		std::string											_path_query;
 		std::string											_host;
 		std::string											_body;
 		std::string											_content_type;

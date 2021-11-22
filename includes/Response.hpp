@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:48 by elie              #+#    #+#             */
-/*   Updated: 2021/11/19 11:00:49 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/22 12:13:16 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@ class Response
 		void						set_version_http(std::string version_http);
 		void						set_date(time_t date);
 		void						set_content_length(int content_length);
-		void						set_code_etat(int code_etat);
+		void						set_code_etat(int code_etat, std::string mess);
 		void						set_limit_body_size(int limit_body_size);
 
 		/*
@@ -69,7 +69,7 @@ class Response
 		std::string					&get_version_http(void);
 		time_t						&get_date(void);
 		int							&get_content_length(void);
-		int							&get_code_etat(void);
+		std::pair<int, std::string>	&get_code_etat(void);
 		std::list<std::string>		&get_body(void);
 
 
@@ -84,10 +84,10 @@ class Response
 		std::string					_version_http;
 		time_t						_date;
 		int							_content_length;
-		int							_code_etat;
+		std::pair<int, std::string>	_code_etat;
 		int							_limit_body_size;
 		std::list<std::string>		_body;
-		std::string					_body2;
+		std::string					_body_head;
 		std::string					_body_response;
 };
 
