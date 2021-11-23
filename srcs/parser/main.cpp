@@ -6,13 +6,13 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/17 18:39:56 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:31:21 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ServerConf.hpp"
 #include "Route.hpp"
-#include "lib.hpp"
+#include "Utils.hpp"
 #include "Server.hpp"
 
 void					add_infos_server(ServerConf &serv_conf, std::pair<std::string, std::string> &infos)
@@ -33,7 +33,7 @@ void					add_infos_server(ServerConf &serv_conf, std::pair<std::string, std::str
 		std::string html_error = infos.second.substr(code_error.length() + 1, infos.second.length() - code_error.length() - 1);
 		std::pair<int, std::string>	tmp;
 		tmp.first = atoi(code_error.c_str());
-		if (!is_valid_code(tmp.first))
+		if (!UtilsParser::is_valid_code(tmp.first))
 			throw std::string("Code " + code_error + " non valide.");
 		tmp.second = html_error;
 		serv_conf.set_map_error(tmp);
@@ -117,13 +117,17 @@ void					add_location_server(Route &r, std::pair<std::string, std::string> &info
 	else if (infos.first == "upload_dir")
 	{
 		try {
-			is_dir(infos.second);
+			UtilsDir::can_open_dir(infos.second);
 			r.set_path_uploads(infos.second);
 		}
 		catch(std::string const &chaine) {
 			throw;
 		}
 	}
+	else if (infos.first == "cgi_extension")
+		r.set_cgi_extension(infos.second);
+	else if (infos.first == "cgi_bin")
+		r.set_cgi_bin(infos.second);
 	else
 	{
 		if (infos.second.empty())
@@ -145,15 +149,15 @@ void				createRoute(std::ifstream &file_config, std::string &line, Route &r)
 	std::pair<std::string, std::string>		infos;
 	std::pair<bool, std::string>			path_location;
 
-	path_location = get_path_location(line);
+	path_location = UtilsParser::get_path_location(line);
 	if (!path_location.first)
 		throw std::string("Path de la location invalid (minimum /).");
-	if (!syntax_bracket_open(file_config, line))
+	if (!UtilsParser::syntax_bracket_open(file_config, line))
 		throw std::string("Erreur de bracket pour le bloc location.");											//ERROR
 	while (getline(file_config, line) && line.find("}") == std::string::npos)
 	{
-		infos = get_infos_line(line);
-		if (!is_valid_infos_location(infos))
+		infos = UtilsParser::get_infos_line(line);
+		if (!UtilsParser::is_valid_infos_location(infos))
 			throw std::string("Location : Mot clé invalide ou \";\" manquant.");									//ERROR
 		try {
 			add_location_server(r, infos);
@@ -170,7 +174,7 @@ void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, s
 	std::pair<std::string, std::string>		infos;
 	int										ret;
 
-	if (!syntax_bracket_open(file_config, line))
+	if (!UtilsParser::syntax_bracket_open(file_config, line))
 		throw std::string("Erreur de bracket pour le bloc server.");							//ERROR
 	while (getline(file_config, line))
 	{
@@ -189,8 +193,8 @@ void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, s
 		}
 		else if (line != "" && line.find("}") == std::string::npos)
 		{
-			infos = get_infos_line(line);
-			ret = is_valid_infos_server(infos);
+			infos = UtilsParser::get_infos_line(line);
+			ret = UtilsParser::is_valid_infos_server(infos);
 			if (ret == 1)
 				throw std::string("Server " + server_conf.get_server_name() + ": [" + infos.second + "] --> \";\" manquant");					//ERROR
 			if (ret == 2)
@@ -234,13 +238,13 @@ std::vector<ServerConf>		createListServerConf(std::ifstream &file_config)
 	return (list_server_conf);
 }
 
-void	run(std::ifstream &file_config, std::string &path)
+void	run(std::ifstream &file_config, std::string &path, char **env)
 {
 	std::vector<ServerConf>		list_servers;
 	Server						server;
 
 	try {
-		syntax_bracket(path);
+		UtilsParser::syntax_bracket(path);
 		list_servers = createListServerConf(file_config);
 	}
 	catch(std::string const &chaine) {
@@ -255,10 +259,12 @@ void	run(std::ifstream &file_config, std::string &path)
 		it_begin++;
 	}
 	server.set_list_server(list_servers);
+	server.init_mime();
 	try {
-		server.run();
+		server.run(env);
 	}
 	catch(std::string const &chaine) {
+		server.clear();
 		file_config.close();
 		throw;
 	}
@@ -267,30 +273,39 @@ void	run(std::ifstream &file_config, std::string &path)
 
 void signal_callback_handler(int signum)
 {
-	(void)signum;
-	exit(0);
+	std::cout << "VOUS AVEZ QUITTE LE PROGRAMME AVEC LE SIGNAL " << signum << std::endl;
 }
 
-int     main(int argc, char **argv)
+int     main(int argc, char **argv, char **env)
 {
 	(void)argc;
 	std::string path = "Config/default.conf";
 	std::ifstream file_config(path.c_str());
 	std::string file;
-	
+
 	signal(SIGINT, signal_callback_handler);
 	if (argv[1])
 		file = argv[1];
 	std::ifstream file_config_argv(file.c_str());
 	if (file_config_argv.is_open())
 	{
-		run(file_config_argv, file);
+		try {
+			run(file_config_argv, file, env);
+		}
+		catch(const std::string& e) {
+			std::cerr << e << std::endl;
+		}	
 		file_config_argv.close();
 		file_config.close();
 	}
 	else
 	{
-		run(file_config, path);
+		try {
+			run(file_config, path, env);
+		}
+		catch(const std::string &e) {
+			std::cerr << e << '\n';
+		}
 		file_config.close();
 	}
 	return (0);
