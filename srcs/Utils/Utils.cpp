@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/20 10:56:51 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 17:31:08 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ namespace Utils
 
 	bool									is_valid_infos_location(std::pair<std::string, std::string> &infos)
 	{
-		std::string opt_location[] = { "methods", "index", "autoindex", "root", "upload_dir" };
+		std::string opt_location[] = { "methods", "index", "autoindex", "root", "upload_dir", "cgi_extension", "cgi_bin" };
 		size_t		i = 0;
 		size_t		size = opt_location->size();
 
@@ -297,4 +297,11 @@ namespace Utils
 		}
 		return (false);
 	}
-} // namespace Utils
+
+	int						last_line_chunked(std::string &req)
+	{
+		if (req.find("0\r\n\r\n") != std::string::npos)
+			return (0);
+		return (1);
+	}
+}

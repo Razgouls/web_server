@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/22 13:08:25 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:15:12 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,7 +148,7 @@ void					Server::init_listen_fd(void)
 */
 int						Server::s_accept(int j)
 {
-	int		len = sizeof(_address);
+	int		len = sizeof(sockaddr_in);
 	int		new_fd;
 
 	if ((new_fd = accept(_vect_listen_fd[j], (struct sockaddr *)&_vect_address[j], (socklen_t *)&len)) < 0)
@@ -277,7 +277,7 @@ bool					Server::gestion_valid_method(void)
 **		--> Le premier bool indique si le fichier index.html existe
 **		--> Le deuxieme bool indique si l'autoindex est à on ou off
 */
-std::pair<bool, bool>	Server::gestion_auto_index(void)
+int		Server::gestion_auto_index(void)
 {
 	std::ifstream		myfile;
 	std::string			index;
@@ -286,10 +286,10 @@ std::pair<bool, bool>	Server::gestion_auto_index(void)
 	index = path.append("index.html");
 	myfile.open(index.c_str());
 	if (myfile.good() && !_current_route.get_index().empty())
-		return (std::make_pair(true, true));
+		return (INDEX);
 	else if (_current_route.get_auto_index() == "on")
-		return (std::make_pair(false, true));
-	return (std::make_pair(false, false));
+		return (AUTOINDEX);
+	return (NONE);
 }
 
 
@@ -326,6 +326,7 @@ std::list<std::pair<std::string, unsigned char> >	Server::get_file_in_dir(DIR *d
 */
 void					Server::fill_current_rep(void)
 {
+	_current_rep.set_code_etat(200, "OK");
 	_current_rep.set_method(_current_req.get_method());
 	_current_rep.set_host(_current_req.get_host());
 	_current_rep.set_url_request(_current_req.get_url_request());
@@ -372,7 +373,7 @@ void					Server::post_resource(void)
 {
 	std::string tmp_path = _current_req.get_path();
 	std::cout << "TMP PATH : [" << tmp_path << "]" << std::endl;
-	// _current_rep.build_body_response(_current_map_error, tmp_path, _current_req);
+	// _current_rep.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path));
 }
 
 void					Server::put_resource(void)
@@ -436,20 +437,57 @@ void					Server::put_resource(void)
 **								OUI : On build l'arborescence du dossier correspondant (on effectue eventuellement une redirection 301 s'il manque le '/' a la fin alors que cest un dossier)
 **							SINON : On build une erreur 404 (car on opendir un dossier mais il n'y avait pas d'index.html et l'autoindex etait a off)
 */
-void					Server::get_resource(void)
+void					Server::get_resource(char **env)
 {
 	std::list<std::pair<std::string, unsigned char> >	files;
-	std::pair<bool, bool>								auto_index;
+	int													ret;
 	DIR													*dir;
 	std::string											path = _current_req.get_path();
 
 	dir = opendir(path.c_str());
-	auto_index = gestion_auto_index();
+	ret = gestion_auto_index();
 	_current_rep.set_content_type(_mime[Utils::get_extension(path)]);
-	_current_rep.set_code_etat(200, "OK");
-	if (_current_rep.get_content_type().empty())
-		_current_rep.set_content_type("text/html");
-	if (auto_index.first)
+
+
+
+
+	if (Utils::get_extension(path) == _current_route.get_cgi_extension())
+	{
+		CGI		cgi;
+
+		cgi.set_cgi_bin(_current_route.get_cgi_bin());
+		cgi.set_cgi_extension(_current_route.get_cgi_extension());
+		cgi.add_var_env("GATEWAY_INTERFACE", "CGI/1.1");
+		cgi.add_var_env("HTTP_ACCEPT", _current_req.get_map_request()["Accept"]);
+		cgi.add_var_env("HTTP_ACCEPT_LANGUAGE", _current_req.get_map_request()["Accept-Language"]);
+		cgi.add_var_env("HTTP_ACCEPT_ENCODING", _current_req.get_map_request()["Accept-Encoding"]);
+		cgi.add_var_env("HTTP_CONNECTION", _current_req.get_map_request()["Connection"]);
+		// cgi.add_var_env("HTTP_HOST", _h)
+
+		pid_t	pid;
+		int		status;
+
+		pid = fork();
+		if (pid == 0)
+		{
+			char **t = (char **)malloc(sizeof(char *) * 3);
+			t[0] = strdup("/usr/bin/php-cgi");
+			t[1] = strdup(path.c_str());
+			t[2] = 0;
+			std::cout << "PATH : [" << path << "]" << std::endl;
+			if (execve("/usr/bin/php-cgi", t, env)  == -1)
+				perror("ERROR EXECVE");
+			exit(0);
+		}
+		else
+			waitpid(pid, &status, 0);
+	}
+
+
+
+
+
+	else if (ret == INDEX)
 		_current_rep.build_body_response(std::make_pair(FILE, path.append("index.html")));
 	else if (!dir)
 	{
@@ -467,7 +505,7 @@ void					Server::get_resource(void)
 		}
 		_current_rep.build_body_response(std::make_pair(FILE, new_path));
 	}
-	else if (auto_index.second)
+	else if (ret == AUTOINDEX)
 	{
 		files = get_file_in_dir(dir);
 		_current_rep.set_content_location(path);
@@ -497,7 +535,7 @@ void					Server::get_resource(void)
 **				-> NON : On build le body de la reponse avec le fichier 405.html et on sort de la fonction (Method Not Allowed)
 **		3.	On appelle la fonction adequat en fonction de la methode (GET, POST ou DELETE)
 */
-void					Server::gestion_req()
+void					Server::gestion_req(char **env)
 {
 	std::string			&method = _current_req.get_method();
 	get_req_route();
@@ -508,7 +546,7 @@ void					Server::gestion_req()
 		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[405]));
 	}
 	else if (method == "GET")
-		get_resource();
+		get_resource(env);
 	else if (method == "POST")
 		post_resource();
 	else if (method == "PUT")
@@ -528,13 +566,12 @@ void					Server::gestion_req()
 **		1.	Build la reponse correspond (head + body) en fonction de la requete envoyée par le navigateur (donc le client)
 **		2.	Envoyer cette dernière au navigateur (donc au client) pour qu'il l'affiche
 */
-int						Server::s_send(int i, int *nfds)
+int						Server::s_send(int i, char **env)
 {
-	(void)nfds;
 	std::string	reponse;
 	int			ret = 0;
 
-	gestion_req();
+	gestion_req(env);
 	reponse = _current_rep.fill_reponse();
 	std::cout << reponse.substr(0, 2000) << std::endl;
 	if ((ret = send(_pfds[i].fd, reponse.c_str(), reponse.size(), 0)) < 0)
@@ -562,11 +599,46 @@ void					Server::get_index()
 	}
 }
 
-int					Server::s_recv(int &fd, int i, int *nfds)
+// int					Server::s_recv(int &fd, int i, int *nfds)
+// {
+// 	std::string			request;
+// 	int					ret = 0;
+// 	char				requete[131072] = { 0 };
+// 	int					ret_read;
+// 	(void)nfds;
+// 	(void)i;
+
+// 	ret_read = recv(fd, requete, RECV_SIZE, 0);
+// 	if (ret_read == -1)
+// 		return (-1);
+// 	if (ret_read == 0)
+// 		return (0);
+// 	request = requete;
+// 	if (!request.empty())
+// 	{
+// 		_current_req.set_request(request);
+// 		_current_req.parse_request();
+// 		try {
+// 			_current_req.is_valid();
+// 		}
+// 		catch(const std::string& e) {
+// 			throw ;
+// 		}
+// 		get_index();
+// 		_current_map_error = _list_server[_index].get_map_error();
+// 		_current_req.set_path(_list_server[_index].get_root() + _current_req.get_path());
+// 		std::cout << _current_req << std::endl;
+// 		if (s_send(i, nfds) == -1)
+// 			return (-1);
+// 	}
+// 	return (ret_read);
+// }
+
+int					Server::s_recv(int &fd, int i, int *nfds, char **env)
 {
 	std::string			request;
 	int					ret = 0;
-	char				requete[131072] = { 0 };
+	char				requete[RECV_SIZE] = { 0 };
 	int					ret_read;
 	(void)nfds;
 	(void)i;
@@ -576,23 +648,34 @@ int					Server::s_recv(int &fd, int i, int *nfds)
 		return (-1);
 	if (ret_read == 0)
 		return (0);
-	request = requete;
-	if (!request.empty())
+	_requests[fd] += requete;
+	if (_requests[fd].find("\r\n\r\n") != std::string::npos)
 	{
-		_current_req.set_request(request);
-		_current_req.parse_request();
-		try {
-			_current_req.is_valid();
+		if (_requests[fd].find("Transfer-Encoding: chunked") != std::string::npos)
+		{
+			std::cout << "ICI" << std::endl;
+			ret = Utils::last_line_chunked(_requests[fd]);
 		}
-		catch(const std::string& e) {
-			throw ;
+		if (ret == 0)
+		{
+			// char hello[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n26\r\nVoici les donnees du premier morceau\r\n\r\n1C\r\net voici un second morceau\r\n\r\n20\r\net voici deux derniers morceaux \r\n12\r\nsans saut de ligne\r\n0\r\n\r\n";
+			// send(_pfds[i].fd, hello, 1024, 0);
+			_current_req.set_request(_requests[fd]);
+			_current_req.parse_request();
+			try {
+				_current_req.is_valid();
+			}
+			catch(const std::string& e) {
+				throw ;
+			}
+			get_index();
+			_current_map_error = _list_server[_index].get_map_error();
+			_current_req.set_path(_list_server[_index].get_root() + _current_req.get_path());
+			std::cout << _current_req << std::endl;
+			s_send(i, env);
+			_requests[fd].clear();
+			_requests.erase(fd);
 		}
-		get_index();
-		_current_map_error = _list_server[_index].get_map_error();
-		_current_req.set_path(_list_server[_index].get_root() + _current_req.get_path());
-		std::cout << _current_req << std::endl;
-		if (s_send(i, nfds) == -1)
-			return (-1);
 	}
 	return (ret);
 }
@@ -630,7 +713,7 @@ void					Server::clear(void)
 			close(_pfds[i].fd);
 }
 
-void					Server::run(void)
+void					Server::run(char **env)
 {
 	int				nfds;
 	int				i;
@@ -672,7 +755,7 @@ void					Server::run(void)
 				{
 					int ret;
 					try {
-						ret = s_recv(_pfds[i].fd, i, &nfds);
+						ret = s_recv(_pfds[i].fd, i, &nfds, env);
 					}
 					catch(const std::exception& e) {
 						throw ;
@@ -775,11 +858,6 @@ std::vector<ServerConf>	&Server::get_list_server(void)
 	return (this->_list_server);
 }
 
-struct sockaddr_in		&Server::get_address(void)
-{
-	return (this->_address);
-}
-
 void					Server::set_server_fd(int server_fd)
 {
 	this->_server_fd = server_fd;
@@ -788,11 +866,6 @@ void					Server::set_server_fd(int server_fd)
 void					Server::set_list_server(std::vector<ServerConf> &list_server)
 {
 	this->_list_server = list_server;
-}
-
-void					Server::set_address(struct sockaddr_in &address)
-{
-	this->_address = address;
 }
 
 void					Server::set_map_error(std::map<int, std::string> &_map_error)

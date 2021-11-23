@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/22 12:23:55 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 15:43:24 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ void				Response::build_head_response(void)
 	// _body_head.append("Set-Cookie: yummy_cookie=choco\n");
 	// _body_head.append("Set-Cookie: tasty_cookie=strawberry\n");
 	_body_head.append("Content-Length: " + s_content_length.str() + "\n");
-	_body_head.append("Transfer-Encoding: chunked\n");
+	// _body_head.append("Transfer-Encoding: chunked\n");
 	_body_head.append("Location: " + _content_location + "\n");
 	_body_head.append("Server: " + _name_server + "\n");
 	_body_head.append("\n");
@@ -255,7 +255,8 @@ void				Response::set_content_location(std::string &content_location)
 
 void				Response::set_content_type(std::string content_type)
 {
-	this->_content_type = content_type;
+	if (!content_type.empty())
+		this->_content_type = content_type;
 }
 
 void				Response::set_name_server(std::string name_server)

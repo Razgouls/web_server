@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/22 11:03:05 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 15:37:02 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,16 +68,13 @@ void				Request::get_infos_space(std::string &str, std::string &new_str, size_t 
 	last = str.find(delim, dep);
 }
 
-void				Request::make_query_post_put()
+void				Request::make_query_post_put2(std::string copy_body)
 {
 	size_t			dep = 0;
 	size_t			rep_find_equal;
 	size_t			rep_find_et;
-	std::string		copy_body;
 	int				check = false;
 
-	_body = _request.substr(_request.find("\r\n\r\n") + 4);
-	copy_body = _body;
 	char *ptr = strtok((char *)copy_body.c_str(), " ");
 	while (ptr != NULL)
 	{
@@ -98,6 +95,22 @@ void				Request::make_query_post_put()
 			check = false;
 		}
 		ptr = strtok(NULL, " ");
+	}
+}
+
+void				Request::make_query_post_put(void)
+{
+	_body = _request.substr(_request.find("\r\n\r\n") + 4);
+	// std::cout << "BODY1 : [" << _body << "]" << std::endl;
+	if (_map_request["Transfer-Encoding"].empty())
+		make_query_post_put2(_body);
+	else
+	{
+		int res = _body.find("\r\n") + 2;
+		int res2 = _body.find("\r\n", res);
+		// std::cout << "BODY : [" << _body.substr(res, res2 - res) << std::endl;
+		_body = _body.substr(res, res2 - res);
+		make_query_post_put2(_body);
 	}
 }
 

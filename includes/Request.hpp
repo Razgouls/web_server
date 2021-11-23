@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/22 10:54:41 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/22 16:05:45 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ class Request
 		void												get_infos_space(std::string &str, std::string &new_str, size_t &dep, size_t &last, char delim);
 		void												make_query_post_put();
 		void												fill_map_request(void);
-		void												make_query_post_put2();
+		void												make_query_post_put2(std::string body_tmp);
 		void												is_valid(void);
 		void												clear(void);
 	

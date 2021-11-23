@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/20 11:06:10 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 16:28:27 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@
 # include <signal.h>
 # include <sys/ioctl.h>
 # include <sys/stat.h>
+# include <sys/types.h>
+# include <sys/wait.h>
 
 # define BOLDBLACK   "\033[1m\033[30m"      /* Bold Black */
 # define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
@@ -74,6 +76,8 @@ namespace Utils
 	bool									permission_read(const std::string& filename);
 	bool									permission_exec(const std::string& filename);
 	bool									fd_is_valid(int fd);
+	int										last_line_chunked(std::string &req);
+
 }
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/20 11:04:49 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 17:30:39 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,6 +124,10 @@ void					add_location_server(Route &r, std::pair<std::string, std::string> &info
 			throw;
 		}
 	}
+	else if (infos.first == "cgi_extension")
+		r.set_cgi_extension(infos.second);
+	else if (infos.first == "cgi_bin")
+		r.set_cgi_bin(infos.second);
 	else
 	{
 		if (infos.second.empty())
@@ -234,7 +238,7 @@ std::vector<ServerConf>		createListServerConf(std::ifstream &file_config)
 	return (list_server_conf);
 }
 
-void	run(std::ifstream &file_config, std::string &path)
+void	run(std::ifstream &file_config, std::string &path, char **env)
 {
 	std::vector<ServerConf>		list_servers;
 	Server						server;
@@ -257,7 +261,7 @@ void	run(std::ifstream &file_config, std::string &path)
 	server.set_list_server(list_servers);
 	server.init_mime();
 	try {
-		server.run();
+		server.run(env);
 	}
 	catch(std::string const &chaine) {
 		server.clear();
@@ -272,7 +276,7 @@ void signal_callback_handler(int signum)
 	std::cout << "VOUS AVEZ QUITTE LE PROGRAMME AVEC LE SIGNAL " << signum << std::endl;
 }
 
-int     main(int argc, char **argv)
+int     main(int argc, char **argv, char **env)
 {
 	(void)argc;
 	std::string path = "Config/default.conf";
@@ -286,7 +290,7 @@ int     main(int argc, char **argv)
 	if (file_config_argv.is_open())
 	{
 		try {
-			run(file_config_argv, file);
+			run(file_config_argv, file, env);
 		}
 		catch(const std::string& e) {
 			std::cerr << e << std::endl;
@@ -297,7 +301,7 @@ int     main(int argc, char **argv)
 	else
 	{
 		try {
-			run(file_config, path);
+			run(file_config, path, env);
 		}
 		catch(const std::string &e) {
 			std::cerr << e << '\n';
