@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 15:43:24 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:32:18 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -125,7 +125,7 @@ int					Response::gestion_errors(std::string &path)
 	std::ifstream		myfile;
 	int					code = 200;
 
-	if (Utils::is_file(path))
+	if (UtilsFile::is_file(path))
 	{
 		myfile.open(path.substr(0, path.find("?")).c_str());
 		if (!myfile.good())
@@ -206,10 +206,10 @@ void				Response::build_body_response_aux(std::string &str)
 	std::string					mytext;
 	std::string					link_page_error;
 
-	if (Utils::is_file(str))
+	if (UtilsFile::is_file(str))
 	{
 		myfile.open(str.c_str());
-		_body_response.append(Utils::get_file_content(str));
+		_body_response.append(UtilsFile::get_file_content(str));
 		myfile.close();
 	}
 	else
@@ -225,7 +225,7 @@ void				Response::build_body_response(std::pair<int, std::string> infos)
 	else if (infos.first == FILE)
 	{
 		myfile.open(infos.second.c_str());
-		_body_response.append(Utils::get_file_content(infos.second));
+		_body_response.append(UtilsFile::get_file_content(infos.second));
 		myfile.close();
 	}	
 }

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 16:28:27 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:30:06 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,7 @@
 # define MESSAGE 3
 # define UNKNOW 4
 
-namespace Utils
+namespace UtilsParser
 {
 	bool									syntax_bracket_open(std::ifstream &file_config, std::string &line);
 	std::pair<bool, std::string>			get_path_location(std::string &line);
@@ -62,22 +62,33 @@ namespace Utils
 	bool									is_valid_infos_location(std::pair<std::string, std::string> &infos);
 	std::pair<std::string, std::string>		get_infos_line(std::string &line);
 	bool									is_valid_code(int code);
+}
+
+namespace UtilsDir
+{
 	void									can_open_dir(const std::string &path);
 	bool									is_dir(const std::string& filename);
+}
+
+namespace UtilsFile
+{
 	bool									is_file(const std::string& filename);
 	bool									is_image(const std::string &path);
 	int										size_file(const std::string& filename);
 	std::string								get_extension(const std::string &path);
-	int										hex_to_dec(std::string &hexVal);
-	std::string								transform_query_char(std::string str);
 	std::string								get_file_content(const std::string &filename);
-	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod);
 	bool									permission_write(const std::string& filename);
 	bool									permission_read(const std::string& filename);
 	bool									permission_exec(const std::string& filename);
 	bool									fd_is_valid(int fd);
-	int										last_line_chunked(std::string &req);
+}
 
+namespace UtilsString
+{
+	int										hex_to_dec(std::string &hexVal);
+	std::string								transform_query_char(std::string str);
+	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod);
+	int										last_line_chunked(std::string &req);
 }
 
 #endif

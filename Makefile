@@ -6,7 +6,7 @@
 #    By: elie <elie@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/16 07:45:16 by eoliveir          #+#    #+#              #
-#    Updated: 2021/11/19 21:01:02 by elie             ###   ########.fr        #
+#    Updated: 2021/11/23 18:37:24 by elie             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,27 +30,28 @@ INC= -I ./includes
 
 SRC = srcs
 
-DIR_C = $(addprefix $(SRC)/, parser config relation utils)
+DIR_C = $(addprefix $(SRC)/, cgi parser utils web_server)
 
-FILES_C = $(addprefix $(SRC)/, $(PARSER) $(CONFIG) $(RELATION) $(UTILS))
+FILES_C = $(addprefix $(SRC)/, $(CGI) $(PARSER) $(UTILS) $(WEB_SERVER))
 
-PARSER		= $(addprefix parser/,			\
-				Route.cpp					\
-				ServerConf.cpp				\
-				main.cpp					\
+CGI			= $(addprefix cgi/,					\
+				CGI.cpp							\
 			)
 
-CONFIG		= $(addprefix config/,			\
-				Server.cpp					\
+PARSER		= $(addprefix parser/,				\
+				main.cpp						\
+				ServerConf.cpp					\
 			)
 
-RELATION	= $(addprefix relation/,		\
-				Response.cpp				\
-				Request.cpp					\
+UTILS		= $(addprefix utils/,				\
+				utils.cpp						\
 			)
 
-UTILS		= $(addprefix utils/,		\
-				Utils.cpp					\
+WEB_SERVER	= $(addprefix web_server/,			\
+				Request.cpp						\
+				Response.cpp					\
+				Route.cpp						\
+				Server.cpp						\
 			)
 
 #############################################

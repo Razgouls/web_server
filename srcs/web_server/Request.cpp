@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 15:37:02 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:31:57 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,14 +84,14 @@ void				Request::make_query_post_put2(std::string copy_body)
 			check = true;
 			rep_find_equal = body_tmp.find("=", dep);
 			rep_find_et = body_tmp.find("&", rep_find_equal + 1);
-			_query_string.push_back(std::make_pair(Utils::transform_query_char(body_tmp.substr(dep, rep_find_equal - dep)), Utils::transform_query_char(body_tmp.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
+			_query_string.push_back(std::make_pair(UtilsString::transform_query_char(body_tmp.substr(dep, rep_find_equal - dep)), UtilsString::transform_query_char(body_tmp.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
 			dep = rep_find_et + 1;
 		}
 		if (check)
 		{
 			rep_find_equal = body_tmp.find("=", dep);
 			rep_find_et = body_tmp.find(" ", rep_find_equal + 1);
-			_query_string.push_back(std::make_pair(Utils::transform_query_char(body_tmp.substr(dep, rep_find_equal - dep)), Utils::transform_query_char(body_tmp.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
+			_query_string.push_back(std::make_pair(UtilsString::transform_query_char(body_tmp.substr(dep, rep_find_equal - dep)), UtilsString::transform_query_char(body_tmp.substr(rep_find_equal + 1, rep_find_et - rep_find_equal - 1))));
 			check = false;
 		}
 		ptr = strtok(NULL, " ");
@@ -128,7 +128,7 @@ bool				Request::fill_query_string_aux(size_t &last, size_t &dep, std::string &t
 	else
 		tmp_pair.second = tmp_path.substr(dep);
 	dep = last + 1;
-	_query_string.push_back(std::make_pair(Utils::transform_query_char(tmp_pair.first), Utils::transform_query_char(tmp_pair.second)));
+	_query_string.push_back(std::make_pair(UtilsString::transform_query_char(tmp_pair.first), UtilsString::transform_query_char(tmp_pair.second)));
 	return (true);
 }
 

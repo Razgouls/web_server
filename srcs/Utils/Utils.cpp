@@ -6,13 +6,13 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 17:31:08 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:29:03 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 # include "Utils.hpp"
 
-namespace Utils
+namespace UtilsParser
 {
 	bool									syntax_bracket_open(std::ifstream &file_config, std::string &line)
 	{
@@ -135,25 +135,80 @@ namespace Utils
 			return (false);
 		return (true);
 	}
+}
 
-	void									can_open_dir(const std::string &path)
+namespace UtilsString
+{
+	int										hex_to_dec(std::string &hexVal)
 	{
-		DIR		*dir = opendir(path.c_str());
-
-		if (!dir)
-			throw std::string("Le dossier " + path + " n'existe pas.");
-		closedir(dir);
+		int len = hexVal.size();
+		int base = 1;
+		int dec_val = 0;
+	
+		for (int i = len - 1; i >= 0; i--) {
+			if (hexVal[i] >= '0' && hexVal[i] <= '9') {
+				dec_val += (int(hexVal[i]) - 48) * base;
+				base = base * 16;
+			}
+			else if (hexVal[i] >= 'A' && hexVal[i] <= 'F') {
+				dec_val += (int(hexVal[i]) - 55) * base;
+				base = base * 16;
+			}
+		}
+		return (dec_val);
 	}
 
-	bool									is_dir(const std::string& filename)
+	std::string								transform_query_char(std::string str)
 	{
-		struct stat buf;
-		if (stat(filename.c_str(), &buf) != -1)
+		int		i;
+		std::string	new_str;
+		std::string	tmp;
+
+		i = 0;
+		while (str[i])
 		{
-			if (buf.st_mode & S_IFDIR)
-				return (true);
+			if (str[i] == '+')
+				new_str += ' ';
+			else if (str[i] == '%')
+			{
+				tmp += str[i + 1];
+				tmp += str[i + 2];
+				new_str += (char)hex_to_dec(tmp);
+				i += 2;
+			}
+			else
+				new_str += str[i];
+			i++;
 		}
-		return (false);
+		return (new_str);
+	}
+
+	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod)
+	{
+		std::string tmp(str);
+		tmp.replace(tmp.find(sub), mod.length(), mod);
+		return (tmp);
+	}
+
+	int										last_line_chunked(std::string &req)
+	{
+		if (req.find("0\r\n\r\n") != std::string::npos)
+			return (0);
+		return (1);
+	}
+}
+
+namespace UtilsFile
+{
+	std::string								get_file_content(const std::string &filename)
+	{
+		std::ifstream file(filename.c_str());
+		if (file.is_open() && file.good())
+		{
+			std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+			return (content);
+		}
+		return (NULL);
 	}
 
 	bool									is_file(const std::string& filename)
@@ -192,69 +247,7 @@ namespace Utils
 		return (tmp);
 	}
 
-	int										hex_to_dec(std::string &hexVal)
-	{
-		int len = hexVal.size();
-		int base = 1;
-		int dec_val = 0;
-	
-		for (int i = len - 1; i >= 0; i--) {
-			if (hexVal[i] >= '0' && hexVal[i] <= '9') {
-				dec_val += (int(hexVal[i]) - 48) * base;
-				base = base * 16;
-			}
-			else if (hexVal[i] >= 'A' && hexVal[i] <= 'F') {
-				dec_val += (int(hexVal[i]) - 55) * base;
-				base = base * 16;
-			}
-		}
-		return (dec_val);
-	}
-
-	std::string			transform_query_char(std::string str)
-	{
-		int		i;
-		std::string	new_str;
-		std::string	tmp;
-
-		i = 0;
-		while (str[i])
-		{
-			if (str[i] == '+')
-				new_str += ' ';
-			else if (str[i] == '%')
-			{
-				tmp += str[i + 1];
-				tmp += str[i + 2];
-				new_str += (char)hex_to_dec(tmp);
-				i += 2;
-			}
-			else
-				new_str += str[i];
-			i++;
-		}
-		return (new_str);
-	}
-
-	std::string				get_file_content(const std::string &filename)
-	{
-		std::ifstream file(filename.c_str());
-		if (file.is_open() && file.good())
-		{
-			std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
-			return (content);
-		}
-		return (NULL);
-	}
-
-	std::string				replace_me(std::string& str, const std::string& sub, const std::string& mod)
-	{
-		std::string tmp(str);
-		tmp.replace(tmp.find(sub), mod.length(), mod);
-		return (tmp);
-	}
-
-	bool					permission_write(const std::string& filename)
+	bool									permission_write(const std::string& filename)
 	{
 		struct stat buf;
 		if (stat(filename.c_str(), &buf) != -1)
@@ -265,7 +258,7 @@ namespace Utils
 		return (false);
 	}
 
-	bool					permission_read(const std::string& filename)
+	bool									permission_read(const std::string& filename)
 	{
 		struct stat buf;
 		if (stat(filename.c_str(), &buf) != -1)
@@ -276,7 +269,7 @@ namespace Utils
 		return (false);
 	}
 
-	bool					permission_exec(const std::string& filename)
+	bool									permission_exec(const std::string& filename)
 	{
 		struct stat buf;
 		if (stat(filename.c_str(), &buf) != -1)
@@ -287,7 +280,7 @@ namespace Utils
 		return (false);
 	}
 
-	bool					fd_is_valid(int fd)
+	bool									fd_is_valid(int fd)
 	{
 		struct stat buf;
 		if (fstat(fd, &buf) != -1)
@@ -297,11 +290,27 @@ namespace Utils
 		}
 		return (false);
 	}
+}
 
-	int						last_line_chunked(std::string &req)
+namespace UtilsDir
+{
+	void									can_open_dir(const std::string &path)
 	{
-		if (req.find("0\r\n\r\n") != std::string::npos)
-			return (0);
-		return (1);
+		DIR		*dir = opendir(path.c_str());
+
+		if (!dir)
+			throw std::string("Le dossier " + path + " n'existe pas.");
+		closedir(dir);
+	}
+
+	bool									is_dir(const std::string& filename)
+	{
+		struct stat buf;
+		if (stat(filename.c_str(), &buf) != -1)
+		{
+			if (buf.st_mode & S_IFDIR)
+				return (true);
+		}
+		return (false);
 	}
 }

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 18:15:12 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:30:47 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -383,7 +383,7 @@ void					Server::put_resource(void)
 	std::ofstream	myfile;
 
 	tmp_path.erase(0, last_slash + 1);
-	if (Utils::is_file(tmp_path))
+	if (UtilsFile::is_file(tmp_path))
 	{
 		myfile.open(tmp_path.c_str(), std::ofstream::in);
 		if (myfile.good())
@@ -402,7 +402,7 @@ void					Server::put_resource(void)
 			_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
 		}
 	}
-	else if (Utils::is_dir(tmp_path))
+	else if (UtilsDir::is_dir(tmp_path))
 	{
 		_current_rep.set_code_etat(403, "Forbidden");
 		_current_rep.build_body_response(std::make_pair(FILE, _current_map_error[403]));
@@ -446,12 +446,12 @@ void					Server::get_resource(char **env)
 
 	dir = opendir(path.c_str());
 	ret = gestion_auto_index();
-	_current_rep.set_content_type(_mime[Utils::get_extension(path)]);
+	_current_rep.set_content_type(_mime[UtilsFile::get_extension(path)]);
 
 
 
 
-	if (Utils::get_extension(path) == _current_route.get_cgi_extension())
+	if (UtilsFile::get_extension(path) == _current_route.get_cgi_extension())
 	{
 		CGI		cgi;
 
@@ -493,12 +493,12 @@ void					Server::get_resource(char **env)
 	{
 		std::string tmp_path = path.substr(0, path.find("?"));
 		std::string new_path = tmp_path;
-		if (!Utils::is_file(new_path))
+		if (!UtilsFile::is_file(new_path))
 		{
 			_current_rep.set_code_etat(404, "Not Found");
 			new_path = _current_map_error[404];
 		}
-		if (!Utils::permission_read(new_path))
+		if (!UtilsFile::permission_read(new_path))
 		{
 			_current_rep.set_code_etat(301, "Forbidden");
 			new_path = _current_map_error[403];
@@ -654,7 +654,7 @@ int					Server::s_recv(int &fd, int i, int *nfds, char **env)
 		if (_requests[fd].find("Transfer-Encoding: chunked") != std::string::npos)
 		{
 			std::cout << "ICI" << std::endl;
-			ret = Utils::last_line_chunked(_requests[fd]);
+			ret = UtilsString::last_line_chunked(_requests[fd]);
 		}
 		if (ret == 0)
 		{
@@ -709,7 +709,7 @@ void					Server::clear(void)
 	_mime.clear();
 	i = -1;
 	while (++i < SIZE_PFDS)
-		if (Utils::fd_is_valid(_pfds[i].fd))
+		if (UtilsFile::fd_is_valid(_pfds[i].fd))
 			close(_pfds[i].fd);
 }
 

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 17:30:39 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/23 18:31:21 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void					add_infos_server(ServerConf &serv_conf, std::pair<std::string, std::str
 		std::string html_error = infos.second.substr(code_error.length() + 1, infos.second.length() - code_error.length() - 1);
 		std::pair<int, std::string>	tmp;
 		tmp.first = atoi(code_error.c_str());
-		if (!Utils::is_valid_code(tmp.first))
+		if (!UtilsParser::is_valid_code(tmp.first))
 			throw std::string("Code " + code_error + " non valide.");
 		tmp.second = html_error;
 		serv_conf.set_map_error(tmp);
@@ -117,7 +117,7 @@ void					add_location_server(Route &r, std::pair<std::string, std::string> &info
 	else if (infos.first == "upload_dir")
 	{
 		try {
-			Utils::can_open_dir(infos.second);
+			UtilsDir::can_open_dir(infos.second);
 			r.set_path_uploads(infos.second);
 		}
 		catch(std::string const &chaine) {
@@ -149,15 +149,15 @@ void				createRoute(std::ifstream &file_config, std::string &line, Route &r)
 	std::pair<std::string, std::string>		infos;
 	std::pair<bool, std::string>			path_location;
 
-	path_location = Utils::get_path_location(line);
+	path_location = UtilsParser::get_path_location(line);
 	if (!path_location.first)
 		throw std::string("Path de la location invalid (minimum /).");
-	if (!Utils::syntax_bracket_open(file_config, line))
+	if (!UtilsParser::syntax_bracket_open(file_config, line))
 		throw std::string("Erreur de bracket pour le bloc location.");											//ERROR
 	while (getline(file_config, line) && line.find("}") == std::string::npos)
 	{
-		infos = Utils::get_infos_line(line);
-		if (!Utils::is_valid_infos_location(infos))
+		infos = UtilsParser::get_infos_line(line);
+		if (!UtilsParser::is_valid_infos_location(infos))
 			throw std::string("Location : Mot clé invalide ou \";\" manquant.");									//ERROR
 		try {
 			add_location_server(r, infos);
@@ -174,7 +174,7 @@ void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, s
 	std::pair<std::string, std::string>		infos;
 	int										ret;
 
-	if (!Utils::syntax_bracket_open(file_config, line))
+	if (!UtilsParser::syntax_bracket_open(file_config, line))
 		throw std::string("Erreur de bracket pour le bloc server.");							//ERROR
 	while (getline(file_config, line))
 	{
@@ -193,8 +193,8 @@ void					createServerConf(ServerConf &server_conf, std::ifstream &file_config, s
 		}
 		else if (line != "" && line.find("}") == std::string::npos)
 		{
-			infos = Utils::get_infos_line(line);
-			ret = Utils::is_valid_infos_server(infos);
+			infos = UtilsParser::get_infos_line(line);
+			ret = UtilsParser::is_valid_infos_server(infos);
 			if (ret == 1)
 				throw std::string("Server " + server_conf.get_server_name() + ": [" + infos.second + "] --> \";\" manquant");					//ERROR
 			if (ret == 2)
@@ -244,7 +244,7 @@ void	run(std::ifstream &file_config, std::string &path, char **env)
 	Server						server;
 
 	try {
-		Utils::syntax_bracket(path);
+		UtilsParser::syntax_bracket(path);
 		list_servers = createListServerConf(file_config);
 	}
 	catch(std::string const &chaine) {
