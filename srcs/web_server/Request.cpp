@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 18:31:57 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/25 14:26:55 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,12 +45,12 @@ Request::Request(std::string url_request, std::string request, std::string metho
 
 Request::~Request()
 {
-	
+
 }
 
 Request				&Request::operator=(Request &r)
 {
-	this->_map_request.clear();
+	clear();
 	this->_request = r._request;
 	this->_method = r._method;
 	this->_path = r._path;
@@ -213,14 +213,11 @@ void				Request::parse_request(void)
 	_url_request = ss.str();
 }
 
-void				Request::is_valid(void)
+int					Request::is_valid(void)
 {
-	if (_method.empty())
-		throw std::string("Methode invalid");
-	if (_path.empty())
-		throw std::string("Path invalid");
-	if (_host.empty())
-		throw std::string("Host invalid");
+	if (_method.empty() || _path.empty() || _host.empty())
+		return (-1);
+	return (0);
 }
 
 std::string			&Request::get_request(void)

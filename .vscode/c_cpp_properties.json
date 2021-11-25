@@ -3,7 +3,11 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}/**"
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/includes/cgi",
+                "${workspaceFolder}/includes/utils",
+                "${workspaceFolder}/includes/web_server",
+                "${workspaceFolder}/includes/parser"
             ],
             "compilerPath": "/usr/bin/clang++",
             "cStandard": "c17",

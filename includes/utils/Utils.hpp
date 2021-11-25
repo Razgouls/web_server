@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 18:30:06 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/24 12:20:40 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,13 +55,15 @@
 
 namespace UtilsParser
 {
-	bool									syntax_bracket_open(std::ifstream &file_config, std::string &line);
-	std::pair<bool, std::string>			get_path_location(std::string &line);
+	bool									syntax_bracket_open(std::string &line);
+	std::string								get_path_location(std::string &line);
 	void									syntax_bracket(std::string &path);
 	int										is_valid_infos_server(std::pair<std::string, std::string> &infos);
 	bool									is_valid_infos_location(std::pair<std::string, std::string> &infos);
 	std::pair<std::string, std::string>		get_infos_line(std::string &line);
 	bool									is_valid_code(int code);
+	std::pair<int, std::string>				create_pair_file_error(std::pair<std::string, std::string> &infos);
+	void									check_point_virgule(char c, std::string &str);
 }
 
 namespace UtilsDir
@@ -89,6 +91,8 @@ namespace UtilsString
 	std::string								transform_query_char(std::string str);
 	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod);
 	int										last_line_chunked(std::string &req);
+	bool									is_blank(std::string &line);
+	void									trim(char c, std::string &str);
 }
 
 #endif

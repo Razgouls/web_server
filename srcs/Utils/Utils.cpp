@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 18:29:03 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/25 13:05:10 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,26 +14,25 @@
 
 namespace UtilsParser
 {
-	bool									syntax_bracket_open(std::ifstream &file_config, std::string &line)
+	bool									syntax_bracket_open(std::string &line)
 	{
-		if (line.find("{") != std::string::npos)
-			return (true);
-		getline(file_config, line);
-		while (line == "" && getline(file_config, line)) {}
 		if (line.find("{") != std::string::npos)
 			return (true);
 		return (false);
 	}
 
-	std::pair<bool, std::string>			get_path_location(std::string &line)
+	std::string								get_path_location(std::string &line)
 	{
 		while (std::isspace(*(line.begin())))
 			line.erase(0, 1);
 		line.erase(0, line.find("/"));
-		line = line.substr(0, line.find(' '));
+		if (line.find(' ') != std::string::npos)
+			line = line.substr(0, line.find(' '));
+		else
+			line = line.substr(0, line.find('{'));
 		if (*(line.begin()) != '/')
-			return (std::pair<bool, std::string>(false, line));
-		return (std::pair<bool, std::string>(true, line));
+			return ("ERROR_PATH");
+		return (line);
 		
 	}
 
@@ -42,13 +41,18 @@ namespace UtilsParser
 		std::string					line;
 		std::ifstream				file_config(path.c_str());
 		std::multimap<char, char>	map_bracket;
+		int							i;
 
 		while (getline(file_config, line))
 		{
-			if (line.find("{") != std::string::npos)
-				map_bracket.insert(std::pair<char, char>('{', '{'));
-			else if (line.find("}") != std::string::npos)
-				map_bracket.insert(std::pair<char, char>('}', '}'));
+			i = -1;
+			while (line[++i])
+			{
+				if (line[i] == '{')
+					map_bracket.insert(std::pair<char, char>('{', '{'));
+				else if (line[i] == '}')
+					map_bracket.insert(std::pair<char, char>('}', '}'));
+			}
 		}
 		if (map_bracket.count('{') != map_bracket.count('}'))
 			throw std::string("Erreur de bracket dans le fichier de configuration.");
@@ -135,6 +139,32 @@ namespace UtilsParser
 			return (false);
 		return (true);
 	}
+
+	std::pair<int, std::string>				create_pair_file_error(std::pair<std::string, std::string> &infos)
+	{
+		std::pair<int, std::string>	tmp;
+		if (infos.second.find(",") != std::string::npos)
+		{
+			std::string code_error = infos.second.substr(0, infos.second.find(","));
+			std::string html_error = infos.second.substr(code_error.length() + 1, infos.second.length() - code_error.length() - 1);
+			tmp.first = atoi(code_error.c_str());
+			tmp.second = html_error;
+		}
+		else
+		{
+			tmp.first = 0;
+			tmp.second = ";";
+		}
+		return (tmp);
+	}
+
+	void									check_point_virgule(char c, std::string &str)
+	{
+		UtilsString::trim(c, str);
+		if (*(str.rbegin()) != ';')
+			throw std::string("Point virgule manquant.");
+		str.erase(str.end() - 1);
+	}
 }
 
 namespace UtilsString
@@ -195,6 +225,26 @@ namespace UtilsString
 		if (req.find("0\r\n\r\n") != std::string::npos)
 			return (0);
 		return (1);
+	}
+
+	bool									is_blank(std::string &line)
+	{
+		int			i = -1;
+
+		while (line[++i])
+		{
+			if ((line[i] < 9 || line[i] > 13) && line[i] != 32)
+				return (false);
+		}
+		return (true);
+	}
+
+	void									trim(char c, std::string &str)
+	{
+		while ((*(str.begin())) == c)
+			str.erase(0, 1);
+		while ((*(str.rbegin())) == c)
+			str.erase(str.end() - 1, str.end());
 	}
 }
 

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 18:32:18 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/25 14:27:03 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,7 @@ Response::Response(const Response &r)
 
 Response::~Response()
 {
-	
+
 }
 
 Response					&Response::operator=(const Response &r)

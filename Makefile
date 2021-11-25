@@ -6,7 +6,7 @@
 #    By: elie <elie@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/16 07:45:16 by eoliveir          #+#    #+#              #
-#    Updated: 2021/11/23 18:37:24 by elie             ###   ########.fr        #
+#    Updated: 2021/11/25 15:00:34 by elie             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ CC = clang++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
-INC= -I ./includes
+INC= -I ./includes/cgi -I ./includes/parser -I ./includes/utils -I ./includes/web_server
 
 #############################################
 ######			FILES .C			#########
@@ -40,7 +40,8 @@ CGI			= $(addprefix cgi/,					\
 
 PARSER		= $(addprefix parser/,				\
 				main.cpp						\
-				ServerConf.cpp					\
+				ParserServer.cpp				\
+				ParserRoute.cpp					\
 			)
 
 UTILS		= $(addprefix utils/,				\
@@ -52,6 +53,7 @@ WEB_SERVER	= $(addprefix web_server/,			\
 				Response.cpp					\
 				Route.cpp						\
 				Server.cpp						\
+				ConnexionServer.cpp				\
 			)
 
 #############################################

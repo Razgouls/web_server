@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/19 14:59:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/23 17:33:53 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/25 14:27:13 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,7 @@ Route::Route(const Route &r)
 
 Route					&Route::operator=(const Route &r)
 {
-	this->_list_methods.clear();
-
+	clear();
 	this->_path = r._path;
 	this->_index = r._index;
 	this->_auto_index = r._auto_index;
@@ -125,9 +124,9 @@ void					Route::set_cgi_bin(std::string &cgi_bin)
 	this->_cgi_bin = cgi_bin;
 }
 
-void					Route::set_list_methods(std::string &method)
+void					Route::set_list_methods(std::list<std::string> methods)
 {
-	this->_list_methods.push_back(method);
+	this->_list_methods = methods;
 }
 
 void					Route::set_auto_index(std::string &auto_index)

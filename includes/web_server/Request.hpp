@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/22 16:05:45 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/25 15:07:28 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ class Request
 		void												make_query_post_put();
 		void												fill_map_request(void);
 		void												make_query_post_put2(std::string body_tmp);
-		void												is_valid(void);
+		int													is_valid(void);
 		void												clear(void);
 	
 
