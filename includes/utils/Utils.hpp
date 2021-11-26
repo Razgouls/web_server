@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/24 12:20:40 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 14:54:03 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,11 +47,15 @@
 # define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 # define WHITE       "\033[0m\033[0m"       /* White */
 
-# define FILE 0
+# define M_FILE 0
 # define DIRECTORY 1
 # define ERROR 2
 # define MESSAGE 3
 # define UNKNOW 4
+
+# define STDIN 0
+# define STDOUT 1
+# define STDERR 2
 
 namespace UtilsParser
 {
@@ -87,12 +91,16 @@ namespace UtilsFile
 
 namespace UtilsString
 {
+	void									print_matrice(char **mat);
 	int										hex_to_dec(std::string &hexVal);
 	std::string								transform_query_char(std::string str);
 	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod);
 	int										last_line_chunked(std::string &req);
 	bool									is_blank(std::string &line);
 	void									trim(char c, std::string &str);
+	void									split(const std::string &chaine, char delimiteur, std::vector<std::string> &elements);
+	std::string								to_string(int val);
+	int										find_char(char c, std::string &str);
 }
 
 #endif

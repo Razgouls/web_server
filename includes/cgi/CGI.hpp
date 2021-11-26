@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 16:48:28 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 15:07:49 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 13:49:40 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define CGI_HPP
 
 # include "Utils.hpp"
+# include "Route.hpp"
 
 class CGI
 {
@@ -29,6 +30,8 @@ class CGI
 		void									set_map_var_env(std::map<std::string, std::string> &map_var_env);
 
 		void									add_var_env(const std::string &key, const std::string &value);
+		char									**convert_map(void);
+		void									execute(Route &route, std::string &path, std::string &body);
 
 	private:
 		CGI(const CGI &cgi);

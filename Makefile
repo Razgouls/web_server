@@ -18,7 +18,7 @@ RED = \033[0;31m
 
 NAME = web_server
 
-CC = clang++ 
+CC = clang++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98
 

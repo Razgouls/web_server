@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 14:55:47 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 15:02:31 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,7 @@ int		Server::manage_auto_index(void)
 {
 	std::ifstream		myfile;
 	std::string			index;
-	std::string			&path = _request.get_path();
+	std::string			path = _request.get_path();
 
 	index = path.append("index.html");
 	myfile.open(index.c_str());
@@ -176,7 +176,7 @@ void					Server::fill_reponse(void)
 	_reponse.set_code_etat(200, "OK");
 	_reponse.set_method(_request.get_method());
 	_reponse.set_host(_request.get_host());
-	_reponse.set_url_request(_request.get_url_request());
+	_reponse.set_uri_request(_request.get_uri_request());
 	_reponse.set_version_http("HTTP/1.1");
 	_reponse.set_content_type(_request.get_content_type());
 	if (_request.get_content_type().empty())
@@ -201,7 +201,7 @@ void					Server::delete_resource(void)
 	if (!myfile.good())
 	{
 		_reponse.set_code_etat(404, "Not Found");
-		_reponse.build_body_response(std::make_pair(FILE, _map_error[404]));
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[404]));
 	}
 	else
 	{
@@ -218,9 +218,16 @@ void					Server::delete_resource(void)
 //A RETRAIVAILLER AVEC LE CGI
 void					Server::post_resource(void)
 {
-	std::string tmp_path = _request.get_path();
-	std::cout << "TMP PATH : [" << tmp_path << "]" << std::endl;
-	// _reponse.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path));
+	std::string path = _request.get_path();
+	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
+	if (UtilsFile::get_extension(path) == _route.get_cgi_extension() && !_request.get_path_query().empty())
+	{
+		init_var_cgi();
+		_cgi.execute(_route, path, _request.get_body());
+		std::string body = UtilsFile::get_file_content("./output.txt");
+		body = body.substr(body.find("\r\n\r\n") + 4);
+		_reponse.build_body_response(std::make_pair(MESSAGE, body));
+	}
 }
 
 void					Server::put_resource(void)
@@ -246,13 +253,13 @@ void					Server::put_resource(void)
 		else
 		{
 			_reponse.set_code_etat(403, "Forbidden");
-			_reponse.build_body_response(std::make_pair(FILE, _map_error[403]));
+			_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
 		}
 	}
 	else if (UtilsDir::is_dir(tmp_path))
 	{
 		_reponse.set_code_etat(403, "Forbidden");
-		_reponse.build_body_response(std::make_pair(FILE, _map_error[403]));
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
 	}
 	else
 	{
@@ -260,7 +267,7 @@ void					Server::put_resource(void)
 		if (!myfile.is_open() || !myfile.good())
 		{
 			_reponse.set_code_etat(403, "Forbidden");
-			_reponse.build_body_response(std::make_pair(FILE, _map_error[403]));
+			_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
 		}
 		else
 		{
@@ -284,7 +291,7 @@ void					Server::put_resource(void)
 **								OUI : On build l'arborescence du dossier correspondant (on effectue eventuellement une redirection 301 s'il manque le '/' a la fin alors que cest un dossier)
 **							SINON : On build une erreur 404 (car on opendir un dossier mais il n'y avait pas d'index.html et l'autoindex etait a off)
 */
-void					Server::get_resource(char **env)
+void					Server::get_resource(void)
 {
 	std::list<std::pair<std::string, unsigned char> >	files;
 	int													ret;
@@ -294,48 +301,16 @@ void					Server::get_resource(char **env)
 	dir = opendir(path.c_str());
 	ret = manage_auto_index();
 	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
-
-
-
-
-	if (UtilsFile::get_extension(path) == _route.get_cgi_extension())
+	if (UtilsFile::get_extension(path) == _route.get_cgi_extension() && !_request.get_path_query().empty())
 	{
-		CGI		cgi;
-
-		cgi.set_cgi_bin(_route.get_cgi_bin());
-		cgi.set_cgi_extension(_route.get_cgi_extension());
-		cgi.add_var_env("GATEWAY_INTERFACE", "CGI/1.1");
-		cgi.add_var_env("HTTP_ACCEPT", _request.get_map_request()["Accept"]);
-		cgi.add_var_env("HTTP_ACCEPT_LANGUAGE", _request.get_map_request()["Accept-Language"]);
-		cgi.add_var_env("HTTP_ACCEPT_ENCODING", _request.get_map_request()["Accept-Encoding"]);
-		cgi.add_var_env("HTTP_CONNECTION", _request.get_map_request()["Connection"]);
-		// cgi.add_var_env("HTTP_HOST", _h)
-
-		pid_t	pid;
-		int		status;
-
-		pid = fork();
-		if (pid == 0)
-		{
-			char **t = (char **)malloc(sizeof(char *) * 3);
-			t[0] = strdup("/usr/bin/php-cgi");
-			t[1] = strdup(path.c_str());
-			t[2] = 0;
-			std::cout << "PATH : [" << path << "]" << std::endl;
-			if (execve("/usr/bin/php-cgi", t, env)  == -1)
-				perror("ERROR EXECVE");
-			exit(0);
-		}
-		else
-			waitpid(pid, &status, 0);
+		init_var_cgi();
+		_cgi.execute(_route, path, _request.get_body());
+		std::string body = UtilsFile::get_file_content("./output.txt");
+		body = body.substr(body.find("\r\n\r\n") + 4);
+		_reponse.build_body_response(std::make_pair(MESSAGE, body));
 	}
-
-
-	
-
-
 	else if (ret == INDEX)
-		_reponse.build_body_response(std::make_pair(FILE, path.append("index.html")));
+		_reponse.build_body_response(std::make_pair(M_FILE, path + "index.html"));
 	else if (!dir)
 	{
 		std::string tmp_path = path.substr(0, path.find("?"));
@@ -350,7 +325,7 @@ void					Server::get_resource(char **env)
 			_reponse.set_code_etat(301, "Forbidden");
 			new_path = _map_error[403];
 		}
-		_reponse.build_body_response(std::make_pair(FILE, new_path));
+		_reponse.build_body_response(std::make_pair(M_FILE, new_path));
 	}
 	else if (ret == AUTOINDEX)
 	{
@@ -369,7 +344,7 @@ void					Server::get_resource(char **env)
 	else
 	{
 		_reponse.set_code_etat(404, "Not Found");
-		_reponse.build_body_response(std::make_pair(FILE, _map_error[404]));
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[404]));
 	}
 	if (dir)
 		closedir(dir);
@@ -381,7 +356,7 @@ void					Server::manage_reponse(void)
 
 	fill_reponse();
 	if (method == "GET")
-		get_resource(_env);
+		get_resource();
 	else if (method == "POST")
 		post_resource();
 	else if (method == "PUT")
@@ -390,9 +365,9 @@ void					Server::manage_reponse(void)
 		delete_resource();
 }
 
-void					Server::manage_request(int &fd, std::map<int, std::string> &requests)
+void					Server::manage_request(std::string &request)
 {
-	_request.set_request(requests[fd]);
+	_request.set_request(request);
 	_request.parse_request();
 	_request.set_path(_root + _request.get_path());
 	if (_request.is_valid() == -1)
@@ -401,28 +376,61 @@ void					Server::manage_request(int &fd, std::map<int, std::string> &requests)
 	if (!check_method_location())
 	{
 		_reponse.set_code_etat(405, "Method Not Allowed");
-		_reponse.build_body_response(std::make_pair(FILE, _map_error[405]));
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[405]));
 	}
 }
 
-void					Server::c_recv(int &fd, std::map<int, std::string> &requests)
+void					Server::c_recv(std::string &request)
 {
 	int					ret = 0;
 
-	if (requests[fd].find("\r\n\r\n") != std::string::npos)
+	if (request.find("\r\n\r\n") != std::string::npos)
 	{
-		if (requests[fd].find("Transfer-Encoding: chunked") != std::string::npos)
+		if (request.find("Transfer-Encoding: chunked") != std::string::npos)
 		{
-			ret = UtilsString::last_line_chunked(requests[fd]);
+			ret = UtilsString::last_line_chunked(request);
 		}
 		if (ret == 0)
 		{
 			// char hello[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n26\r\nVoici les donnees du premier morceau\r\n\r\n1C\r\net voici un second morceau\r\n\r\n20\r\net voici deux derniers morceaux \r\n12\r\nsans saut de ligne\r\n0\r\n\r\n";
 			// send(fd, hello, 1024, 0);
-			manage_request(fd, requests);
+			manage_request(request);
+			std::cout << _request << std::endl;
 			manage_reponse();
 		}
 	}
+}
+
+void					Server::init_var_cgi(void)
+{
+	std::string											path = _request.get_path();
+
+	_cgi.set_cgi_bin(_route.get_cgi_bin());
+	_cgi.set_cgi_extension(_route.get_cgi_extension());
+	_cgi.add_var_env("AUTH_TYPE", "");
+	_cgi.add_var_env("GATEWAY_INTERFACE", "CGI/1.1");
+	_cgi.add_var_env("HTTP_ACCEPT", _request.get_map_request()["Accept"]);
+	_cgi.add_var_env("HTTP_ACCEPT_LANGUAGE", _request.get_map_request()["Accept-Language"]);
+	_cgi.add_var_env("HTTP_ACCEPT_ENCODING", _request.get_map_request()["Accept-Encoding"]);
+	_cgi.add_var_env("HTTP_USER_AGENT", _request.get_map_request()["User-Agent"]);
+	_cgi.add_var_env("HTTP_CONNECTION", _request.get_map_request()["Connection"]);
+	_cgi.add_var_env("HTTP_HOST", _host);
+	_cgi.add_var_env("QUERY_STRING", _request.get_path_query());
+	_cgi.add_var_env("REQUEST_METHOD", _request.get_method());
+	_cgi.add_var_env("REQUEST_URI", _request.get_uri_request());
+	_cgi.add_var_env("SERVER_NAME", _server_name);
+	_cgi.add_var_env("SERVER_SOFWARE", "web_server/1.10");
+	_cgi.add_var_env("SERVER_PROTOCOL", "HTTP/1.1");
+	_cgi.add_var_env("SERVER_PORT", UtilsString::to_string(_port));
+	_cgi.add_var_env("SCRIPT_NAME", _route.get_cgi_bin());
+	_cgi.add_var_env("PATH_TRANSLATED", path);
+	_cgi.add_var_env("REMOTE_ADDR", _host);
+	_cgi.add_var_env("REMOTE_USER", "user");
+	_cgi.add_var_env("CONTENT_TYPE", "text/html");
+	if (!_request.get_map_request()["Content-Type"].empty())
+		_cgi.add_var_env("CONTENT_TYPE", _request.get_map_request()["Content-Type"]);
+	_cgi.add_var_env("CONTENT_LENGTH", UtilsString::to_string(_request.get_body().length()));
+	_cgi.add_var_env("REDIRECT_STATUS", "200");
 }
 
 void					Server::init_mime(void)
@@ -544,11 +552,6 @@ void					Server::set_limite_body_size(std::string &limit_body_size)
 	if (tmp < 0)
 		tmp = 0;
 	this->_limit_client_body_size = tmp;
-}
-
-void					Server::set_env(char **env)
-{
-	_env = env;
 }
 
 int						&Server::get_port(void)

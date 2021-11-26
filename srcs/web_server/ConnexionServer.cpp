@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 14:57:35 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 07:45:38 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -167,11 +167,14 @@ int					ConnexionServer::manage_connexion(int &fd)
 	if (ret_read == 0)
 		return (0);
 	_requests[fd] += requete;
-	_map_fd_server[fd].c_recv(fd, _requests);
+	_map_fd_server[fd].c_recv(_requests[fd]);
 	reponse = _map_fd_server[fd].get_reponse().fill_reponse();
 	send(fd, reponse.c_str(), reponse.size(), 0);
 
-	std::cout << _requests[fd] << std::endl << std::endl;
+	std::cout << std::endl;
+	std::cout << BOLDRED << "=================================================================" << std::endl;
+	std::cout << BOLDRED << "======================== INFOS RESPONSE =========================" << std::endl;
+	std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
 	std::cout << reponse.substr(0, 2000) << std::endl;
 	return (0);
 }
@@ -181,7 +184,7 @@ void signal_callback_handler(int signum)
 	std::cout << "VOUS AVEZ QUITTE LE PROGRAMME AVEC LE SIGNAL " << signum << std::endl;
 }
 
-void					ConnexionServer::run()
+void					ConnexionServer::run(void)
 {
 	int				nfds;
 	int				i;

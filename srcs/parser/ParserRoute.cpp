@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:53:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 15:20:23 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/25 15:52:31 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,6 @@ void					ParserRoute::path_valid(std::string &path_server)
 	if (*(_path.end() - 1) == '/' && _path != "/")
 		throw std::string("Le path '" + _path + "' est invalide (veuillez supprimer le '/' a la fin du path de la route 'location " + _path + "')");
 	path = path_server + _path;
-	std::cout << "PATH_SERVER : [" << path_server << "]" << std::endl;
-	std::cout << "_PATH : [" << _path << "]" << std::endl;
-	std::cout << "PATH : [" << path << "]" << std::endl << std::endl;
 	if (!UtilsDir::is_dir(path))
 		throw std::string("Le path '" + path + "' de la route 'location " + _path + "' n'est pas un dossier");
 }

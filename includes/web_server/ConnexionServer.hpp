@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:51:57 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 15:07:34 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 07:45:17 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@ class ConnexionServer
 		ConnexionServer();
 		~ConnexionServer();
 
-		void													run();
+		void													run(void);
 		int														manage_connexion(int &fd);
 		int														s_accept(int j);
 		void													init_pfds(void);

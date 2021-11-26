@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:48 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 15:07:21 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 11:50:19 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,6 @@ class Response
 		std::string					fill_reponse(void);
 		void						build_head_response(void);
 		int							gestion_errors(std::string &path);
-		void						build_body_response_aux(std::string &path);
 		void						build_body_response(std::pair<int, std::string> infos);
 		void						add_header_index(void);
 		void						build_response_dir(std::list<std::pair<std::string, unsigned char> > &files);
@@ -43,7 +42,7 @@ class Response
 		/*
 		** SETTERS
 		*/
-		void						set_url_request(std::string &url_request);
+		void						set_uri_request(std::string &uri_request);
 		void						set_method(std::string &method);
 		void						set_host(std::string &host);
 		void						set_content_location(std::string &content_location);
@@ -59,7 +58,7 @@ class Response
 		/*
 		** GETTERS
 		*/
-		std::string					&get_url_request(void);
+		std::string					&get_uri_request(void);
 		std::string					&get_method(void);
 		std::string					&get_host(void);
 		std::string					&get_content_location(void);
@@ -74,7 +73,7 @@ class Response
 
 
 	private:
-		std::string					_url_request;
+		std::string					_uri_request;
 		std::string					_method;
 		std::string					_host;
 		std::string					_content_location;

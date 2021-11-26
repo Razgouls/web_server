@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 13:05:10 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 15:25:08 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,6 +169,16 @@ namespace UtilsParser
 
 namespace UtilsString
 {
+	void									print_matrice(char **mat)
+	{
+		int		i = 0;
+
+		while (mat[i])
+		{
+			std::cout << mat[i] << std::endl;
+			i++;
+		}
+	}
 	int										hex_to_dec(std::string &hexVal)
 	{
 		int len = hexVal.size();
@@ -245,6 +255,40 @@ namespace UtilsString
 			str.erase(0, 1);
 		while ((*(str.rbegin())) == c)
 			str.erase(str.end() - 1, str.end());
+	}
+
+	void									split(const std::string &chaine, char delimiteur, std::vector<std::string> &elements)
+	{
+		std::stringstream	ss(chaine);
+		std::string			sousChaine;
+
+		while (getline(ss, sousChaine, delimiteur))
+		{
+			if (*(sousChaine.begin()) == '\n')
+				sousChaine.erase(0, 1);
+			if (*(sousChaine.rbegin()) == '\n')
+				sousChaine.erase(sousChaine.end() - 1, sousChaine.end());
+			elements.push_back(sousChaine);
+		}
+	}
+
+	std::string								to_string(int val)
+	{
+		std::stringstream	tmp;
+
+		tmp << val;
+		return (tmp.str());
+	}
+
+	int										find_char(char c, std::string &str)
+	{
+		int		i = -1;
+		while (str[++i])
+		{
+			if (str[i] == c)
+				return (i);
+		}
+		return (0);
 	}
 }
 

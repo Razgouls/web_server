@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 15:24:25 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 07:46:33 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,7 +92,7 @@ Route	init_route(ParserRoute &p)
 	return (r);
 }
 
-Server	init_server(ParserServer &p, char **env)
+Server	init_server(ParserServer &p)
 {
 	std::map<std::string, std::string>	&m_parser = p.get_m_parser();
 	std::vector<ParserRoute>			&v_parser_route = p.get_parser_route();
@@ -111,12 +111,11 @@ Server	init_server(ParserServer &p, char **env)
 	s.set_list_routes(l_route);
 	s.init_page_error();
 	s.init_mime();
-	s.set_env(env);
 	std::cout << s << std::endl;
 	return (s);
 }
 
-std::vector<Server>	init_servers(std::list<ParserServer> &l_parser, char **env)
+std::vector<Server>	init_servers(std::list<ParserServer> &l_parser)
 {
 	std::list<ParserServer>::iterator		it_begin = l_parser.begin();
 	std::list<ParserServer>::iterator		it_end = l_parser.end();
@@ -135,23 +134,22 @@ std::vector<Server>	init_servers(std::list<ParserServer> &l_parser, char **env)
 	it_begin = l_parser.begin();
 	while (it_begin != it_end)
 	{
-		servers.push_back(init_server(*it_begin, env));
+		servers.push_back(init_server(*it_begin));
 		it_begin++;
 	}
 	return (servers);
 }
 
-void	run(std::ifstream &file_config, std::string &path, char **env)
+void	run(std::ifstream &file_config, std::string &path)
 {
 	std::list<ParserServer>		l_parser;
 	std::vector<Server>			servers;
 	ConnexionServer				connexion_server;
-	(void)env;
 
 	try {
 		UtilsParser::syntax_bracket(path);
 		l_parser = create_list_parser_server(file_config);
-		servers = init_servers(l_parser, env);
+		servers = init_servers(l_parser);
 		connexion_server.set_servers(servers);
 		connexion_server.run();
 	}
@@ -165,6 +163,7 @@ int		main(int argc, char **argv, char **env)
 	std::string		file("Config/default.conf");
 	std::ifstream	ifs;
 	(void)argc;
+	(void)env;
 
 	if (argv[1])
 		file = argv[1];
@@ -172,7 +171,7 @@ int		main(int argc, char **argv, char **env)
 	if (ifs.is_open())
 	{
 		try {
-			run(ifs, file, env);
+			run(ifs, file);
 		}
 		catch(const std::string& e) {
 			std::cerr << e << std::endl;

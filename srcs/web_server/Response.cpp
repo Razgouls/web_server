@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 14:27:03 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/26 11:50:12 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ Response::Response()
 
 Response::Response(const Response &r)
 {
-	this->_url_request = r._url_request;
+	this->_uri_request = r._uri_request;
 	this->_method = r._method;
 	this->_host = r._host;
 	this->_content_length = r._content_length;
@@ -40,7 +40,7 @@ Response::~Response()
 Response					&Response::operator=(const Response &r)
 {
 	clear();
-	this->_url_request = r._url_request;
+	this->_uri_request = r._uri_request;
 	this->_method = r._method;
 	this->_host = r._host;
 	this->_content_length = r._content_length;
@@ -55,7 +55,7 @@ Response					&Response::operator=(const Response &r)
 
 void						Response::clear(void)
 {
-	_url_request.clear();
+	_uri_request.clear();
 	_method.clear();
 	_host.clear();
 	_content_type.clear();
@@ -200,29 +200,13 @@ void				Response::build_response_dir(std::list<std::pair<std::string, unsigned c
 ** Pour faire cela elle va open le fichier en question et va lire une a une les lignes le composant.
 ** Elles vont etre stocké dans une list<std::string>
 */
-void				Response::build_body_response_aux(std::string &str)
-{
-	std::ifstream				myfile;
-	std::string					mytext;
-	std::string					link_page_error;
-
-	if (UtilsFile::is_file(str))
-	{
-		myfile.open(str.c_str());
-		_body_response.append(UtilsFile::get_file_content(str));
-		myfile.close();
-	}
-	else
-		_body_response.append(str);
-}
-
 void				Response::build_body_response(std::pair<int, std::string> infos)
 {
 	std::ifstream				myfile;
 	
 	if (infos.first == MESSAGE)
 		_body_response.append(infos.second);
-	else if (infos.first == FILE)
+	else if (infos.first == M_FILE)
 	{
 		myfile.open(infos.second.c_str());
 		_body_response.append(UtilsFile::get_file_content(infos.second));
@@ -232,9 +216,9 @@ void				Response::build_body_response(std::pair<int, std::string> infos)
 
 
 
-void				Response::set_url_request(std::string &url_request)
+void				Response::set_uri_request(std::string &uri_request)
 {
-	this->_url_request = url_request;
+	this->_uri_request = uri_request;
 }
 
 
@@ -291,9 +275,9 @@ void				Response::set_code_etat(int code_etat, std::string mess)
 }
 
 
-std::string			&Response::get_url_request(void)
+std::string			&Response::get_uri_request(void)
 {
-	return (this->_url_request);
+	return (this->_uri_request);
 }
 
 std::string			&Response::get_method(void)
