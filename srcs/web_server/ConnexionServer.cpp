@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 07:45:38 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 14:19:01 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ void					ConnexionServer::init_listen_fd(void)
 
 		int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 		if (listen_fd < 0)
-			continue ;
+			throw std::string("Erreur bind");
 		setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 		memset(&add, 0, sizeof(add));
 		add.sin_family = AF_INET;
@@ -64,12 +64,12 @@ void					ConnexionServer::init_listen_fd(void)
 		if (bind(listen_fd, (struct sockaddr *)&add, sizeof(add)) < 0)
 		{
 			close(listen_fd);
-			continue ;
+			throw std::string("Erreur bind");
 		}
 		if (listen(listen_fd, MAX_CONN) < 0)
 		{
 			close(listen_fd);
-			continue ;
+			throw std::string("Erreur bind");
 		}
 		_vect_address.push_back(add);
 		_vect_listen_fd.push_back(listen_fd);
@@ -91,7 +91,12 @@ void					ConnexionServer::init_pfds(void)
 	int		size;
 	int		i = 0;
 
-	init_listen_fd();
+	try {
+		init_listen_fd();
+	}
+	catch(const std::string &error) {
+		throw ;
+	}
 	bzero(_pfds, SIZE_PFDS);
 	size = _vect_listen_fd.size();
 	while (i < SIZE_PFDS)
@@ -193,7 +198,13 @@ void					ConnexionServer::run(void)
 
 	signal(SIGINT, signal_callback_handler);
 	_index = 0;
-	init_pfds();
+	try {
+		init_pfds();
+	}
+	catch(const std::string &error) {
+		throw ;
+	}
+	
 	nfds = _vect_listen_fd.size();
 	while (true)
 	{

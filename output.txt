@@ -1,7 +1,2 @@
-Content-type: text/html; charset=UTF-8
-
-POSTArray
-(
-    [name] => linuxize
-    [email] => linuxize@example.comp
-)
+QS=name=linuxize
+Data : name=linuxize

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 14:54:03 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 13:51:53 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,8 @@ namespace UtilsParser
 	std::pair<std::string, std::string>		get_infos_line(std::string &line);
 	bool									is_valid_code(int code);
 	std::pair<int, std::string>				create_pair_file_error(std::pair<std::string, std::string> &infos);
-	void									check_point_virgule(char c, std::string &str);
+	std::pair<std::string, std::string>		create_pair_cgi(std::pair<std::string, std::string> &infos);
+	void									check_point_virgule(std::string &str);
 }
 
 namespace UtilsDir
@@ -79,6 +80,7 @@ namespace UtilsDir
 namespace UtilsFile
 {
 	bool									is_file(const std::string& filename);
+	bool									check_file_exists(std::string &filename);
 	bool									is_image(const std::string &path);
 	int										size_file(const std::string& filename);
 	std::string								get_extension(const std::string &path);
@@ -97,10 +99,18 @@ namespace UtilsString
 	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod);
 	int										last_line_chunked(std::string &req);
 	bool									is_blank(std::string &line);
-	void									trim(char c, std::string &str);
+	bool									is_blank(char c);
+	void									trim(std::string delim, std::string &str);
 	void									split(const std::string &chaine, char delimiteur, std::vector<std::string> &elements);
+	void									split(const std::string &chaine, char delimiteur, std::list<std::string> &elements);
 	std::string								to_string(int val);
 	int										find_char(char c, std::string &str);
+	void									vector_to_listpair(std::vector<std::pair<int, std::string> > &list, std::vector<std::string> &vector);
+}
+
+namespace UtilsIterator
+{
+	bool									find_list(std::list<std::string> &list, std::string elem);
 }
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 15:02:31 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 14:15:37 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,6 +212,22 @@ void					Server::delete_resource(void)
 	}
 }
 
+void					Server::manage_cgi(void)
+{
+	std::string		path = _request.get_path();
+	std::string		bin;
+
+	init_var_cgi();
+	bin = _route.get_cgi_bin(UtilsFile::get_extension(path));
+	if (!bin.empty())
+	{
+		_cgi.execute(bin, path, _request.get_body());
+		std::string body = UtilsFile::get_file_content("./output.txt");
+		body = body.substr(body.find("\r\n\r\n") + 4);
+		_reponse.build_body_response(std::make_pair(MESSAGE, body));
+	}
+}
+
 /*
 ** Cette fonction est appelee si la methode utilisée eatit une methode POST (notammenent pour le formulaire)
 */
@@ -219,15 +235,10 @@ void					Server::delete_resource(void)
 void					Server::post_resource(void)
 {
 	std::string path = _request.get_path();
+	std::string	bin;
 	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
-	if (UtilsFile::get_extension(path) == _route.get_cgi_extension() && !_request.get_path_query().empty())
-	{
-		init_var_cgi();
-		_cgi.execute(_route, path, _request.get_body());
-		std::string body = UtilsFile::get_file_content("./output.txt");
-		body = body.substr(body.find("\r\n\r\n") + 4);
-		_reponse.build_body_response(std::make_pair(MESSAGE, body));
-	}
+	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)) && !_request.get_path_query().empty())
+		manage_cgi();
 }
 
 void					Server::put_resource(void)
@@ -279,7 +290,6 @@ void					Server::put_resource(void)
 	}
 }
 
-
 /*
 **		1.	On ouvre le dossier correspondant au path
 **		2.	On appelle la fonction qui va gerer l'autoindex et le fichier index.html (manage_auto_index())
@@ -297,18 +307,13 @@ void					Server::get_resource(void)
 	int													ret;
 	DIR													*dir;
 	std::string											path = _request.get_path();
+	std::string											bin;
 
 	dir = opendir(path.c_str());
 	ret = manage_auto_index();
 	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
-	if (UtilsFile::get_extension(path) == _route.get_cgi_extension() && !_request.get_path_query().empty())
-	{
-		init_var_cgi();
-		_cgi.execute(_route, path, _request.get_body());
-		std::string body = UtilsFile::get_file_content("./output.txt");
-		body = body.substr(body.find("\r\n\r\n") + 4);
-		_reponse.build_body_response(std::make_pair(MESSAGE, body));
-	}
+	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)) && !_request.get_path_query().empty())
+		manage_cgi();
 	else if (ret == INDEX)
 		_reponse.build_body_response(std::make_pair(M_FILE, path + "index.html"));
 	else if (!dir)
@@ -405,8 +410,8 @@ void					Server::init_var_cgi(void)
 {
 	std::string											path = _request.get_path();
 
-	_cgi.set_cgi_bin(_route.get_cgi_bin());
-	_cgi.set_cgi_extension(_route.get_cgi_extension());
+	// _cgi.set_cgi_bin(_route.get_cgi_bin());
+	// _cgi.set_cgi_extension(_route.get_cgi_extension());
 	_cgi.add_var_env("AUTH_TYPE", "");
 	_cgi.add_var_env("GATEWAY_INTERFACE", "CGI/1.1");
 	_cgi.add_var_env("HTTP_ACCEPT", _request.get_map_request()["Accept"]);
@@ -422,7 +427,7 @@ void					Server::init_var_cgi(void)
 	_cgi.add_var_env("SERVER_SOFWARE", "web_server/1.10");
 	_cgi.add_var_env("SERVER_PROTOCOL", "HTTP/1.1");
 	_cgi.add_var_env("SERVER_PORT", UtilsString::to_string(_port));
-	_cgi.add_var_env("SCRIPT_NAME", _route.get_cgi_bin());
+	// _cgi.add_var_env("SCRIPT_NAME", _route.get_cgi_bin());
 	_cgi.add_var_env("PATH_TRANSLATED", path);
 	_cgi.add_var_env("REMOTE_ADDR", _host);
 	_cgi.add_var_env("REMOTE_USER", "user");

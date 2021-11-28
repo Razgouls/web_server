@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:02:36 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 15:21:37 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 11:31:21 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,8 @@ class ParserServer
 		void								add_data_map(std::string &key, std::string &value);
 		void								add_data_map_error(std::pair<int, std::string> p);
 		void								add_data_v(ParserRoute &pa);
+		void								add_cgi_bin(std::string &bin);
+		void								add_cgi_extension(std::string &extension);
 		std::ostream&						print(std::ostream &os);
 		void								clear(void);
 
@@ -49,6 +51,8 @@ class ParserServer
 	private:
 		std::map<std::string, std::string>	_m_parser;
 		std::map<int, std::string>			_m_error;
+		std::list<std::string>				_l_cgi_bin;
+		std::list<std::string>				_l_cgi_extension;
 		std::vector<ParserRoute>			_v_route;
 		std::string							_head;
 };

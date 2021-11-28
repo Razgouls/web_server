@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 18:07:56 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 13:52:58 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 14:27:50 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ else if (pid == 0)
 // 		waitpid(pid, &status, 0);
 // }
 
-void						CGI::execute(Route &route, std::string &path, std::string &body)
+void						CGI::execute(std::string &bin, std::string &path, std::string &body)
 {
 	pid_t					pid;
 	int						status;
@@ -106,22 +106,21 @@ void						CGI::execute(Route &route, std::string &path, std::string &body)
 	else if (pid == 0)
 	{
 		argv = new char*[3];
-		argv[0] = new char(route.get_cgi_bin().length());
-		argv[1] = new char(path.length());
+		argv[0] = strdup(bin.c_str());
+		argv[1] = strdup(path.c_str());
 		argv[2] = 0;
 
-		strcpy(argv[0], route.get_cgi_bin().c_str());
-		strcpy(argv[1], path.c_str());
 		dup2(output_fd, STDOUT);
 		dup2(input_fd, STDIN);
-		if (execve(route.get_cgi_bin().c_str(), argv, convert_map()) == -1)
+		if (execve(bin.c_str(), argv, convert_map()) == -1)
 			perror("ERROR EXECVE");
 		exit(0);
 	}
 	else
 	{
 		waitpid(pid, &status, 0);
-		close(input_fd);
+		fclose(output);
+		fclose(input);
 	}
 }
 

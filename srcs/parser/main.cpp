@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 07:46:33 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 14:19:23 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,8 +87,8 @@ Route	init_route(ParserRoute &p)
 	r.set_list_methods(p.get_methods());
 	r.set_auto_index(m_parser["autoindex"]);
 	r.set_path_uploads(m_parser["upload_dir"]);
-	r.set_cgi_extension(m_parser["cgi_extension"]);
-	r.set_cgi_bin(m_parser["cgi_bin"]);
+	r.set_list_bin(p.get_cgi_bin());
+	r.set_list_extension(p.get_cgi_extension());
 	return (r);
 }
 

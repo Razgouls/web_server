@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 16:48:28 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 13:49:40 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 13:53:15 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class CGI
 
 		void									add_var_env(const std::string &key, const std::string &value);
 		char									**convert_map(void);
-		void									execute(Route &route, std::string &path, std::string &body);
+		void									execute(std::string &bin, std::string &path, std::string &body);
 
 	private:
 		CGI(const CGI &cgi);

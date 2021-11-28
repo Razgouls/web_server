@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 15:07:33 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/27 19:51:36 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,7 @@ class Request
 		void												fill_path_query(void);
 		int													is_valid(void);
 		void												clear(void);
+		void												parse_body(void);
 	
 
 	private:

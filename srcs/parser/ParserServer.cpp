@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:54:00 by elie              #+#    #+#             */
-/*   Updated: 2021/11/25 15:22:10 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 12:47:27 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,6 +44,16 @@ void				ParserServer::add_data_map_error(std::pair<int, std::string> p)
 	_m_error[p.first] = p.second;
 }
 
+void				ParserServer::add_cgi_bin(std::string &bin)
+{
+	_l_cgi_bin.push_back(bin);
+}
+
+void				ParserServer::add_cgi_extension(std::string &extension)
+{
+	_l_cgi_extension.push_back(extension);
+}
+
 void				ParserServer::add_data_v(ParserRoute &pa)
 {
 	std::vector<ParserRoute>::iterator		it_begin = _v_route.begin();
@@ -64,7 +74,7 @@ std::string			&ParserServer::get_head(void)
 
 void				ParserServer::head_valid(void)
 {
-	UtilsString::trim(' ', _head);
+	UtilsString::trim(" \t\r", _head);
 	if (_head != "server {")
 		throw std::string("L'entete '" + _head + "' est invalide.");
 }
@@ -74,7 +84,8 @@ void				ParserServer::port_valid(void)
 	int				i = -1;
 	std::string		&port = _m_parser["listen"];
 
-	UtilsParser::check_point_virgule(' ', port);
+	UtilsString::trim(" \t\r", port);
+	UtilsParser::check_point_virgule(port);
 	if (port.empty())
 		throw std::string("Le port ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
 	while (port[++i])
@@ -89,7 +100,8 @@ void				ParserServer::host_valid(void)
 {
 	std::string		&host = _m_parser["host"];
 
-	UtilsParser::check_point_virgule(' ', host);
+	UtilsString::trim(" \t\r", host);
+	UtilsParser::check_point_virgule(host);
 	if (host.empty())
 		throw std::string("L'adresse IP ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
 	if (host != "127.0.0.1")
@@ -100,7 +112,8 @@ void				ParserServer::name_valid(void)
 {
 	std::string		&server_name = _m_parser["server_name"];
 
-	UtilsParser::check_point_virgule(' ', server_name);
+	UtilsString::trim(" \t\r", server_name);
+	UtilsParser::check_point_virgule(server_name);
 	if (server_name.empty())
 		throw std::string("Le nom du serveur ne peut etre vide");
 
@@ -110,7 +123,8 @@ void				ParserServer::root_valid(void)
 {
 	std::string		&root = _m_parser["root"];
 
-	UtilsParser::check_point_virgule(' ', root);
+	UtilsString::trim(" \t\r", root);
+	UtilsParser::check_point_virgule(root);
 	if (root.empty())
 		throw std::string("Le root du serveur ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
 	if (*(root.end() - 1) == '/')
@@ -124,7 +138,8 @@ void				ParserServer::limit_body_size_valid(void)
 	std::string			&limit = _m_parser["limit_client_body_size"];
 	int					i = -1;
 
-	UtilsParser::check_point_virgule(' ', limit);
+	UtilsString::trim(" \t\r", limit);
+	UtilsParser::check_point_virgule(limit);
 	if (limit.empty())
 		throw std::string("Le limite client body size du serveur ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
 	while (limit[++i])
@@ -142,7 +157,8 @@ void				ParserServer::error_page_valid(void)
 	
 	while (it_begin != it_end)
 	{
-		UtilsParser::check_point_virgule(' ', it_begin->second);
+		UtilsString::trim(" \t\r", it_begin->second);
+		UtilsParser::check_point_virgule(it_begin->second);
 		if (it_begin->first <= 0 || it_begin->second.empty())
 			throw std::string("Configuration des fichiers errors incomplete dans le server '" + _m_parser["server_name"] + "'");
 		if (!UtilsFile::is_file(it_begin->second))

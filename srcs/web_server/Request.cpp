@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 15:22:08 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 00:07:55 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,8 @@ void				Request::fill_map_request(void)
 
 void				Request::fill_path_query(void)
 {
+	std::vector<std::pair<int, std::string> >	v_pair;
+
 	_body = _request.substr(_request.find("\r\n\r\n") + 4);					//get body
 	if (!_map_request["Transfer-Encoding"].empty())
 	{
@@ -91,10 +93,52 @@ void				Request::fill_path_query(void)
 		size_t i = -1;
 		while (++i < elements.size())
 			std::cout << "[" << elements[i] << "]" << std::endl;
-
+		UtilsString::vector_to_listpair(v_pair, elements);
+		_body.clear();
+	
+		std::vector<std::pair<int, std::string> >::iterator		it_begin = v_pair.begin();
+		std::vector<std::pair<int, std::string> >::iterator		it_end = v_pair.end();
+		while (it_begin != it_end)
+		{
+			if (it_begin->second.find("=") != std::string::npos)
+				_path_query = it_begin->second;
+			_body += it_begin->second;
+			it_begin++;
+		}
 	}
 	else
 		_path_query = _body;
+}
+
+void				Request::parse_body(void)
+{
+	_body = _request.substr(_request.find("\r\n\r\n") + 4);
+	if (!_map_request["Transfer-Encoding"].empty())
+	{
+		std::vector<std::pair<int, std::string> >	v_pair;
+		std::vector<std::string>	elements;
+		UtilsString::split(_body, '\r', elements);
+		size_t i = -1;
+		while (++i < elements.size())
+			std::cout << "[" << elements[i] << "]" << std::endl;
+		UtilsString::vector_to_listpair(v_pair, elements);
+		_body.clear();
+
+		std::vector<std::pair<int, std::string> >::iterator		it_begin = v_pair.begin();
+		std::vector<std::pair<int, std::string> >::iterator		it_end = v_pair.end();
+		while (it_begin != it_end)
+		{
+			if (it_begin->second.find("=") != std::string::npos)
+				_path_query = it_begin->second;
+			_body += it_begin->second;
+			it_begin++;
+		}
+	}
+	else
+	{
+		if (_body.find("=") != std::string::npos)
+			_path_query = _body;
+	}
 }
 
 void				Request::parse_request(void)
@@ -111,8 +155,9 @@ void				Request::parse_request(void)
 		if (elements[1].find("?") != std::string::npos)
 			_path_query = elements[1].substr(elements[1].find("?") + 1);
 	}
-	else
-		fill_path_query();
+	// else
+	// 	fill_path_query();
+	parse_body();
 	_host = _map_request["Host"];											//get host
 	_content_type = _map_request["Content-Type"];							//get content-type
 	_content_length = _map_request["Content-Length"];

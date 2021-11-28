@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 08:41:35 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 14:13:12 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,11 @@ class Server
 		** CGI
 		*/
 		void													init_var_cgi(void);
+		void													manage_cgi(void);
 
 		/*
 		** REQUEST
 		*/
-
 		void													manage_request(std::string &request);
 		void													parse_request(Request &r);
 		bool													check_method_location(void);

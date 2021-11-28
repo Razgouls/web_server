@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 15:25:08 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 13:54:08 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,19 +109,16 @@ namespace UtilsParser
 		int									j;
 		std::pair<std::string, std::string>	infos;
 
-		while (line[i] && std::isspace(line[i]))
+		UtilsString::trim(" \r\t", line);
+		while (line[i] && !UtilsString::is_blank(line[i]))
+			i++;
+		infos.first = line.substr(0, i);
+		while (line[i] && UtilsString::is_blank(line[i]))
 			i++;
 		j = i;
-		while (line[j] && !std::isspace(line[j]))
-			j++;
-		infos.first = line.substr(i, j - i);
-		i = j;
-		while (line[i] && std::isspace(line[i]))
+		while (line[i])
 			i++;
-		j = i;
-		while (line[j] && !std::isspace(line[j]))
-			j++;
-		infos.second = line.substr(i, j - i);
+		infos.second = line.substr(j, i);
 		return (infos);
 	}
 
@@ -158,11 +155,40 @@ namespace UtilsParser
 		return (tmp);
 	}
 
-	void									check_point_virgule(char c, std::string &str)
+	std::pair<std::string, std::string>			create_pair_cgi(std::pair<std::string, std::string> &infos)
 	{
-		UtilsString::trim(c, str);
+		std::pair<std::string, std::string>	tmp;
+		if (infos.second.find(",") != std::string::npos)
+		{
+			std::string code_error = infos.second.substr(0, infos.second.find(","));
+			std::string html_error = infos.second.substr(code_error.length() + 1, infos.second.length() - code_error.length() - 1);
+			tmp.first = code_error;
+			tmp.second = html_error;
+		}
+		else
+		{
+			tmp.first = "";
+			tmp.second = ";";
+		}
+		return (tmp);
+	}
+
+	void									check_point_virgule(std::string &str)
+	{
 		if (*(str.rbegin()) != ';')
-			throw std::string("Point virgule manquant.");
+		{
+			std::string ret = str + "\n";
+			int			i = -1;
+			while (ret[++i] != '\n')
+				ret += " ";
+			ret += 94;
+			ret += "\n";
+			i = -1;
+			while (ret[++i] != '\n')
+				ret += " ";
+			ret += ";";
+			throw std::string(ret);
+		}
 		str.erase(str.end() - 1);
 	}
 }
@@ -179,6 +205,23 @@ namespace UtilsString
 			i++;
 		}
 	}
+
+	void									vector_to_listpair(std::vector<std::pair<int, std::string> > &list, std::vector<std::string> &vector)
+	{
+		std::vector<std::string>::iterator		it_begin = vector.begin();
+		std::vector<std::string>::iterator		it_end = vector.end();
+		std::pair<int, std::string>				pair;
+
+		while ((it_begin + 1) != it_end)
+		{
+			std::string num = (*it_begin).c_str();
+			pair.first = UtilsString::hex_to_dec(num);
+			pair.second = *(it_begin + 1);
+			list.push_back(pair);
+			it_begin += 2;
+		}
+	}
+
 	int										hex_to_dec(std::string &hexVal)
 	{
 		int len = hexVal.size();
@@ -249,15 +292,37 @@ namespace UtilsString
 		return (true);
 	}
 
-	void									trim(char c, std::string &str)
+	bool									is_blank(char c)
 	{
-		while ((*(str.begin())) == c)
+		if ((c < 9 || c > 13) && c != 32)
+			return (false);
+		return (true);
+	}
+
+	void									trim(std::string delim, std::string &str)
+	{
+		while (delim.find((*(str.begin()))) != std::string::npos)
 			str.erase(0, 1);
-		while ((*(str.rbegin())) == c)
+		while (delim.find((*(str.rbegin()))) != std::string::npos)
 			str.erase(str.end() - 1, str.end());
 	}
 
 	void									split(const std::string &chaine, char delimiteur, std::vector<std::string> &elements)
+	{
+		std::stringstream	ss(chaine);
+		std::string			sousChaine;
+
+		while (getline(ss, sousChaine, delimiteur))
+		{
+			if (*(sousChaine.begin()) == '\n')
+				sousChaine.erase(0, 1);
+			if (*(sousChaine.rbegin()) == '\n')
+				sousChaine.erase(sousChaine.end() - 1, sousChaine.end());
+			elements.push_back(sousChaine);
+		}
+	}
+
+	void									split(const std::string &chaine, char delimiteur, std::list<std::string> &elements)
 	{
 		std::stringstream	ss(chaine);
 		std::string			sousChaine;
@@ -384,6 +449,17 @@ namespace UtilsFile
 		}
 		return (false);
 	}
+
+	bool									check_file_exists(std::string &filename)
+	{
+		struct stat buffer;
+		int exist;
+		
+		exist = stat(filename.c_str(), &buffer);
+		if(exist == 0)
+			return (true);
+		return (false);
+	}
 }
 
 namespace UtilsDir
@@ -404,6 +480,23 @@ namespace UtilsDir
 		{
 			if (buf.st_mode & S_IFDIR)
 				return (true);
+		}
+		return (false);
+	}
+}
+
+namespace UtilsIterator
+{
+	bool									find_list(std::list<std::string> &list, std::string elem)
+	{
+		std::list<std::string>::iterator	it_begin = list.begin();
+		std::list<std::string>::iterator	it_end = list.end();
+
+		while (it_begin != it_end)
+		{
+			if (*it_begin == elem)
+				return (true);
+			it_begin++;
 		}
 		return (false);
 	}
