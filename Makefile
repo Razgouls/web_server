@@ -6,7 +6,7 @@
 #    By: elie <elie@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/16 07:45:16 by eoliveir          #+#    #+#              #
-#    Updated: 2021/11/28 21:33:37 by elie             ###   ########.fr        #
+#    Updated: 2021/11/29 15:59:30 by elie             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,7 +22,7 @@ CC = clang++
 
 FLAGS = -Wall -Wextra -Werror -std=c++98
 
-INC= -I ./includes/cgi -I ./includes/parser -I ./includes/utils -I ./includes/web_server -I ./includes/tester
+INC= -I ./includes/cgi -I ./includes/parser -I ./includes/utils -I ./includes/web_server
 
 #############################################
 ######			FILES .C			#########
@@ -30,9 +30,9 @@ INC= -I ./includes/cgi -I ./includes/parser -I ./includes/utils -I ./includes/we
 
 SRC = srcs
 
-DIR_C = $(addprefix $(SRC)/, cgi parser utils web_server tester)
+DIR_C = $(addprefix $(SRC)/, cgi parser utils web_server)
 
-FILES_C = $(addprefix $(SRC)/, $(CGI) $(PARSER) $(UTILS) $(WEB_SERVER) $(TESTER))
+FILES_C = $(addprefix $(SRC)/, $(CGI) $(PARSER) $(UTILS) $(WEB_SERVER))
 
 CGI			= $(addprefix cgi/,					\
 				CGI.cpp							\
@@ -54,10 +54,6 @@ WEB_SERVER	= $(addprefix web_server/,			\
 				Route.cpp						\
 				Server.cpp						\
 				ConnexionServer.cpp				\
-			)
-
-TESTER		= $(addprefix tester/,				\
-				FileConfig.cpp					\
 			)
 
 #############################################

@@ -1,2 +1,0 @@
-QS=Bonjour=elie
-Data : Bonjour=elie
