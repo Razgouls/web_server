@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 15:55:49 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 16:02:50 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -227,18 +227,6 @@ void					Server::manage_cgi(void)
 		_reponse.build_body_response(std::make_pair(MESSAGE, body));
 	}
 }
-
-/*
-** Cette fonction est appelee si la methode utilisée eatit une methode POST (notammenent pour le formulaire)
-*/
-//A RETRAIVAILLER AVEC LE CGI
-// void					Server::post_resource(void)
-// {
-// 	std::string path = _request.get_path();
-// 	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
-// 	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)) && !_request.get_path_query().empty())
-// 		manage_cgi();
-// }
 
 void					Server::post_resource(void)
 {
