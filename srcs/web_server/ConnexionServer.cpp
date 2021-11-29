@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 14:19:01 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 18:04:57 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -180,7 +180,7 @@ int					ConnexionServer::manage_connexion(int &fd)
 	std::cout << BOLDRED << "=================================================================" << std::endl;
 	std::cout << BOLDRED << "======================== INFOS RESPONSE =========================" << std::endl;
 	std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
-	std::cout << reponse.substr(0, 2000) << std::endl;
+	std::cout << reponse << std::endl;
 	return (0);
 }
 

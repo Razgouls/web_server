@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:54:00 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 12:47:27 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 15:50:57 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void				ParserServer::head_valid(void)
 {
 	UtilsString::trim(" \t\r", _head);
 	if (_head != "server {")
-		throw std::string("L'entete '" + _head + "' est invalide.");
+		throw std::string(UtilsString::create_reponse_parser("L'entete est invalide :", _head, false));
 }
 
 void				ParserServer::port_valid(void)
@@ -87,13 +87,14 @@ void				ParserServer::port_valid(void)
 	UtilsString::trim(" \t\r", port);
 	UtilsParser::check_point_virgule(port);
 	if (port.empty())
-		throw std::string("Le port ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le port ne peut etre vide :", port, false));
 	while (port[++i])
 		if (port[i] < '0' || port[i] > '9')
-			throw std::string("Le port '" + port + "' est invalide dans le server '" + _m_parser["server_name"] + "'");
+			throw std::string(UtilsString::create_reponse_parser("Le port donné est invalide :", port, false));
 	int	num_port = atoi(port.c_str());
-	if (num_port < 0 || num_port > 65535)
-		throw std::string("Le port '" + port + "' est en dehors des plages 0 et 65535 dans le server '" + _m_parser["server_name"] + "'");
+	if (num_port <= 0 || num_port > 65535)
+		throw std::string(UtilsString::create_reponse_parser("Le port donné est en dehors des plages [1 ; 65535] :", port, false));
+	std::cout << UtilsString::create_reponse_parser("Port :", port, true);
 }
 
 void				ParserServer::host_valid(void)
@@ -103,9 +104,10 @@ void				ParserServer::host_valid(void)
 	UtilsString::trim(" \t\r", host);
 	UtilsParser::check_point_virgule(host);
 	if (host.empty())
-		throw std::string("L'adresse IP ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("L'adresse IP ne peut etre vide :", host, false));
 	if (host != "127.0.0.1")
-		throw std::string("L'adresse IP '" + host + "' est invalide dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("L'adresse IP donnée est invalide :", host, false));
+	std::cout << UtilsString::create_reponse_parser("Adresse IP :", host, true);
 }
 
 void				ParserServer::name_valid(void)
@@ -115,8 +117,8 @@ void				ParserServer::name_valid(void)
 	UtilsString::trim(" \t\r", server_name);
 	UtilsParser::check_point_virgule(server_name);
 	if (server_name.empty())
-		throw std::string("Le nom du serveur ne peut etre vide");
-
+		throw std::string(UtilsString::create_reponse_parser("Le nom du serveur ne peut etre vide :", server_name, false));
+	std::cout << UtilsString::create_reponse_parser("Server name :", server_name, true);
 }
 
 void				ParserServer::root_valid(void)
@@ -126,11 +128,12 @@ void				ParserServer::root_valid(void)
 	UtilsString::trim(" \t\r", root);
 	UtilsParser::check_point_virgule(root);
 	if (root.empty())
-		throw std::string("Le root du serveur ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le root du serveur ne peut etre vide :", root, false));
 	if (*(root.end() - 1) == '/')
-		throw std::string("Le root '" + root + "' est invalid (veuillez supprimer le '/' a la fin du path) dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le root donné est invalide (veuillez supprimer le '/' a la fin du path) :", root, false));
 	if (!UtilsDir::is_dir(root))
-		throw std::string("Le path '" + root + "' du root n'est pas un dossier dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le path du root doit etre un dossier :", root, false));
+	std::cout << UtilsString::create_reponse_parser("Root server :", root, true);
 }
 
 void				ParserServer::limit_body_size_valid(void)
@@ -141,13 +144,14 @@ void				ParserServer::limit_body_size_valid(void)
 	UtilsString::trim(" \t\r", limit);
 	UtilsParser::check_point_virgule(limit);
 	if (limit.empty())
-		throw std::string("Le limite client body size du serveur ne peut etre vide dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le limite client body size du serveur ne peut etre vide :", limit, false));
 	while (limit[++i])
 		if (limit[i] < '0' || limit[i] > '9')
-			throw std::string("La limite client body size '" + limit + "' est invalide dans le server '" + _m_parser["server_name"] + "'");
+			throw std::string(UtilsString::create_reponse_parser("La limite client body size donné est invalide :", limit, false));
 	int	limit_client = atoi(limit.c_str());
 	if (limit_client < 0 || limit_client > 2147483647)
-		throw std::string("La limite client body size '" + limit + "' est invalide dans le server '" + _m_parser["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("La limite client body size donné est invalide :", limit, false));
+	std::cout << UtilsString::create_reponse_parser("Limite client body size :", limit, true);
 }
 
 void				ParserServer::error_page_valid(void)
@@ -160,9 +164,10 @@ void				ParserServer::error_page_valid(void)
 		UtilsString::trim(" \t\r", it_begin->second);
 		UtilsParser::check_point_virgule(it_begin->second);
 		if (it_begin->first <= 0 || it_begin->second.empty())
-			throw std::string("Configuration des fichiers errors incomplete dans le server '" + _m_parser["server_name"] + "'");
+			throw std::string(UtilsString::create_reponse_parser("Configuration des fichiers errors incomplete dans le server :", it_begin->second, false));
 		if (!UtilsFile::is_file(it_begin->second))
-			throw std::string("Le fichier erreur '" + it_begin->second + "' n'est pas un fichier valide dans le server '" + _m_parser["server_name"] + "'");
+			throw std::string(UtilsString::create_reponse_parser("Le fichier erreur donné doit etre valide :", it_begin->second, false));
+		std::cout << UtilsString::create_reponse_parser("Fichier page erreur :", it_begin->second, true);
 		it_begin++;
 	}
 }
@@ -170,10 +175,11 @@ void				ParserServer::error_page_valid(void)
 void				ParserServer::check_key_m_parser(std::string mess, std::string key)
 {
 	std::map<std::string, std::string>::iterator	it;
+	std::string	tmp = "";
 
 	it = _m_parser.find(key);
 	if (it == _m_parser.end())
-		throw std::string(mess);
+		throw std::string(UtilsString::create_reponse_parser(mess, tmp, false));
 	else
 		_m_parser.erase(key);
 }
@@ -183,20 +189,20 @@ void				ParserServer::map_parser_valid(void)
 	std::map<std::string, std::string>	map_tmp = _m_parser;
 
 	try {
-		check_key_m_parser("Listen manquant.", "listen");
-		check_key_m_parser("Host manquant.", "host");
-		check_key_m_parser("Server_name manquant.", "server_name");
-		check_key_m_parser("Root manquant.", "root");
-		check_key_m_parser("Limit_client_body_size manquant.", "limit_client_body_size");
+		check_key_m_parser("Listen manquant :", "listen");
+		check_key_m_parser("Host manquant :", "host");
+		check_key_m_parser("Server_name manquant :", "server_name");
+		check_key_m_parser("Root manquant :", "root");
+		check_key_m_parser("Limit_client_body_size manquant :", "limit_client_body_size");
 		check_key_m_parser("Bracket de fin manquante", "}");
 	}
 	catch(const std::string &error) {
 		throw;
 	}
 	if (!_m_parser.empty())
-		throw std::string("La mot clé '" + (_m_parser.begin())->first + "' est invalide dans le server '" + map_tmp["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le mot clé est invalide", _m_parser.begin()->first, false));
 	if (_m_error.empty())
-		throw std::string("Aucun fichier d'erreur n'a ete configuré dans le server '" + map_tmp["server_name"] + "'");
+		throw std::string(UtilsString::create_reponse_parser("Aucun fichier d'erreur n'a ete configuré dans le serveur :", map_tmp["server_name"] , false));
 	_m_parser = map_tmp;
 }
 
@@ -206,6 +212,7 @@ void				ParserServer::route_valid(void)
 	std::vector<ParserRoute>::iterator		it_end = _v_route.end();
 	while (it_begin != it_end)
 	{
+		std::cout << std::endl << BOLDCYAN << "Location : " << WHITE << std::endl;
 		try {
 			(*it_begin).route_valid(_m_parser["root"]);
 		}
@@ -220,6 +227,10 @@ void				ParserServer::server_valid(void)
 {
 	try
 	{
+		std::cout << BOLDRED << "=================================================================" << std::endl;
+		std::cout << BOLDRED << "====================== PARSER SERVER CONFIG =====================" << std::endl;
+		std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
+		std::cout << BOLDCYAN << "Server :" << WHITE << std::endl;
 		map_parser_valid();
 		name_valid();
 		head_valid();
@@ -229,6 +240,7 @@ void				ParserServer::server_valid(void)
 		limit_body_size_valid();
 		error_page_valid();
 		route_valid();
+		std::cout << std::endl << std::endl;
 	}
 	catch(const std::string &error)
 	{

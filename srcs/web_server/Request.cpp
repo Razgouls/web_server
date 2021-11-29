@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 00:07:55 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 19:11:04 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,6 +247,7 @@ std::ostream		&operator<<(std::ostream &os, Request &r)
 	os << BOLDGREEN << "Url request\t:  " << BOLDYELLOW << "[" << WHITE << r.get_uri_request() << BOLDYELLOW << "]" << WHITE <<std::endl;
 	os << BOLDGREEN << "Host\t:  " << BOLDYELLOW << "[" << WHITE << r.get_host() << BOLDYELLOW << "]" << WHITE << std::endl;
 	os << BOLDGREEN << "Content-Length\t:  " << BOLDYELLOW << "[" << WHITE << r.get_content_length() << BOLDYELLOW << "]" << WHITE << std::endl;
+	os << BOLDGREEN << "Content-Type\t:  " << BOLDYELLOW << "[" << WHITE << r.get_content_type() << BOLDYELLOW << "]" << WHITE << std::endl;
 	os << BOLDGREEN << "Body\t:  " << BOLDYELLOW << "[" << WHITE << r.get_body() << BOLDYELLOW << "]" << BOLDYELLOW << std::endl;
 	os << BOLDGREEN << "REQUETE\t:" << std::endl << BOLDYELLOW << "[" << WHITE << r.get_request() << BOLDYELLOW << "]" << WHITE << std::endl;
 

@@ -1,2 +1,2 @@
-QS=name=linuxize
-Data : name=linuxize
+QS=Bonjour=elie
+Data : Bonjour=elie

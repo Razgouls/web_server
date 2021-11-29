@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:53:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 12:57:30 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 15:11:56 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,12 +37,13 @@ void					ParserRoute::path_valid(std::string &path_server)
 	std::string		    path;
 
 	if (_path.empty())
-		throw std::string("Le path de la route 'location " + _path + "' ne peut etre vide dans la route");
+		throw std::string(UtilsString::create_reponse_parser("Le path ne peut etre vide :", _path, false));
 	if (*(_path.end() - 1) == '/' && _path != "/")
-		throw std::string("Le path '" + _path + "' est invalide (veuillez supprimer le '/' a la fin du path de la route 'location " + _path + "')");
+		throw std::string(UtilsString::create_reponse_parser("Le path est invalide (veuillez supprimer le '/' a la fin du path) :", _path, false));
 	path = path_server + _path;
 	if (!UtilsDir::is_dir(path))
-		throw std::string("Le path '" + path + "' de la route 'location " + _path + "' n'est pas un dossier");
+		throw std::string(UtilsString::create_reponse_parser("Le path doit etre un dossier :", _path, false));
+	std::cout << UtilsString::create_reponse_parser("Path location :", path, true);
 }
 
 void					ParserRoute::index_valid(std::string &path_server)
@@ -53,13 +54,14 @@ void					ParserRoute::index_valid(std::string &path_server)
 	UtilsString::trim(" \t\r", index);
 	UtilsParser::check_point_virgule(index);
 	if (index.empty())
-		throw std::string("L'index ne peut etre vide dans la route 'location " + _path + "'");
+		throw std::string(UtilsString::create_reponse_parser("L'index ne peut etre vide :", index, false));
 	path_index = path_server + _path;
 	if (*(path_index.end() - 1) != '/')
 		path_index += "/";
 	path_index += index;
 	if (!UtilsFile::is_file(path_index))
-		throw std::string("L'index '" + index + "' n'est pas un fichier valide dans la route 'location " + _path + "'");
+		throw std::string(UtilsString::create_reponse_parser("L'index donné doit etre un fichier valide :", index, false));
+	std::cout << UtilsString::create_reponse_parser("Index location :", index, true);
 }
 
 void					ParserRoute::method_valid(void)
@@ -70,22 +72,24 @@ void					ParserRoute::method_valid(void)
 	std::list<std::string>::iterator	it_begin;
 	std::list<std::string>::iterator	it_end;
 
-	if (methods.empty())
-		throw std::string("Les methodes ne peut etre vide dans la route 'location " + _path + "'");
 	UtilsString::trim(" \t\r", method);
 	UtilsParser::check_point_virgule(methods);
+	if (methods.empty())
+		throw std::string(UtilsString::create_reponse_parser("Les methodes ne peuvent etre vides :", method, false));
 	UtilsString::split(methods, ',', _l_method);
 	it_begin = _l_method.begin();
 	it_end = _l_method.end();
 	while (it_begin != it_end)
 	{
-		// std::cout << "METHOD : [" << *it_begin << "]" << std::endl;
 		UtilsString::trim(" \r\t", *it_begin);
 		method = *it_begin;
-		if (method != "GET" && method != "POST" && method != "PUT" && method != "DELETE")
-			throw std::string("La methode '" + method + "' est invalide dans la route 'location " + _path + "'");
+		if (method.empty())
+			throw std::string(UtilsString::create_reponse_parser("Les methodes ne peuvent etre vides :", *it_begin, false));
+		if ((method != "GET" && method != "POST" && method != "DELETE"))
+			throw std::string(UtilsString::create_reponse_parser("La methode " + method + " est invalide :", method, false));
 		it_begin++;
 	}
+	std::cout << UtilsString::create_reponse_parser("Methodes :", methods, true);
 }
 
 void                    ParserRoute::autoindex_valid(void)
@@ -95,9 +99,10 @@ void                    ParserRoute::autoindex_valid(void)
 	UtilsString::trim(" \t\r", autoindex);
 	UtilsParser::check_point_virgule(autoindex);
 	if (autoindex.empty())
-		throw std::string("L'autoindex ne peut etre vide dans la route 'location " + _path + "'");
+		throw std::string(UtilsString::create_reponse_parser("L'autoindex ne peut etre vide :", autoindex, false));
 	if (autoindex != "on" && autoindex != "off")
-		throw std::string("L'autoindex '" + autoindex + "' est invalide dans la route 'location " + _path + "'");
+		throw std::string(UtilsString::create_reponse_parser("L'autoindex donné est invalide :", autoindex, false));
+	std::cout << UtilsString::create_reponse_parser("Autoindex :", autoindex, true);
 }
 
 void                    ParserRoute::upload_dir_valid(void)
@@ -107,36 +112,12 @@ void                    ParserRoute::upload_dir_valid(void)
 	UtilsString::trim(" \t\r", upload_dir);
 	UtilsParser::check_point_virgule(upload_dir);
 	if (upload_dir.empty())
-		throw std::string("L'upload_dir ne peut etre vide dans la route 'location " + _path + "'");
+		throw std::string(UtilsString::create_reponse_parser("L'upload_dir ne peut etre vide :", upload_dir, false));
 	if (*(upload_dir.end() - 1) == '/' && upload_dir != "/")
-		throw std::string("Le path '" + upload_dir + "' est invalide (veuillez supprimer le '/' a la fin du upload_dir) dans la route 'location " + _path + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le path donné est invalide (veuillez supprimer le '/' a la fin du upload_dir) :", upload_dir, false));
 	if (!UtilsDir::is_dir(upload_dir))
-		throw std::string("L'upload_dir '" + upload_dir + "' n'est pas un dossier dans la route 'location " + _path + "'");
-}
-
-void					ParserRoute::cgi_extension_valid(void)
-{
-	std::string							&cgi_extension = _m_parser["cgi_extension"];
-	std::list<std::string>::iterator	it_begin;
-	std::list<std::string>::iterator	it_end;
-
-	if (cgi_extension.empty())
-			throw std::string("L'extension du cgi ne peut etre vide dans la route 'location " + _path + "'");
-	UtilsString::trim(" \t\r", cgi_extension);
-	UtilsParser::check_point_virgule(cgi_extension);
-	UtilsString::split(cgi_extension, ',', _l_cgi_extension);
-	it_begin = _l_cgi_extension.begin();
-	it_end = _l_cgi_extension.end();
-	while (it_begin != it_end)
-	{
-		UtilsString::trim(" \r\t", *it_begin);
-		std::string path = "/usr/bin/" + it_begin->substr(1);
-		if (*(it_begin->begin()) != '.')
-			throw std::string("L'extension '" + *it_begin + "' est invalide (doit commencé par '.' dans la route 'location " + _path + "'");
-		if (!UtilsFile::check_file_exists(path))
-			throw std::string("Le cgi extension '" + *it_begin + "' est invalide dans la route 'location " + _path + "'");
-		it_begin++;
-	}
+		throw std::string(UtilsString::create_reponse_parser("L'upload dir donné doit etre un dossier :", upload_dir, false));
+	std::cout << UtilsString::create_reponse_parser("Path upload dir :", upload_dir, true);
 }
 
 void					ParserRoute::cgi_bin_valid(void)
@@ -145,20 +126,49 @@ void					ParserRoute::cgi_bin_valid(void)
 	std::list<std::string>::iterator	it_begin;
 	std::list<std::string>::iterator	it_end;
 
-	if (cgi_bin.empty())
-			throw std::string("L'extension du cgi ne peut etre vide dans la route 'location " + _path + "'");
 	UtilsString::trim(" \t\r", cgi_bin);
 	UtilsParser::check_point_virgule(cgi_bin);
+	if (cgi_bin.empty())
+			throw std::string(UtilsString::create_reponse_parser("Le CGI bin ne peut etre vide :", cgi_bin, false));
 	UtilsString::split(cgi_bin, ',', _l_cgi_bin);
 	it_begin = _l_cgi_bin.begin();
 	it_end = _l_cgi_bin.end();
 	while (it_begin != it_end)
 	{
-		UtilsString::trim(" \t\r", *it_begin);
+		UtilsString::trim(" \r\t", *it_begin);
+		if (it_begin->empty())
+			throw std::string(UtilsString::create_reponse_parser("Le CGI bin ne peut etre vide :", cgi_bin, false));
 		if (!UtilsFile::check_file_exists(*it_begin))
-			throw std::string("Le cgi extension '" + *it_begin + "' est invalide dans la route 'location " + _path + "'");
+			throw std::string(UtilsString::create_reponse_parser("Le CGI bin donné est invalide :", cgi_bin, false));
 		it_begin++;
 	}
+	std::cout << UtilsString::create_reponse_parser("CGI bin :", cgi_bin, true);
+}
+
+void					ParserRoute::cgi_extension_valid(void)
+{
+	std::string							&cgi_extension = _m_parser["cgi_extension"];
+	std::list<std::string>::iterator	it_begin;
+	std::list<std::string>::iterator	it_end;
+	std::stringstream					rep;
+
+	UtilsString::trim(" \t\r", cgi_extension);
+	UtilsParser::check_point_virgule(cgi_extension);
+	if (cgi_extension.empty())
+			throw std::string(UtilsString::create_reponse_parser("L'extension du cgi ne peut etre vide :", cgi_extension, false));
+	UtilsString::split(cgi_extension, ',', _l_cgi_extension);
+	it_begin = _l_cgi_extension.begin();
+	it_end = _l_cgi_extension.end();
+	while (it_begin != it_end)
+	{
+		UtilsString::trim(" \t\r", *it_begin);
+		if (it_begin->empty())
+			throw std::string(UtilsString::create_reponse_parser("L'extension du cgi ne peut etre vide :", *it_begin, false));
+		if (*(it_begin->begin()) != '.')
+			throw std::string(UtilsString::create_reponse_parser("L'extension du cgi doit commencer par un '.' :", *it_begin, false));
+		it_begin++;
+	}
+	std::cout << UtilsString::create_reponse_parser("CGI extension :", cgi_extension, true);
 }
 
 bool					ParserRoute::check_key_m_parser(std::map<std::string, std::string>	&map_tmp, std::string key)
@@ -197,7 +207,7 @@ void				ParserRoute::route_valid(std::string &path_server)
 		throw;
 	}
 	if (!map_tmp.empty())
-		throw std::string("La mot clé '" + (map_tmp.begin())->first + "' est invalide dans la route 'location " + _path + "'");
+		throw std::string(UtilsString::create_reponse_parser("Le mot clé est invalide", (map_tmp.begin())->first, false));
 }
 
 void                    ParserRoute::print(void)

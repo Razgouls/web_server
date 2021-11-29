@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 14:15:37 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 15:55:49 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -232,60 +232,68 @@ void					Server::manage_cgi(void)
 ** Cette fonction est appelee si la methode utilisée eatit une methode POST (notammenent pour le formulaire)
 */
 //A RETRAIVAILLER AVEC LE CGI
-void					Server::post_resource(void)
-{
-	std::string path = _request.get_path();
-	std::string	bin;
-	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
-	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)) && !_request.get_path_query().empty())
-		manage_cgi();
-}
+// void					Server::post_resource(void)
+// {
+// 	std::string path = _request.get_path();
+// 	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
+// 	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)) && !_request.get_path_query().empty())
+// 		manage_cgi();
+// }
 
-void					Server::put_resource(void)
+void					Server::post_resource(void)
 {
 	std::string		tmp_path(_request.get_path());
 	int				last_slash = tmp_path.find("/");
 	std::ofstream	myfile;
 
-	tmp_path.erase(0, last_slash + 1);
-	if (UtilsFile::is_file(tmp_path))
-	{
-		myfile.open(tmp_path.c_str(), std::ofstream::in);
-		if (myfile.good())
-		{
-			if (_request.get_content_length() == "0")
-				_reponse.set_code_etat(204, "No Content");
-			else
-				myfile << _request.get_body();
-			_reponse.set_code_etat(200, "OK");
-			_reponse.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path));
-			myfile.close();
-		}
-		else
-		{
-			_reponse.set_code_etat(403, "Forbidden");
-			_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
-		}
-	}
-	else if (UtilsDir::is_dir(tmp_path))
-	{
-		_reponse.set_code_etat(403, "Forbidden");
-		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
-	}
+	_reponse.set_content_type(_mime[UtilsFile::get_extension(tmp_path)]);
+	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(tmp_path)) && !_request.get_path_query().empty())
+		manage_cgi();
 	else
 	{
-		myfile.open(tmp_path.c_str(), std::ofstream::out);
-		if (!myfile.is_open() || !myfile.good())
+		tmp_path.erase(0, last_slash + 1);
+		if (UtilsFile::is_file(tmp_path))
+		{
+			myfile.open(tmp_path.c_str(), std::ofstream::in | std::ios::app);
+			if (myfile.good())
+			{
+				if (_request.get_content_length() == "0")
+					_reponse.set_code_etat(204, "No Content");
+				else
+					myfile << _request.get_body();
+				_reponse.set_code_etat(200, "OK");
+				_reponse.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path));
+				myfile.close();
+			}
+			else
+			{
+				_reponse.set_code_etat(403, "Forbidden");
+				_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
+			}
+		}
+		else if (UtilsDir::is_dir(tmp_path))
 		{
 			_reponse.set_code_etat(403, "Forbidden");
 			_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
 		}
 		else
 		{
-			myfile << _request.get_body();
-			_reponse.set_code_etat(201, "Created");
-			_reponse.build_body_response(std::make_pair(MESSAGE, "Fichier " + tmp_path + " creer et contenu ajouté"));
-			myfile.close();
+			myfile.open(tmp_path.c_str(), std::ofstream::out);
+			if (!myfile.is_open() || !myfile.good())
+			{
+				_reponse.set_code_etat(403, "Forbidden");
+				_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
+			}
+			else
+			{
+				if (_request.get_content_type() == "multipart/form-data")
+					myfile << UtilsFile::get_file_content(_request.get_body());
+				else
+					myfile << _request.get_body();
+				_reponse.set_code_etat(201, "Created");
+				_reponse.build_body_response(std::make_pair(MESSAGE, "Fichier " + tmp_path + " creer et contenu ajouté"));
+				myfile.close();
+			}
 		}
 	}
 }
@@ -330,6 +338,7 @@ void					Server::get_resource(void)
 			_reponse.set_code_etat(301, "Forbidden");
 			new_path = _map_error[403];
 		}
+		std::cout << "ICNEW_PATH : [" << new_path << "]" << std::endl;
 		_reponse.build_body_response(std::make_pair(M_FILE, new_path));
 	}
 	else if (ret == AUTOINDEX)
@@ -364,8 +373,6 @@ void					Server::manage_reponse(void)
 		get_resource();
 	else if (method == "POST")
 		post_resource();
-	else if (method == "PUT")
-		put_resource();
 	else if (method == "DELETE")
 		delete_resource();
 }
@@ -400,7 +407,8 @@ void					Server::c_recv(std::string &request)
 			// char hello[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n26\r\nVoici les donnees du premier morceau\r\n\r\n1C\r\net voici un second morceau\r\n\r\n20\r\net voici deux derniers morceaux \r\n12\r\nsans saut de ligne\r\n0\r\n\r\n";
 			// send(fd, hello, 1024, 0);
 			manage_request(request);
-			std::cout << _request << std::endl;
+			if (_request.get_path().find("favicon") == std::string::npos)
+				std::cout << _request << std::endl;
 			manage_reponse();
 		}
 	}
@@ -410,8 +418,6 @@ void					Server::init_var_cgi(void)
 {
 	std::string											path = _request.get_path();
 
-	// _cgi.set_cgi_bin(_route.get_cgi_bin());
-	// _cgi.set_cgi_extension(_route.get_cgi_extension());
 	_cgi.add_var_env("AUTH_TYPE", "");
 	_cgi.add_var_env("GATEWAY_INTERFACE", "CGI/1.1");
 	_cgi.add_var_env("HTTP_ACCEPT", _request.get_map_request()["Accept"]);
@@ -427,7 +433,6 @@ void					Server::init_var_cgi(void)
 	_cgi.add_var_env("SERVER_SOFWARE", "web_server/1.10");
 	_cgi.add_var_env("SERVER_PROTOCOL", "HTTP/1.1");
 	_cgi.add_var_env("SERVER_PORT", UtilsString::to_string(_port));
-	// _cgi.add_var_env("SCRIPT_NAME", _route.get_cgi_bin());
 	_cgi.add_var_env("PATH_TRANSLATED", path);
 	_cgi.add_var_env("REMOTE_ADDR", _host);
 	_cgi.add_var_env("REMOTE_USER", "user");

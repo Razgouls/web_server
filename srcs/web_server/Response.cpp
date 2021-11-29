@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/26 11:50:12 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 18:05:19 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -209,7 +209,7 @@ void				Response::build_body_response(std::pair<int, std::string> infos)
 	else if (infos.first == M_FILE)
 	{
 		myfile.open(infos.second.c_str());
-		_body_response.append(UtilsFile::get_file_content(infos.second));
+		_body_response += (UtilsFile::get_file_content(infos.second));
 		myfile.close();
 	}	
 }

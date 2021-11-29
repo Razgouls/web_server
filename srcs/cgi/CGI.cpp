@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 18:07:56 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 14:27:50 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/28 14:50:54 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,51 +41,6 @@ char						**CGI::convert_map(void)
 	env[i] = 0;
 	return (env);
 }
-
-/*
-else if (pid == 0)
-	{
-		dup2(output_fd, STDOUT_FILENO);
-		dup2(input_fd, STDIN_FILENO);
-
-		execve(route.get_cgi_bin().c_str(), av, this->convert_map());
-	}
-	else
-	{
-		waitpid(-1, NULL, 0);
-		lseek(output_fd, 0, SEEK_SET);
-
-		close(output_fd);
-		close(input_fd);
-
-		dup2(ex_fd[0], STDIN_FILENO);
-		dup2(ex_fd[1], STDOUT_FILENO);
-	}
-*/
-
-// void						CGI::execute(Route &route, std::string &path)
-// {
-// 	pid_t	pid;
-// 	int		status;
-
-// 	pid = fork();
-// 	if (pid == 0)
-// 	{
-// 		char **t = new char*[3];
-// 		_output = fopen("output.txt", "w+");
-// 		int fd = fileno(_output);
-	
-// 		t[0] = strdup(route.get_cgi_bin().c_str());
-// 		t[1] = strdup(path.c_str());
-// 		t[2] = 0;
-// 		dup2(fd, STDOUT);
-// 		if (execve(route.get_cgi_bin().c_str(), t, convert_map()) == -1)
-// 			perror("ERROR EXECVE");
-// 		exit(0);
-// 	}
-// 	else
-// 		waitpid(pid, &status, 0);
-// }
 
 void						CGI::execute(std::string &bin, std::string &path, std::string &body)
 {

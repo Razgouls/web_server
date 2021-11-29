@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 13:51:53 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 15:14:44 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,10 +62,7 @@ namespace UtilsParser
 	bool									syntax_bracket_open(std::string &line);
 	std::string								get_path_location(std::string &line);
 	void									syntax_bracket(std::string &path);
-	int										is_valid_infos_server(std::pair<std::string, std::string> &infos);
-	bool									is_valid_infos_location(std::pair<std::string, std::string> &infos);
 	std::pair<std::string, std::string>		get_infos_line(std::string &line);
-	bool									is_valid_code(int code);
 	std::pair<int, std::string>				create_pair_file_error(std::pair<std::string, std::string> &infos);
 	std::pair<std::string, std::string>		create_pair_cgi(std::pair<std::string, std::string> &infos);
 	void									check_point_virgule(std::string &str);
@@ -73,7 +70,6 @@ namespace UtilsParser
 
 namespace UtilsDir
 {
-	void									can_open_dir(const std::string &path);
 	bool									is_dir(const std::string& filename);
 }
 
@@ -81,22 +77,15 @@ namespace UtilsFile
 {
 	bool									is_file(const std::string& filename);
 	bool									check_file_exists(std::string &filename);
-	bool									is_image(const std::string &path);
-	int										size_file(const std::string& filename);
 	std::string								get_extension(const std::string &path);
 	std::string								get_file_content(const std::string &filename);
-	bool									permission_write(const std::string& filename);
 	bool									permission_read(const std::string& filename);
-	bool									permission_exec(const std::string& filename);
 	bool									fd_is_valid(int fd);
 }
 
 namespace UtilsString
 {
-	void									print_matrice(char **mat);
 	int										hex_to_dec(std::string &hexVal);
-	std::string								transform_query_char(std::string str);
-	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod);
 	int										last_line_chunked(std::string &req);
 	bool									is_blank(std::string &line);
 	bool									is_blank(char c);
@@ -104,8 +93,8 @@ namespace UtilsString
 	void									split(const std::string &chaine, char delimiteur, std::vector<std::string> &elements);
 	void									split(const std::string &chaine, char delimiteur, std::list<std::string> &elements);
 	std::string								to_string(int val);
-	int										find_char(char c, std::string &str);
 	void									vector_to_listpair(std::vector<std::pair<int, std::string> > &list, std::vector<std::string> &vector);
+	std::string								create_reponse_parser(std::string mess, const std::string &str, bool ok);
 }
 
 namespace UtilsIterator

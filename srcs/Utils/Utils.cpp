@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 13:54:08 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 15:22:47 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,11 @@ namespace UtilsParser
 		std::ifstream				file_config(path.c_str());
 		std::multimap<char, char>	map_bracket;
 		int							i;
+		bool						check_vide = true;
 
 		while (getline(file_config, line))
 		{
+			check_vide = false;
 			i = -1;
 			while (line[++i])
 			{
@@ -56,51 +58,8 @@ namespace UtilsParser
 		}
 		if (map_bracket.count('{') != map_bracket.count('}'))
 			throw std::string("Erreur de bracket dans le fichier de configuration.");
-	}
-
-	int										is_valid_infos_server(std::pair<std::string, std::string> &infos)
-	{
-		std::string opt_server[] = { "listen", "host", "server_name", "root", "error", "limit_client_body_size" };
-		int			i = 0;
-
-		while (i < 6)
-		{
-			if (opt_server[i] == infos.first)
-			{
-				if (infos.second[infos.second.size() - 1] == ';')
-				{
-					infos.second.erase(infos.second.size() - 1);
-					return (0);
-				}
-				else
-					return (1);
-			}
-			i++;
-		}
-		return (2);
-	}
-
-	bool									is_valid_infos_location(std::pair<std::string, std::string> &infos)
-	{
-		std::string opt_location[] = { "methods", "index", "autoindex", "root", "upload_dir", "cgi_extension", "cgi_bin" };
-		size_t		i = 0;
-		size_t		size = opt_location->size();
-
-		while (i < size)
-		{
-			if (opt_location[i] == infos.first)
-			{
-				if (infos.second[infos.second.size() - 1] == ';')
-				{
-					infos.second.erase(infos.second.size() - 1);
-					return (true);
-				}
-				else
-					return (false);
-			}
-			i++;
-		}
-		return (false);
+		if (check_vide)
+			throw std::string("Fichier vide.");
 	}
 
 	std::pair<std::string, std::string>		get_infos_line(std::string	&line)
@@ -120,21 +79,6 @@ namespace UtilsParser
 			i++;
 		infos.second = line.substr(j, i);
 		return (infos);
-	}
-
-	bool									is_valid_code(int code)
-	{
-		if (code < 100)
-			return (false);
-		if (code > 103 && code < 200)
-			return (false);
-		if (code > 210 && code != 226 && code < 300)
-			return (false);
-		if (code > 308 && code != 310 && code < 400)
-			return (false);
-		if (code > 527)
-			return (false);
-		return (true);
 	}
 
 	std::pair<int, std::string>				create_pair_file_error(std::pair<std::string, std::string> &infos)
@@ -177,17 +121,22 @@ namespace UtilsParser
 	{
 		if (*(str.rbegin()) != ';')
 		{
-			std::string ret = str + "\n";
-			int			i = -1;
-			while (ret[++i] != '\n')
-				ret += " ";
-			ret += 94;
-			ret += "\n";
+			std::string	tmp = str + " ";
+			std::stringstream	tmp_ret;
+			size_t		size;
+			size_t		i = -1;
+
+			tmp_ret << UtilsString::create_reponse_parser("Point virgule manquant :", tmp, false);
+			size = tmp_ret.str().size();
+			while (++i < size - 29)
+				tmp_ret << " ";
+			tmp_ret << BOLDGREEN << "^" << WHITE;
+			tmp_ret << "\n";
 			i = -1;
-			while (ret[++i] != '\n')
-				ret += " ";
-			ret += ";";
-			throw std::string(ret);
+			while (++i < size - 29)
+				tmp_ret << " ";
+			tmp_ret << BOLDGREEN << ";" << WHITE;
+			throw std::string(tmp_ret.str());
 		}
 		str.erase(str.end() - 1);
 	}
@@ -195,15 +144,15 @@ namespace UtilsParser
 
 namespace UtilsString
 {
-	void									print_matrice(char **mat)
+	std::string								create_reponse_parser(std::string mess, const std::string &str, bool ok)
 	{
-		int		i = 0;
-
-		while (mat[i])
-		{
-			std::cout << mat[i] << std::endl;
-			i++;
-		}
+		std::stringstream	rep;
+	
+		if (!ok)
+			rep << BOLDRED << "  [KO] " << BOLDYELLOW << mess << WHITE << " [" << str << "]" << std::endl;
+		else
+			rep << BOLDGREEN << "  [OK] " << BOLDYELLOW << mess << WHITE << " [" << str << "]" << std::endl;
+		return (rep.str());
 	}
 
 	void									vector_to_listpair(std::vector<std::pair<int, std::string> > &list, std::vector<std::string> &vector)
@@ -239,38 +188,6 @@ namespace UtilsString
 			}
 		}
 		return (dec_val);
-	}
-
-	std::string								transform_query_char(std::string str)
-	{
-		int		i;
-		std::string	new_str;
-		std::string	tmp;
-
-		i = 0;
-		while (str[i])
-		{
-			if (str[i] == '+')
-				new_str += ' ';
-			else if (str[i] == '%')
-			{
-				tmp += str[i + 1];
-				tmp += str[i + 2];
-				new_str += (char)hex_to_dec(tmp);
-				i += 2;
-			}
-			else
-				new_str += str[i];
-			i++;
-		}
-		return (new_str);
-	}
-
-	std::string								replace_me(std::string& str, const std::string& sub, const std::string& mod)
-	{
-		std::string tmp(str);
-		tmp.replace(tmp.find(sub), mod.length(), mod);
-		return (tmp);
 	}
 
 	int										last_line_chunked(std::string &req)
@@ -329,11 +246,12 @@ namespace UtilsString
 
 		while (getline(ss, sousChaine, delimiteur))
 		{
-			if (*(sousChaine.begin()) == '\n')
+			if (!sousChaine.empty() && *(sousChaine.begin()) == '\n')
 				sousChaine.erase(0, 1);
-			if (*(sousChaine.rbegin()) == '\n')
+			if (!sousChaine.empty() && *(sousChaine.rbegin()) == '\n')
 				sousChaine.erase(sousChaine.end() - 1, sousChaine.end());
-			elements.push_back(sousChaine);
+			if (!sousChaine.empty())
+				elements.push_back(sousChaine);
 		}
 	}
 
@@ -343,17 +261,6 @@ namespace UtilsString
 
 		tmp << val;
 		return (tmp.str());
-	}
-
-	int										find_char(char c, std::string &str)
-	{
-		int		i = -1;
-		while (str[++i])
-		{
-			if (str[i] == c)
-				return (i);
-		}
-		return (0);
 	}
 }
 
@@ -381,22 +288,6 @@ namespace UtilsFile
 		return (false);
 	}
 
-	bool									is_image(const std::string &path)
-	{
-		if (path.find(".gif") == std::string::npos || path.find(".jpeg") == std::string::npos || path.find(".jpg") == std::string::npos ||
-			path.find(".png") == std::string::npos || path.find(".svg") == std::string::npos || path.find(".webp") == std::string::npos)
-				return (true);
-		return (false);
-	}
-
-	int										size_file(const std::string& filename)
-	{
-		struct stat buf;
-		if (stat(filename.c_str(), &buf) != -1)
-			return (buf.st_size);
-		return (-1);
-	}
-
 	std::string								get_extension(const std::string &path)
 	{
 		std::string		tmp = path;
@@ -406,34 +297,12 @@ namespace UtilsFile
 		return (tmp);
 	}
 
-	bool									permission_write(const std::string& filename)
-	{
-		struct stat buf;
-		if (stat(filename.c_str(), &buf) != -1)
-		{
-			if (buf.st_mode & S_IWUSR)
-				return (true);
-		}
-		return (false);
-	}
-
 	bool									permission_read(const std::string& filename)
 	{
 		struct stat buf;
 		if (stat(filename.c_str(), &buf) != -1)
 		{
 			if (buf.st_mode & S_IRUSR)
-				return (true);
-		}
-		return (false);
-	}
-
-	bool									permission_exec(const std::string& filename)
-	{
-		struct stat buf;
-		if (stat(filename.c_str(), &buf) != -1)
-		{
-			if (buf.st_mode & S_IXUSR)
 				return (true);
 		}
 		return (false);
@@ -464,15 +333,6 @@ namespace UtilsFile
 
 namespace UtilsDir
 {
-	void									can_open_dir(const std::string &path)
-	{
-		DIR		*dir = opendir(path.c_str());
-
-		if (!dir)
-			throw std::string("Le dossier " + path + " n'existe pas.");
-		closedir(dir);
-	}
-
 	bool									is_dir(const std::string& filename)
 	{
 		struct stat buf;
