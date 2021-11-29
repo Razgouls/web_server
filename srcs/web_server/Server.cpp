@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 16:02:50 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 17:44:14 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,46 @@ void					Server::fill_reponse(void)
 }
 
 
+void					Server::manage_cgi(void)
+{
+	std::string		path = _request.get_path();
+	std::string		bin;
+
+	init_var_cgi();
+	bin = _route.get_cgi_bin(UtilsFile::get_extension(path));
+	if (!bin.empty())
+	{
+		_cgi.execute(bin, path, _request.get_body());
+		std::string body = UtilsFile::get_file_content("./output.txt");
+		body = body.substr(body.find("\r\n\r\n") + 4);
+		_reponse.build_body_response(std::make_pair(MESSAGE, body));
+	}
+}
+
+std::string				Server::get_upload_dir(void)
+{
+	std::string			path = _request.get_path();
+
+	path = path.substr(0, path.find_last_of("/"));
+	path = path.erase(0, 1);
+	
+	std::list<Route>::iterator	it_begin = _list_routes.begin();
+	std::list<Route>::iterator	it_end = _list_routes.end();
+
+	while (it_begin != it_end)
+	{
+		if (it_begin->get_path() == path)
+		{
+			if (!(it_begin->get_path_uploads().empty()))
+				return (it_begin->get_path_uploads());
+			else
+				return ("");
+		}
+		it_begin++;
+	}
+	return ("");
+}
+
 /*
 ** Cette fonction est appelee si la methode utilisee est DELETE
 ** On essaie d'open la ressource (si une facond e voir si la ressource en question existe tout simplement)
@@ -212,27 +252,12 @@ void					Server::delete_resource(void)
 	}
 }
 
-void					Server::manage_cgi(void)
-{
-	std::string		path = _request.get_path();
-	std::string		bin;
-
-	init_var_cgi();
-	bin = _route.get_cgi_bin(UtilsFile::get_extension(path));
-	if (!bin.empty())
-	{
-		_cgi.execute(bin, path, _request.get_body());
-		std::string body = UtilsFile::get_file_content("./output.txt");
-		body = body.substr(body.find("\r\n\r\n") + 4);
-		_reponse.build_body_response(std::make_pair(MESSAGE, body));
-	}
-}
-
 void					Server::post_resource(void)
 {
 	std::string		tmp_path(_request.get_path());
 	int				last_slash = tmp_path.find("/");
 	std::ofstream	myfile;
+	std::string		path_uploads = get_upload_dir();
 
 	_reponse.set_content_type(_mime[UtilsFile::get_extension(tmp_path)]);
 	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(tmp_path)) && !_request.get_path_query().empty())
@@ -240,6 +265,8 @@ void					Server::post_resource(void)
 	else
 	{
 		tmp_path.erase(0, last_slash + 1);
+		if (!path_uploads.empty())
+			tmp_path = path_uploads + tmp_path.substr(tmp_path.find_last_of("/"));
 		if (UtilsFile::is_file(tmp_path))
 		{
 			myfile.open(tmp_path.c_str(), std::ofstream::in | std::ios::app);
@@ -326,7 +353,6 @@ void					Server::get_resource(void)
 			_reponse.set_code_etat(301, "Forbidden");
 			new_path = _map_error[403];
 		}
-		std::cout << "ICNEW_PATH : [" << new_path << "]" << std::endl;
 		_reponse.build_body_response(std::make_pair(M_FILE, new_path));
 	}
 	else if (ret == AUTOINDEX)
@@ -357,7 +383,17 @@ void					Server::manage_reponse(void)
 	std::string			&method = _request.get_method();
 
 	fill_reponse();
-	if (method == "GET")
+	if (!check_method_location())
+	{
+		_reponse.set_code_etat(405, "Method Not Allowed");
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[405]));
+	}
+	if (_request.get_body().length() > (size_t)_limit_client_body_size)
+	{
+		_reponse.set_code_etat(413, "Request Entity Too Large");
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[413]));
+	}
+	else if (method == "GET")
 		get_resource();
 	else if (method == "POST")
 		post_resource();
@@ -373,11 +409,6 @@ void					Server::manage_request(std::string &request)
 	if (_request.is_valid() == -1)
 		throw std::string("Requete envoyée invalide.");
 	get_path_location();
-	if (!check_method_location())
-	{
-		_reponse.set_code_etat(405, "Method Not Allowed");
-		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[405]));
-	}
 }
 
 void					Server::c_recv(std::string &request)
@@ -392,8 +423,6 @@ void					Server::c_recv(std::string &request)
 		}
 		if (ret == 0)
 		{
-			// char hello[] = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nTransfer-Encoding: chunked\r\n\r\n26\r\nVoici les donnees du premier morceau\r\n\r\n1C\r\net voici un second morceau\r\n\r\n20\r\net voici deux derniers morceaux \r\n12\r\nsans saut de ligne\r\n0\r\n\r\n";
-			// send(fd, hello, 1024, 0);
 			manage_request(request);
 			if (_request.get_path().find("favicon") == std::string::npos)
 				std::cout << _request << std::endl;
@@ -497,6 +526,7 @@ void					Server::init_page_error(void)
 	this->_map_error.insert(std::pair<int, std::string>(404, "./www/errors/404.html"));
 	this->_map_error.insert(std::pair<int, std::string>(405, "./www/errors/405.html"));
 	this->_map_error.insert(std::pair<int, std::string>(409, "./www/errors/409.html"));
+	this->_map_error.insert(std::pair<int, std::string>(413, "./www/errors/413.html"));
 	this->_map_error.insert(std::pair<int, std::string>(500, "./www/errors/500.html"));
 	this->_map_error.insert(std::pair<int, std::string>(505, "./www/errors/504.html"));
 }

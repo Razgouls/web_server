@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 18:05:19 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 16:57:54 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -104,10 +104,7 @@ void				Response::build_head_response(void)
 	_body_head.append(_version_http + " " + s_code_etat.str() + "\n");
 	_body_head.append("Content-Type: " + _content_type + "\n");
 	_body_head.append(s_time_now.str());
-	// _body_head.append("Set-Cookie: yummy_cookie=choco\n");
-	// _body_head.append("Set-Cookie: tasty_cookie=strawberry\n");
 	_body_head.append("Content-Length: " + s_content_length.str() + "\n");
-	// _body_head.append("Transfer-Encoding: chunked\n");
 	_body_head.append("Location: " + _content_location + "\n");
 	_body_head.append("Server: " + _name_server + "\n");
 	_body_head.append("\n");

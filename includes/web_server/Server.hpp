@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 14:13:12 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/29 17:31:24 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ class Server
 		bool													check_method_location(void);
 		void													get_path_location(void);
 		int														manage_auto_index(void);
+		std::string												get_upload_dir(void);
 
 		/*
 		** MANAGE METHODS
