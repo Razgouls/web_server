@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 18:07:56 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 14:50:54 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/30 13:25:33 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ void						CGI::execute(std::string &bin, std::string &path, std::string &body)
 		dup2(output_fd, STDOUT);
 		dup2(input_fd, STDIN);
 		if (execve(bin.c_str(), argv, convert_map()) == -1)
-			perror("ERROR EXECVE");
+			std::cout << "ERROR execve" << std::endl;
 		exit(0);
 	}
 	else

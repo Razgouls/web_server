@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 16:56:31 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 11:15:19 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,26 +58,49 @@ Request				&Request::operator=(Request &r)
 	return (*this);
 }
 
+// void				Request::fill_map_request(void)
+// {
+// 	size_t								last = _request.find("\n");
+// 	size_t								dep = 0;
+// 	size_t								dep_two = 0;
+// 	std::pair<std::string, std::string>	pair;
+// 	std::string							line;
+
+// 	while (last != std::string::npos)
+// 	{
+// 		line = _request.substr(dep, last - dep - 1);
+// 		dep = last + 1;
+// 		last = _request.find("\n", dep);
+
+// 		dep_two = line.find(":");
+// 		pair.first = line.substr(0, dep_two);
+// 		pair.second = line.substr(dep_two + 1, last);
+// 		if (*(pair.second.begin()) == ' ')
+// 			pair.second.erase(0, 1);
+// 		_map_request[pair.first] = pair.second;
+// 	}
+// }
+
 void				Request::fill_map_request(void)
 {
-	size_t								last = _request.find("\n");
-	size_t								dep = 0;
-	size_t								dep_two = 0;
+	std::vector<std::string>			elements;
 	std::pair<std::string, std::string>	pair;
-	std::string							line;
+	size_t								dep = 0;
 
-	while (last != std::string::npos)
+	UtilsString::split(_request, "\r\n", elements);
+	std::vector<std::string>::iterator	it_begin = elements.begin();
+	std::vector<std::string>::iterator	it_end = elements.end();
+	while (it_begin != it_end)
 	{
-		line = _request.substr(dep, last - dep - 1);
-		dep = last + 1;
-		last = _request.find("\n", dep);
-
-		dep_two = line.find(":");
-		pair.first = line.substr(0, dep_two);
-		pair.second = line.substr(dep_two + 1, last);
+		if (it_begin->empty())
+			break ;
+		dep = it_begin->find(":");
+		pair.first = it_begin->substr(0, dep);
+		pair.second = it_begin->substr(dep + 1);
 		if (*(pair.second.begin()) == ' ')
 			pair.second.erase(0, 1);
 		_map_request[pair.first] = pair.second;
+		it_begin++;
 	}
 }
 
@@ -126,11 +149,11 @@ void				Request::parse_request(void)
 		if (elements[1].find("?") != std::string::npos)
 			_path_query = elements[1].substr(elements[1].find("?") + 1);
 	}
-	parse_body();
 	_host = _map_request["Host"];											//get host
 	_content_type = _map_request["Content-Type"];							//get content-type
 	_content_length = _map_request["Content-Length"];
 	_uri_request = _path;
+	parse_body();
 }
 
 int					Request::is_valid(void)
@@ -145,10 +168,10 @@ std::string			&Request::get_request(void)
 	return (this->_request);
 }
 
-// std::map<int, std::string>							Request::get_map_request(void)
-// {
-// 	return (this->_map_request);
-// }
+void				Request::set_body(std::string &body)
+{
+	this->_body = body;
+}
 
 std::string										&Request::get_method(void)
 {

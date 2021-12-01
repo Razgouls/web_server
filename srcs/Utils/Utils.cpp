@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 15:22:47 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 10:13:09 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -222,6 +222,22 @@ namespace UtilsString
 			str.erase(0, 1);
 		while (delim.find((*(str.rbegin()))) != std::string::npos)
 			str.erase(str.end() - 1, str.end());
+	}
+
+	void									split(std::string s, std::string delimiter, std::vector<std::string> &elements)
+	{
+    	size_t						pos_start = 0;
+		size_t						pos_end;
+		size_t						delim_len = delimiter.length();
+		std::string					token;
+
+		while ((pos_end = s.find(delimiter, pos_start)) != std::string::npos)
+		{
+			token = s.substr(pos_start, pos_end - pos_start);
+			pos_start = pos_end + delim_len;
+			elements.push_back(token);
+    	}
+    	elements.push_back(s.substr(pos_start));
 	}
 
 	void									split(const std::string &chaine, char delimiteur, std::vector<std::string> &elements)

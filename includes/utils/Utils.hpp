@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 15:14:44 by elie             ###   ########.fr       */
+/*   Updated: 2021/11/30 15:05:44 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,6 +92,7 @@ namespace UtilsString
 	void									trim(std::string delim, std::string &str);
 	void									split(const std::string &chaine, char delimiteur, std::vector<std::string> &elements);
 	void									split(const std::string &chaine, char delimiteur, std::list<std::string> &elements);
+	void									split(std::string s, std::string delimiter, std::vector<std::string> &elements);
 	std::string								to_string(int val);
 	void									vector_to_listpair(std::vector<std::pair<int, std::string> > &list, std::vector<std::string> &vector);
 	std::string								create_reponse_parser(std::string mess, const std::string &str, bool ok);

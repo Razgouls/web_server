@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 16:57:54 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 21:25:55 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ void				Response::build_head_response(void)
 	char				*dt = ctime(&now);
 
 	s_code_etat << _code_etat.first << " " << _code_etat.second;
+	// s_code_etat << 417 << " Expectation Failed";
 	s_content_length << _content_length;
 	s_time_now << "Date: " << dt;
 

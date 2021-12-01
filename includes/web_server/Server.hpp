@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 17:31:24 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 11:55:01 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,10 @@ class Server
 		void													get_path_location(void);
 		int														manage_auto_index(void);
 		std::string												get_upload_dir(void);
+		void													multipart(std::string &tmp_path);
+		void													get_content_multipart(std::string &element, std::string &tmp_path);
+		void													create_file(std::string &tmp_path);
+		int														update_file(std::string &tmp_path);
 
 		/*
 		** MANAGE METHODS

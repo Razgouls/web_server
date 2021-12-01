@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 16:56:40 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 11:06:52 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,7 @@ class Request
 
 		Request												&operator=(Request &r);
 		void												set_request(std::string &r);
+		void												set_body(std::string &body);
 
 		std::string											&get_request(void);
 		std::string											&get_uri_request(void);
@@ -45,6 +46,9 @@ class Request
 		int													is_valid(void);
 		void												clear(void);
 		void												parse_body(void);
+		void												multipart(void);
+		void												get_content_multipart(std::string &element, std::string &rep);
+
 	
 
 	private:

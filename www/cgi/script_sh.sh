@@ -3,4 +3,4 @@
 
 echo "QS=$QUERY_STRING"
 read DATA
-echo "Data : $DATA" 
+echo "Data : $DATA"

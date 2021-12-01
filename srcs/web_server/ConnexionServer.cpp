@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 18:04:57 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 21:44:04 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -154,7 +154,7 @@ int						ConnexionServer::s_accept(int j)
 	int		new_fd;
 
 	if ((new_fd = accept(_vect_listen_fd[j], (struct sockaddr *)&_vect_address[j], (socklen_t *)&len)) < 0)
-		perror("accept");
+		throw std::string("Error accept");
 	fcntl(new_fd, F_SETFL, O_NONBLOCK);
 	_map_fd_server[new_fd] = _servers[j];
 	return (new_fd);
@@ -166,7 +166,7 @@ int					ConnexionServer::manage_connexion(int &fd)
 	int					ret_read;
 	std::string			reponse;
 
-	ret_read = recv(fd, requete, RECV_SIZE, 0);
+	ret_read = recv(fd, requete, RECV_SIZE - 1, 0);
 	if (ret_read == -1)
 		return (-1);
 	if (ret_read == 0)
@@ -225,7 +225,13 @@ void					ConnexionServer::run(void)
 						int index = get_pos_socket();
 						if (index == 0)
 							index = nfds;
-						_pfds[index].fd = s_accept(j);
+						try {
+							_pfds[index].fd = s_accept(j);
+						}
+						catch(const std::string &error) {
+							throw ;
+						}
+						
 						_pfds[index].events = POLLIN;
 						_pfds[index].revents = 0;
 						if (index >= nfds)

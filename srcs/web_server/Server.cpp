@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 17:44:14 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 23:16:17 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ int		Server::manage_auto_index(void)
 	std::string			index;
 	std::string			path = _request.get_path();
 
-	index = path.append("index.html");
+	index = path.append(_route.get_index());
 	myfile.open(index.c_str());
 	if (myfile.good() && !_route.get_index().empty())
 		return (INDEX);
@@ -199,6 +199,7 @@ void					Server::manage_cgi(void)
 		std::string body = UtilsFile::get_file_content("./output.txt");
 		body = body.substr(body.find("\r\n\r\n") + 4);
 		_reponse.build_body_response(std::make_pair(MESSAGE, body));
+		remove("./output.txt");
 	}
 }
 
@@ -252,6 +253,102 @@ void					Server::delete_resource(void)
 	}
 }
 
+void					Server::get_content_multipart(std::string &element, std::string &tmp_path)
+{
+	std::vector<std::string>				elements;
+	UtilsString::split(element, "\r\n", elements);
+
+	std::vector<std::string>::iterator		it_begin = elements.begin();
+	std::vector<std::string>::iterator		it_end = elements.end();
+	while (it_begin != it_end)
+	{
+		if (it_begin->empty())
+		{
+			elements.erase(it_begin);
+			break ;
+		}
+		it_begin++;
+	}
+	if (elements.size() > 2)
+	{
+		std::string name_file = elements[0].substr(elements[0].find("filename="));
+		std::string name_file2 = name_file.substr(name_file.find("\"") + 1);
+		std::string path;
+
+		name_file2.erase(name_file2.end() - 1, name_file2.end());
+		path = tmp_path + name_file2;
+		_request.set_body(elements[2]);
+		if (!update_file(path))
+			create_file(path);
+	}
+}
+
+void					Server::multipart(std::string &tmp_path)
+{
+	std::vector<std::string>				elements;
+	std::string								delimiteur = _request.get_body().substr(0, _request.get_body().find("\r\n") + 2);
+
+	if (delimiteur.empty())
+		return ;
+	UtilsString::split(_request.get_body(), delimiteur, elements);
+
+	std::vector<std::string>::iterator		it_begin = elements.begin();
+	std::vector<std::string>::iterator		it_end = elements.end();
+	while (it_begin != it_end)
+	{
+		get_content_multipart(*it_begin, tmp_path);
+		it_begin++;
+	}
+}
+
+int						Server::update_file(std::string &tmp_path)
+{
+	std::ofstream	myfile;
+	if (UtilsFile::is_file(tmp_path))
+	{
+		myfile.open(tmp_path.c_str(), std::ofstream::in | std::ios::app);
+		if (myfile.good())
+		{
+			_reponse.set_code_etat(200, "OK");
+			if (_request.get_content_length() == "0")
+				_reponse.set_code_etat(204, "No Content");
+			else
+				myfile << _request.get_body();
+			_reponse.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path + "\n"));
+			myfile.close();
+		}
+		else
+		{
+			_reponse.set_code_etat(403, "Forbidden");
+			_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
+		}
+		return (1);
+	}
+	return (0);
+}
+
+void					Server::create_file(std::string &tmp_path)
+{
+	std::ofstream	myfile;
+
+	myfile.open(tmp_path.c_str(), std::ofstream::out);
+	if (!myfile.is_open() || !myfile.good())
+	{
+		_reponse.set_code_etat(403, "Forbidden");
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
+	}
+	else
+	{
+		if (_request.get_content_type() == "multipart/form-data")
+			myfile << UtilsFile::get_file_content(_request.get_body());
+		else
+			myfile << _request.get_body();
+		_reponse.set_code_etat(201, "Created");
+		_reponse.build_body_response(std::make_pair(MESSAGE, "Fichier " + tmp_path + " creer et contenu ajouté\n"));
+		myfile.close();
+	}
+}
+
 void					Server::post_resource(void)
 {
 	std::string		tmp_path(_request.get_path());
@@ -260,56 +357,22 @@ void					Server::post_resource(void)
 	std::string		path_uploads = get_upload_dir();
 
 	_reponse.set_content_type(_mime[UtilsFile::get_extension(tmp_path)]);
-	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(tmp_path)) && !_request.get_path_query().empty())
+	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(tmp_path)))
 		manage_cgi();
 	else
 	{
 		tmp_path.erase(0, last_slash + 1);
 		if (!path_uploads.empty())
 			tmp_path = path_uploads + tmp_path.substr(tmp_path.find_last_of("/"));
-		if (UtilsFile::is_file(tmp_path))
-		{
-			myfile.open(tmp_path.c_str(), std::ofstream::in | std::ios::app);
-			if (myfile.good())
-			{
-				if (_request.get_content_length() == "0")
-					_reponse.set_code_etat(204, "No Content");
-				else
-					myfile << _request.get_body();
-				_reponse.set_code_etat(200, "OK");
-				_reponse.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path));
-				myfile.close();
-			}
-			else
-			{
-				_reponse.set_code_etat(403, "Forbidden");
-				_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
-			}
-		}
-		else if (UtilsDir::is_dir(tmp_path))
+		if ((tmp_path.empty() || UtilsDir::is_dir(tmp_path)) && _request.get_content_type().find("multipart/") != std::string::npos)
+			multipart(tmp_path);
+		else if ((tmp_path.empty() || UtilsDir::is_dir(tmp_path)) && _request.get_content_type().find("multipart/") == std::string::npos)
 		{
 			_reponse.set_code_etat(403, "Forbidden");
 			_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
 		}
-		else
-		{
-			myfile.open(tmp_path.c_str(), std::ofstream::out);
-			if (!myfile.is_open() || !myfile.good())
-			{
-				_reponse.set_code_etat(403, "Forbidden");
-				_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
-			}
-			else
-			{
-				if (_request.get_content_type() == "multipart/form-data")
-					myfile << UtilsFile::get_file_content(_request.get_body());
-				else
-					myfile << _request.get_body();
-				_reponse.set_code_etat(201, "Created");
-				_reponse.build_body_response(std::make_pair(MESSAGE, "Fichier " + tmp_path + " creer et contenu ajouté"));
-				myfile.close();
-			}
-		}
+		else if (!update_file(tmp_path))
+			create_file(tmp_path);
 	}
 }
 
@@ -338,7 +401,7 @@ void					Server::get_resource(void)
 	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)) && !_request.get_path_query().empty())
 		manage_cgi();
 	else if (ret == INDEX)
-		_reponse.build_body_response(std::make_pair(M_FILE, path + "index.html"));
+		_reponse.build_body_response(std::make_pair(M_FILE, path + _route.get_index()));
 	else if (!dir)
 	{
 		std::string tmp_path = path.substr(0, path.find("?"));
@@ -388,7 +451,7 @@ void					Server::manage_reponse(void)
 		_reponse.set_code_etat(405, "Method Not Allowed");
 		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[405]));
 	}
-	if (_request.get_body().length() > (size_t)_limit_client_body_size)
+	else if (_request.get_body().length() > (size_t)_limit_client_body_size)
 	{
 		_reponse.set_code_etat(413, "Request Entity Too Large");
 		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[413]));
