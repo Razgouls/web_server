@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 23:16:17 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/01 23:22:38 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -481,9 +481,7 @@ void					Server::c_recv(std::string &request)
 	if (request.find("\r\n\r\n") != std::string::npos)
 	{
 		if (request.find("Transfer-Encoding: chunked") != std::string::npos)
-		{
 			ret = UtilsString::last_line_chunked(request);
-		}
 		if (ret == 0)
 		{
 			manage_request(request);
