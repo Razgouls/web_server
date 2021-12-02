@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 14:25:00 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 17:25:14 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,19 +29,6 @@ ConnexionServer::~ConnexionServer()
 			close(_pfds[i].fd);
 }
 
-/*
-** Cette fonction va tout simplement initialiser la socket qui va ecouter si connexions entrantes ya
-**		1.	La fonction socket va creer un point de communication et va renvoyer un fd
-**		2.	La fonction setsockopt va permettre de reutiliser un port utilisé lors du dernier lancement du serveur (on evite les Erreur bin car le port est deja utilisé)
-**		3.	On initialise la structure _address (struct sockaddr _address) à 0
-**		4.	On la remplit par 3 informations :
-**				-> sin_family	: type de famille : AT_INET pour IPv4 (principalement utilisée avec le protocole TCP/IP)
-**				-> sin_port		: correspond au port à contacter (htons va convertir le port pour l'envoyer sur le reseau (pas besoin d'utiliser htons ou autre si on n'utilise pas le reseau -> donc ici inutile))
-**				-> sin_addr.s_addr : correspond à l'addresse IP utilisée
-**		5.	La fonction fcntl va rendre la socket non bloquante
-**		6.	La fonction bind va etre utilisée pour attribuer au socket une addresse et un port (grace a la structure sock_addr)
-**		7.	La fonction listen met le socket (listen_fd) en attente de connexion (ne marche qu'avec le protocle TCP/IP)
-*/
 void					ConnexionServer::init_listen_fd(void)
 {
 	int		i = 0;
@@ -77,15 +64,6 @@ void					ConnexionServer::init_listen_fd(void)
 	}
 }
 
-/*
-** Cette fonction permet 2 choses :
-**		1.	Initialiser la socket _listen_fd (socket qui va ecouter les connexion entrantes)
-**		2.	Initialiser la struct pollfd :
-**			-> On malloc (200 correspond a la taille du tableau de socket -> socket a surveiller)
-**			-> On initialise la premiere case :
-**					- .fd : correspond au socket
-**					- .events : aux evenements (POLLRDNORM : Données en attente de lecture)
-*/
 void					ConnexionServer::init_pfds(void)
 {
 	int		size;
@@ -113,13 +91,6 @@ void					ConnexionServer::init_pfds(void)
 	}
 }
 
-/*
-** Cette fonction va appeler la fonction poll qui permet de verifier s'il y a des données en attente de lecture (POLLRDNORM) -> Si oui la fonction poll(...) nous avertira
-**		1.	_pfds : correspond au tableau de sockets
-**		2.	*nfds : correspond au nombre de socket present dans _pfds (donc a ca size)
-**		3.	-1 : delai d'attente en millisecondes (-1 correspond a un delai d'attente infini)
-**		4.	nbr_count : la fonction poll(...) renvoie le nombre d'éléments du tableau ayant eu un évènement
-*/
 int					ConnexionServer::init_poll(int *nfds)
 {
 	int		nbr_count = poll(_pfds, *nfds, -1);
@@ -144,10 +115,6 @@ int						ConnexionServer::get_pos_socket(void)
 	return (0);
 }
 
-/*
-** La fonction accept permet la connexion en acceptant un appel (_address stock l'adresse de l'appelant)
-** Elle va retourner une nouvelle socket qui a son va etre non bloquant grace a la fonction fcntl
-*/
 int						ConnexionServer::s_accept(int j)
 {
 	int		len = sizeof(sockaddr_in);

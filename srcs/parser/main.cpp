@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/18 14:22:40 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 23:17:58 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 17:24:35 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ std::list<ParserServer>			create_list_parser_server(std::ifstream &file_config)
 
 	while (getline(file_config, line))
 	{
-		if (line.find("server") != std::string::npos && line.find("server_") == std::string::npos)			//permet de verifier si on est sur un nouveau bloc server et pas si on tombe sur le server_name
+		if (line.find("server") != std::string::npos && line.find("server_") == std::string::npos)
 		{
 			if (!UtilsParser::syntax_bracket_open(line))
 				throw std::string("Erreur de bracket dans un bloc server.");

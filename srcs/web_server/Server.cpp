@@ -6,19 +6,12 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 16:32:15 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 17:26:13 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Server.hpp"
 
-/*
-** FORME COPLIEN
-*/
-
-/*
-** Constructeur par default
-*/
 Server::Server()
 {
 
@@ -52,26 +45,11 @@ Server::Server(const Server &s)
 	_mime = s._mime;
 }
 
-/*
-** Destructeur
-*/
 Server::~Server()
 {
 
 }
 
-
-/*
-** GESTION REPONSE EN FONCTION DU TYPE (FILE OU DIR)
-*/
-
-
-/*
-** Cette fonction va permettre preparer le path de la requete et va etre comparer pour savoir de quelle location elle correspond, si aucune par default ca sera la location /
-** On stocke dans _route, la location qui va lui correspondre (par default cest location /)
-** EX : path : ./www	-- PREPARATION -->	/www
-** EX : path : ./www/	-- PREPARATION -->	/www
-*/
 void						Server::get_path_location(void)
 {
 	std::list<Route>::iterator	it_begin = _list_routes.begin();
@@ -99,10 +77,6 @@ void						Server::get_path_location(void)
 		_route = tmp_route;
 }
 
-/*
-** Cette fonction va regarder si la methode utilisé par la requete (GET / POST / DELETE) est présente dans la location
-** Si elle l'est alors on return true, sinon on retrourne false, indiquant que la methode n'est pas présente --> Error 405 : Method Not Allowed
-*/
 bool					Server::check_method_location(void)
 {
 	std::list<std::string>				list_method = _route.get_list_methods();
@@ -118,16 +92,6 @@ bool					Server::check_method_location(void)
 	return (false);
 }
 
-
-/*
-** Cette fonction va verifier 2 choses :
-** 		--> Premierement si le fichier index.html existe	-> Si oui on affiche index.html, sinon on passe au deuxieme tiret.
-**		--> Deuxiemement si le fichier index.html n'existe pas on regarde si l'autoindex est à on ou off. Si oui, on affiche l'arborescence, sinon Error 404
-**
-** Nous utilisons une pair : 
-**		--> Le premier bool indique si le fichier index.html existe
-**		--> Le deuxieme bool indique si l'autoindex est à on ou off
-*/
 int		Server::manage_auto_index(void)
 {
 	std::ifstream		myfile;
@@ -143,15 +107,6 @@ int		Server::manage_auto_index(void)
 	return (NONE);
 }
 
-
-/*
-** Cette fonction va permettre de stocker chaque nom de fichiers / dossiers / ... dans une list
-**		-> Elle prend en parametre un DIR (le dossier a lire)
-** 		-> Avec une boucle et readdir, on va parcourir ce dossier et stocker les noms dans une list
-**		-> Nous stockons des pair :
-**			-> Le premier est un std::string qui stocke le nom du fichier / dossiers / ...
-**			-> Le deuxieme stocke le type (DT_DIR -> dossiers, DT_REG -> fichiers etc)
-*/
 std::list<std::pair<std::string, unsigned char> >	Server::get_file_in_dir(DIR *dir)
 {
 	std::list<std::pair<std::string, unsigned char> >	files;
@@ -170,10 +125,6 @@ std::list<std::pair<std::string, unsigned char> >	Server::get_file_in_dir(DIR *d
 	return (files);
 }
 
-
-/*
-** Cette fonction permet juste de remplir la _reponse (donc la reponse qui va etre envoyee au client / navigateur)
-*/
 void					Server::fill_reponse(void)
 {
 	_reponse.set_code_etat(200, "OK");
@@ -230,12 +181,6 @@ std::string				Server::get_upload_dir(void)
 	return ("");
 }
 
-/*
-** Cette fonction est appelee si la methode utilisee est DELETE
-** On essaie d'open la ressource (si une facond e voir si la ressource en question existe tout simplement)
-** 		SI FAIL : alors on affiche la page Page Not Found car la ressource n'existe pas
-**		SINON OK : on remove la ressource (fonction remove(path_ressource)), et on indique qu'elle a bien ete supprimé grace a une page html (File is deleted)
-*/
 void					Server::delete_resource(void)
 {
 	std::ifstream		myfile;
@@ -379,17 +324,6 @@ void					Server::post_resource(void)
 	}
 }
 
-/*
-**		1.	On ouvre le dossier correspondant au path
-**		2.	On appelle la fonction qui va gerer l'autoindex et le fichier index.html (manage_auto_index())
-**		3.	Si fichier index.html existe :
-**				-> OUI : alors on build le body avec le fichier index.html
-**				-> SINON :	SI on opendir un fichier (fail du coup)
-**								OUI : alors on build le body avec le fichier correspondant
-**							SINON : Si l'autoindex est a on :
-**								OUI : On build l'arborescence du dossier correspondant (on effectue eventuellement une redirection 301 s'il manque le '/' a la fin alors que cest un dossier)
-**							SINON : On build une erreur 404 (car on opendir un dossier mais il n'y avait pas d'index.html et l'autoindex etait a off)
-*/
 void					Server::get_resource(void)
 {
 	std::list<std::pair<std::string, unsigned char> >	files;
@@ -597,11 +531,6 @@ void					Server::init_page_error(void)
 	this->_map_error.insert(std::pair<int, std::string>(500, "./www/errors/500.html"));
 	this->_map_error.insert(std::pair<int, std::string>(505, "./www/errors/504.html"));
 }
-
-
-/*
-** GETTEURS ET SETTEURS
-*/
 
 void					Server::set_port(std::string &port)
 {

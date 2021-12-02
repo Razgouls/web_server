@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 16:59:36 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 17:21:00 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,29 +57,6 @@ Request				&Request::operator=(Request &r)
 
 	return (*this);
 }
-
-// void				Request::fill_map_request(void)
-// {
-// 	size_t								last = _request.find("\n");
-// 	size_t								dep = 0;
-// 	size_t								dep_two = 0;
-// 	std::pair<std::string, std::string>	pair;
-// 	std::string							line;
-
-// 	while (last != std::string::npos)
-// 	{
-// 		line = _request.substr(dep, last - dep - 1);
-// 		dep = last + 1;
-// 		last = _request.find("\n", dep);
-
-// 		dep_two = line.find(":");
-// 		pair.first = line.substr(0, dep_two);
-// 		pair.second = line.substr(dep_two + 1, last);
-// 		if (*(pair.second.begin()) == ' ')
-// 			pair.second.erase(0, 1);
-// 		_map_request[pair.first] = pair.second;
-// 	}
-// }
 
 void				Request::fill_map_request(void)
 {
