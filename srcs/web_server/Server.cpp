@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 23:22:38 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 16:32:15 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,14 +26,17 @@ Server::Server()
 
 Server				&Server::operator=(const Server &s)
 {
-	_port = s._port;
-	_host = s._host;
-	_server_name = s._server_name;
-	_root = s._root;
-	_list_routes = s._list_routes;
-	_map_error = s._map_error;
-	_limit_client_body_size = s._limit_client_body_size;
-	_mime = s._mime;
+	if (this != &s)
+	{
+		_port = s._port;
+		_host = s._host;
+		_server_name = s._server_name;
+		_root = s._root;
+		_list_routes = s._list_routes;
+		_map_error = s._map_error;
+		_limit_client_body_size = s._limit_client_body_size;
+		_mime = s._mime;
+	}
 	return (*this);
 }
 
@@ -413,7 +416,7 @@ void					Server::get_resource(void)
 		}
 		if (!UtilsFile::permission_read(new_path))
 		{
-			_reponse.set_code_etat(301, "Forbidden");
+			_reponse.set_code_etat(403, "Forbidden");
 			new_path = _map_error[403];
 		}
 		_reponse.build_body_response(std::make_pair(M_FILE, new_path));
@@ -485,8 +488,11 @@ void					Server::c_recv(std::string &request)
 		if (ret == 0)
 		{
 			manage_request(request);
-			if (_request.get_path().find("favicon") == std::string::npos)
-				std::cout << _request << std::endl;
+			if (PRINT)
+			{
+				if (_request.get_path().find("favicon") == std::string::npos)
+					std::cout << _request << std::endl;
+			}
 			manage_reponse();
 		}
 	}

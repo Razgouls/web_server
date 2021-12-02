@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 23:21:46 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 16:59:36 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ void				Request::parse_body(void)
 	{
 		std::vector<std::pair<int, std::string> >	v_pair;
 		std::vector<std::string>	elements;
-		UtilsString::split(_body, '\r', elements);
+		UtilsString::split(_body, "\r\n", elements);
 		UtilsString::vector_to_listpair(v_pair, elements);
 		_body.clear();
 

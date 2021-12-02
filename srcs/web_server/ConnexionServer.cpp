@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 21:44:04 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 14:25:00 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,9 +152,11 @@ int						ConnexionServer::s_accept(int j)
 {
 	int		len = sizeof(sockaddr_in);
 	int		new_fd;
+	int		on = 1;
 
 	if ((new_fd = accept(_vect_listen_fd[j], (struct sockaddr *)&_vect_address[j], (socklen_t *)&len)) < 0)
 		throw std::string("Error accept");
+	setsockopt(new_fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 	fcntl(new_fd, F_SETFL, O_NONBLOCK);
 	_map_fd_server[new_fd] = _servers[j];
 	return (new_fd);
@@ -175,12 +177,14 @@ int					ConnexionServer::manage_connexion(int &fd)
 	_map_fd_server[fd].c_recv(_requests[fd]);
 	reponse = _map_fd_server[fd].get_reponse().fill_reponse();
 	send(fd, reponse.c_str(), reponse.size(), 0);
-
-	std::cout << std::endl;
-	std::cout << BOLDRED << "=================================================================" << std::endl;
-	std::cout << BOLDRED << "======================== INFOS RESPONSE =========================" << std::endl;
-	std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
-	std::cout << reponse << std::endl;
+	if (PRINT)
+	{
+		std::cout << std::endl;
+		std::cout << BOLDRED << "=================================================================" << std::endl;
+		std::cout << BOLDRED << "======================== INFOS RESPONSE =========================" << std::endl;
+		std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
+		std::cout << reponse << std::endl;
+	}
 	return (0);
 }
 
@@ -212,7 +216,7 @@ void					ConnexionServer::run(void)
 		nbr = init_poll(&nfds);
 		while (i < nfds)
 		{
-			if (_pfds[i].revents == POLLIN)
+			if (_pfds[i].revents & POLLIN)
 			{
 				j = 0;
 				nbr--;
@@ -231,7 +235,6 @@ void					ConnexionServer::run(void)
 						catch(const std::string &error) {
 							throw ;
 						}
-						
 						_pfds[index].events = POLLIN;
 						_pfds[index].revents = 0;
 						if (index >= nfds)
@@ -243,28 +246,40 @@ void					ConnexionServer::run(void)
 				if (j == test)
 				{
 					int ret = manage_connexion(_pfds[i].fd);
-					if (ret < 0)
-					{
-						struct pollfd new_p;
-						new_p.fd = -1;
-						new_p.events = POLLIN;
-						_pfds[i] = new_p;
-					}
-					else if (ret == 0)
+					if (ret <= 0)
 					{
 						_map_fd_server.erase(_pfds[i].fd);
 						_requests.erase(_pfds[i].fd);
-						close(_pfds[i].fd);
+						if (ret == 0)
+							close(_pfds[i].fd);
 						struct pollfd new_p;
 						new_p.fd = -1;
 						new_p.events = POLLIN;
 						_pfds[i] = new_p;
+						compress_array(&nfds);
 					}
 				}
 			}
 			if (nbr == 0)
 				break ;
 			i++;
+		}
+	}
+}
+
+void							ConnexionServer::compress_array(int *nfds)
+{
+	int	i;
+	int j;
+
+	for (i = 0; i < *nfds; i++)
+	{
+		if (_pfds[i].fd == -1)
+		{
+			for(j = i; j < *nfds; j++)
+				_pfds[j].fd = _pfds[j + 1].fd;
+			i--;
+			(*nfds)--;
 		}
 	}
 }

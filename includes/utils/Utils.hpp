@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/11/30 15:05:44 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 16:31:13 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,8 @@
 # define STDIN 0
 # define STDOUT 1
 # define STDERR 2
+
+#define PRINT 1
 
 namespace UtilsParser
 {
