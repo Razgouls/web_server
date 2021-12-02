@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 17:21:00 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 23:11:17 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ Request::Request()
 	_body = "";
 	_content_type = "";
 	_content_length = "";
+	_error = false;
 }
 
 Request::Request(const Request &r)
@@ -76,7 +77,10 @@ void				Request::fill_map_request(void)
 		pair.second = it_begin->substr(dep + 1);
 		if (*(pair.second.begin()) == ' ')
 			pair.second.erase(0, 1);
-		_map_request[pair.first] = pair.second;
+		if (_map_request[pair.first].empty())
+			_map_request[pair.first] = pair.second;
+		else
+			_error = true;
 		it_begin++;
 	}
 }
@@ -115,10 +119,16 @@ void				Request::parse_request(void)
 
 	UtilsString::split(_request.substr(0, _request.find("\n")), ' ', elements);
 	fill_map_request();														//fill make_request
-	_method = elements[0];
-	_path = elements[1].substr(0, elements[1].find("?"));
+	if (elements.size() > 0)
+		_method = elements[0];
+	if (elements.size() > 1)
+		_path = elements[1].substr(0, elements[1].find("?"));
+	if (elements.size() > 2)
+		_version = elements[2].substr(0, elements[2].find("\r"));
+	if (elements.size() > 3)
+		_error = true;
 	_path_query = "";
-	if (_method == "GET")
+	if (elements.size() > 2 && _method == "GET")
 	{
 		if (elements[1].find("?") != std::string::npos)
 			_path_query = elements[1].substr(elements[1].find("?") + 1);
@@ -132,7 +142,19 @@ void				Request::parse_request(void)
 
 int					Request::is_valid(void)
 {
-	if (_method.empty() || _path.empty() || _host.empty())
+	std::cout << "METHOD : [" << _method << "]" << std::endl;
+	std::cout << "VERSION : [" << _version << "]" << std::endl;
+	if (_version != "HTTP/1.1")
+		return (-1);
+	if (_method != "GET" && _method != "POST" && _method != "DELETE")
+		return (-1);
+	std::cout << "PATH : [" << _path << "]" << std::endl;
+	if (_path.empty() || _path == ".")
+		return (-1);
+	std::cout << "HOST : [" << _host.substr(0, _host.find(":")) << "]" << std::endl;
+	if (_host.empty() || _host.substr(0, _host.find(":")) != "localhost")
+		return (-1);
+	if (_error)
 		return (-1);
 	return (0);
 }

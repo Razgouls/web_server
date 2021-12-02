@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 17:26:13 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/03 00:25:35 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,13 +147,19 @@ void					Server::manage_cgi(void)
 
 	init_var_cgi();
 	bin = _route.get_cgi_bin(UtilsFile::get_extension(path));
-	if (!bin.empty())
+	if (!bin.empty() && UtilsFile::is_file(path))
 	{
 		_cgi.execute(bin, path, _request.get_body());
 		std::string body = UtilsFile::get_file_content("./output.txt");
-		body = body.substr(body.find("\r\n\r\n") + 4);
+		if (_request.get_method() != "GET")
+			body = body.substr(body.find("\r\n\r\n") + 4);
 		_reponse.build_body_response(std::make_pair(MESSAGE, body));
 		remove("./output.txt");
+	}
+	else
+	{
+		_reponse.set_code_etat(404, "Not Found");
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[404]));
 	}
 }
 
@@ -335,7 +341,7 @@ void					Server::get_resource(void)
 	dir = opendir(path.c_str());
 	ret = manage_auto_index();
 	_reponse.set_content_type(_mime[UtilsFile::get_extension(path)]);
-	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)) && !_request.get_path_query().empty())
+	if (UtilsIterator::find_list(_route.get_list_cgi_extension(), UtilsFile::get_extension(path)))
 		manage_cgi();
 	else if (ret == INDEX)
 		_reponse.build_body_response(std::make_pair(M_FILE, path + _route.get_index()));
@@ -383,7 +389,12 @@ void					Server::manage_reponse(void)
 	std::string			&method = _request.get_method();
 
 	fill_reponse();
-	if (!check_method_location())
+	if (_request.is_valid() == -1)
+	{
+		_reponse.set_code_etat(400, "Bad Request");
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[400]));
+	}
+	else if (!check_method_location())
 	{
 		_reponse.set_code_etat(405, "Method Not Allowed");
 		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[405]));
@@ -401,17 +412,18 @@ void					Server::manage_reponse(void)
 		delete_resource();
 }
 
-void					Server::manage_request(std::string &request)
+int						Server::manage_request(std::string &request)
 {
 	_request.set_request(request);
 	_request.parse_request();
 	_request.set_path(_root + _request.get_path());
 	if (_request.is_valid() == -1)
-		throw std::string("Requete envoyée invalide.");
+		return (-1);
 	get_path_location();
+	return (0);
 }
 
-void					Server::c_recv(std::string &request)
+int						Server::c_recv(std::string &request)
 {
 	int					ret = 0;
 
@@ -421,15 +433,19 @@ void					Server::c_recv(std::string &request)
 			ret = UtilsString::last_line_chunked(request);
 		if (ret == 0)
 		{
-			manage_request(request);
+			manage_request(request); 
 			if (PRINT)
 			{
 				if (_request.get_path().find("favicon") == std::string::npos)
-					std::cout << _request << std::endl;
+						std::cout << _request << std::endl;
+				manage_reponse();
 			}
-			manage_reponse();
+			ret = 0;
 		}
 	}
+	else
+		ret = 1;
+	return (ret);
 }
 
 void					Server::init_var_cgi(void)
@@ -448,7 +464,7 @@ void					Server::init_var_cgi(void)
 	_cgi.add_var_env("REQUEST_METHOD", _request.get_method());
 	_cgi.add_var_env("REQUEST_URI", _request.get_uri_request());
 	_cgi.add_var_env("SERVER_NAME", _server_name);
-	_cgi.add_var_env("SERVER_SOFWARE", "web_server/1.10");
+	_cgi.add_var_env("SERVER_SOFWARE", "webserv/1.10");
 	_cgi.add_var_env("SERVER_PROTOCOL", "HTTP/1.1");
 	_cgi.add_var_env("SERVER_PORT", UtilsString::to_string(_port));
 	_cgi.add_var_env("PATH_TRANSLATED", path);
@@ -522,6 +538,7 @@ void					Server::init_mime(void)
 
 void					Server::init_page_error(void)
 {
+	this->_map_error.insert(std::pair<int, std::string>(400, "./www/errors/400.html"));
 	this->_map_error.insert(std::pair<int, std::string>(401, "./www/errors/401.html"));
 	this->_map_error.insert(std::pair<int, std::string>(403, "./www/errors/403.html"));
 	this->_map_error.insert(std::pair<int, std::string>(404, "./www/errors/404.html"));

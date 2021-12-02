@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/25 18:01:38 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 11:06:52 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 22:08:47 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ class Request
 	
 
 	private:
+		std::string											_version;
 		std::string											_uri_request;
 		std::string											_request;
 		std::map<std::string, std::string>					_map_request;
@@ -62,6 +63,8 @@ class Request
 		std::string											_body;
 		std::string											_content_type;
 		std::string											_content_length;
+
+		bool												_error;
 };
 
 std::ostream				&operator<<(std::ostream &os, Request &r);

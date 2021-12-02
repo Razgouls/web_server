@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 17:25:14 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 22:33:42 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -141,18 +141,21 @@ int					ConnexionServer::manage_connexion(int &fd)
 	if (ret_read == 0)
 		return (0);
 	_requests[fd] += requete;
-	_map_fd_server[fd].c_recv(_requests[fd]);
-	reponse = _map_fd_server[fd].get_reponse().fill_reponse();
-	send(fd, reponse.c_str(), reponse.size(), 0);
-	if (PRINT)
+	ret_read = _map_fd_server[fd].c_recv(_requests[fd]);
+	if (ret_read == 0)
 	{
-		std::cout << std::endl;
-		std::cout << BOLDRED << "=================================================================" << std::endl;
-		std::cout << BOLDRED << "======================== INFOS RESPONSE =========================" << std::endl;
-		std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
-		std::cout << reponse << std::endl;
+		reponse = _map_fd_server[fd].get_reponse().fill_reponse();
+		send(fd, reponse.c_str(), reponse.size(), 0);
+		if (PRINT)
+		{
+			std::cout << std::endl;
+			std::cout << BOLDRED << "=================================================================" << std::endl;
+			std::cout << BOLDRED << "======================== INFOS RESPONSE =========================" << std::endl;
+			std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
+			std::cout << reponse << std::endl;
+		}
 	}
-	return (0);
+	return (ret_read);
 }
 
 void signal_callback_handler(int signum)

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 11:55:01 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/02 22:18:40 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ class Server
 		Server													&operator=(const Server &s);
 		Server(const Server &s);
 
-		void													c_recv(std::string &request);
+		int														c_recv(std::string &request);
 		void													init_mime(void);
 		void													init_page_error(void);
 
@@ -44,7 +44,7 @@ class Server
 		/*
 		** REQUEST
 		*/
-		void													manage_request(std::string &request);
+		int														manage_request(std::string &request);
 		void													parse_request(Request &r);
 		bool													check_method_location(void);
 		void													get_path_location(void);
