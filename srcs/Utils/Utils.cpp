@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/12/01 10:13:09 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/03 17:03:42 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -290,7 +290,7 @@ namespace UtilsFile
 			std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
 			return (content);
 		}
-		return (NULL);
+		return ("");
 	}
 
 	bool									is_file(const std::string& filename)

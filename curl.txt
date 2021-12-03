@@ -53,8 +53,6 @@
         curl -X POST -d "Hello tout le monde !" http://localhost:8005/www/hello.txt              -> 201 Created
     //Updating file hello.txt
         curl -X POST -d "Hello tout le monde !" http://localhost:8005/www/hello.txt              -> 200 OK
-    //Creating the data.json file
-        curl -X POST -d '{"key1":"value1", "key2":"value2"}' -H 'Content-Type: application/json' http://localhost:8005/www/data.json        -> 201 Created
     //No file specified in the URL
         curl -X POST -d "bonjour tout le monde" http://localhost:8005/www/                  -> 403 Forbidden
 

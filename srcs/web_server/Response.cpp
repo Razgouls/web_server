@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/28 14:10:43 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 17:24:15 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/03 14:16:39 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,13 +94,13 @@ void				Response::build_head_response(void)
 	s_content_length << _content_length;
 	s_time_now << "Date: " << dt;
 
-	_body_head.append(_version_http + " " + s_code_etat.str() + "\n");
-	_body_head.append("Content-Type: " + _content_type + "\n");
+	_body_head.append(_version_http + " " + s_code_etat.str() + "\r\n");
+	_body_head.append("Content-Type: " + _content_type + "\r\n");
 	_body_head.append(s_time_now.str());
-	_body_head.append("Content-Length: " + s_content_length.str() + "\n");
-	_body_head.append("Location: " + _content_location + "\n");
-	_body_head.append("Server: " + _name_server + "\n");
-	_body_head.append("\n");
+	_body_head.append("Content-Length: " + s_content_length.str() + "\r\n");
+	_body_head.append("Location: " + _content_location + "\r\n");
+	_body_head.append("Server: " + _name_server + "\r\n");
+	_body_head.append("\r\n");
 }
 
 int					Response::gestion_errors(std::string &path)

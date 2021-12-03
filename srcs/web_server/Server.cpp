@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 00:25:35 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/03 17:28:50 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,8 @@ void						Server::get_path_location(void)
 	std::string					path_search_route;
 	Route						tmp_route;
 
-	path_search_route = _request.get_path().substr(1);
+	// path_search_route = _request.get_uri_request().substr(1);
+	path_search_route = _request.get_uri_request();
 	if ((*path_search_route.rbegin()) == '/')
 		path_search_route.erase(path_search_route.length() - 1);
 	while (it_begin != it_end)
@@ -75,6 +76,7 @@ void						Server::get_path_location(void)
 		_route = *it_begin;
 	else
 		_route = tmp_route;
+	std::cout << "PATH : [" << _route.get_path() << "]" << std::endl;
 }
 
 bool					Server::check_method_location(void)
@@ -268,8 +270,8 @@ int						Server::update_file(std::string &tmp_path)
 				_reponse.set_code_etat(204, "No Content");
 			else
 				myfile << _request.get_body();
-			_reponse.build_body_response(std::make_pair(MESSAGE, "Le contenu a ete ajouté a " + tmp_path + "\n"));
 			myfile.close();
+			_reponse.build_body_response(std::make_pair(M_FILE, tmp_path));
 		}
 		else
 		{
@@ -297,9 +299,9 @@ void					Server::create_file(std::string &tmp_path)
 			myfile << UtilsFile::get_file_content(_request.get_body());
 		else
 			myfile << _request.get_body();
-		_reponse.set_code_etat(201, "Created");
-		_reponse.build_body_response(std::make_pair(MESSAGE, "Fichier " + tmp_path + " creer et contenu ajouté\n"));
 		myfile.close();
+		_reponse.set_code_etat(201, "Created");
+		_reponse.build_body_response(std::make_pair(M_FILE, tmp_path));
 	}
 }
 
