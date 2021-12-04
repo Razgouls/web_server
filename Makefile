@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: elie <elie@student.42.fr>                  +#+  +:+       +#+         #
+#    By: marvin <marvin@student.42.fr>              +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/06/16 07:45:16 by eoliveir          #+#    #+#              #
-#    Updated: 2021/11/29 15:59:30 by elie             ###   ########.fr        #
+#    Updated: 2021/12/03 23:52:33 by marvin           ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,7 +45,7 @@ PARSER		= $(addprefix parser/,				\
 			)
 
 UTILS		= $(addprefix utils/,				\
-				utils.cpp						\
+				Utils.cpp						\
 			)
 
 WEB_SERVER	= $(addprefix web_server/,			\

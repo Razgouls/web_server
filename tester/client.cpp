@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   client.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: marvin <marvin@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 11:36:08 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 17:45:50 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/04 17:30:29 by marvin           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,19 +122,37 @@ void	send_post(void)
 	Post			post;
 	std::string		requete;
 
-	post.post_no_file(requete);
+	// post.post_no_file(requete);
+	// manage_requete(post, requete);
+
+	// post.post_create_file_empty(requete);
+	// manage_requete(post, requete);
+
+	// post.post_create_file_data(requete);
+	// manage_requete(post, requete);
+
+	// post.post_update_file(requete);
+	// manage_requete(post, requete);
+
+	// post.post_update_file_no_data(requete);
+	// manage_requete(post, requete);
+	
+	post.post_cgi_no_data(requete);
 	manage_requete(post, requete);
 
-	post.post_create_file_empty(requete);
+	post.post_cgi_data(requete);
 	manage_requete(post, requete);
 
-	post.post_create_file_data(requete);
+	post.post_create_file_data_chunked(requete);
 	manage_requete(post, requete);
 
-	post.post_update_file(requete);
+	post.post_create_file_data_multi_chunked(requete);
 	manage_requete(post, requete);
 
-	post.post_update_file_no_data(requete);
+	post.post_cgi_data_chunked(requete);
+	manage_requete(post, requete);
+
+	post.post_cgi_data_multi_chunked(requete);
 	manage_requete(post, requete);
 }
 
