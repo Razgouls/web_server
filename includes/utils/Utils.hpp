@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 16:31:13 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 18:06:02 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,8 +57,6 @@
 # define STDOUT 1
 # define STDERR 2
 
-#define PRINT 1
-
 namespace UtilsParser
 {
 	bool									syntax_bracket_open(std::string &line);
@@ -82,6 +80,8 @@ namespace UtilsFile
 	std::string								get_extension(const std::string &path);
 	std::string								get_file_content(const std::string &filename);
 	bool									permission_read(const std::string& filename);
+	bool									permission_write(const std::string& filename);
+	bool									permission_exec(const std::string& filename);
 	bool									fd_is_valid(int fd);
 }
 

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 12:24:59 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 17:28:50 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 19:00:43 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,7 @@ void						Server::get_path_location(void)
 		_route = *it_begin;
 	else
 		_route = tmp_route;
-	std::cout << "PATH : [" << _route.get_path() << "]" << std::endl;
+	// std::cout << "PATH : [" << _route.get_path() << "]" << std::endl;
 }
 
 bool					Server::check_method_location(void)
@@ -153,7 +153,9 @@ void					Server::manage_cgi(void)
 	{
 		_cgi.execute(bin, path, _request.get_body());
 		std::string body = UtilsFile::get_file_content("./output.txt");
-		if (_request.get_method() != "GET")
+		if (body.empty())
+			body = "";
+		else if (_request.get_method() != "GET")
 			body = body.substr(body.find("\r\n\r\n") + 4);
 		_reponse.build_body_response(std::make_pair(MESSAGE, body));
 		remove("./output.txt");
@@ -195,10 +197,15 @@ void					Server::delete_resource(void)
 	std::string			mess("");
 
 	myfile.open(_request.get_path().c_str());
-	if (!myfile.good())
+	if (!myfile.good() && !UtilsFile::is_file(_request.get_path()))
 	{
 		_reponse.set_code_etat(404, "Not Found");
 		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[404]));
+	}
+	else if (!myfile.good() && (!UtilsFile::permission_read(_request.get_path()) || !UtilsFile::permission_exec(_request.get_path())))
+	{
+		_reponse.set_code_etat(403, "Forbidden");
+		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[403]));
 	}
 	else
 	{
@@ -396,6 +403,11 @@ void					Server::manage_reponse(void)
 		_reponse.set_code_etat(400, "Bad Request");
 		_reponse.build_body_response(std::make_pair(M_FILE, _map_error[400]));
 	}
+	else if (_request.is_valid() == -2)
+	{
+		_reponse.set_code_etat(505, "Version Not Supported");
+		_reponse.build_body_response(std::make_pair(MESSAGE, "Version Not Supported"));
+	}
 	else if (!check_method_location())
 	{
 		_reponse.set_code_etat(405, "Method Not Allowed");
@@ -436,12 +448,9 @@ int						Server::c_recv(std::string &request)
 		if (ret == 0)
 		{
 			manage_request(request); 
-			if (PRINT)
-			{
-				if (_request.get_path().find("favicon") == std::string::npos)
-						std::cout << _request << std::endl;
-				manage_reponse();
-			}
+			if (_request.get_path().find("favicon") == std::string::npos && PRINT)
+					std::cout << _request << std::endl;
+			manage_reponse();
 			ret = 0;
 		}
 	}

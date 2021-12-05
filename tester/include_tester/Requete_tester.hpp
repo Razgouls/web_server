@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 12:26:07 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 15:02:43 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 10:13:41 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ class Requete_tester
 		std::string								_requete;
 		std::string								_attendu;
 		std::string								_entete;
+		std::string								_first_line;
 };
 
 #endif

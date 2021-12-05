@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:07:22 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 12:57:03 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 18:08:33 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 # define PARSERROUTE_HPP
 
 # include "Utils.hpp"
+
+extern int PRINT;
+extern int PRINT_CONFIG;
 
 class ParserRoute
 {

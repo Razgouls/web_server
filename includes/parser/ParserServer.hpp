@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:02:36 by elie              #+#    #+#             */
-/*   Updated: 2021/11/28 11:31:21 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 18:07:46 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,9 @@
 
 # include "Utils.hpp"
 # include "ParserRoute.hpp"
+
+extern int PRINT;
+extern int PRINT_CONFIG;
 
 class ParserServer
 {

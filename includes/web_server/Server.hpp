@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/21 10:37:15 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 22:18:40 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 18:08:28 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@
 # define INDEX 0
 # define AUTOINDEX 1
 # define NONE 2
+
+extern int PRINT;
+extern int PRINT_CONFIG;
 
 class Server
 {

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 17:03:42 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 19:39:28 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,10 +218,8 @@ namespace UtilsString
 
 	void									trim(std::string delim, std::string &str)
 	{
-		while (delim.find((*(str.begin()))) != std::string::npos)
-			str.erase(0, 1);
-		while (delim.find((*(str.rbegin()))) != std::string::npos)
-			str.erase(str.end() - 1, str.end());
+		str.erase(0, str.find_first_not_of(delim));
+		str.erase(str.find_last_not_of(delim) + 1);
 	}
 
 	void									split(std::string s, std::string delimiter, std::vector<std::string> &elements)
@@ -319,6 +317,28 @@ namespace UtilsFile
 		if (stat(filename.c_str(), &buf) != -1)
 		{
 			if (buf.st_mode & S_IRUSR)
+				return (true);
+		}
+		return (false);
+	}
+
+	bool									permission_write(const std::string& filename)
+	{
+		struct stat buf;
+		if (stat(filename.c_str(), &buf) != -1)
+		{
+			if (buf.st_mode & S_IWUSR)
+				return (true);
+		}
+		return (false);
+	}
+
+	bool									permission_exec(const std::string& filename)
+	{
+		struct stat buf;
+		if (stat(filename.c_str(), &buf) != -1)
+		{
+			if (buf.st_mode & S_IXUSR)
 				return (true);
 		}
 		return (false);

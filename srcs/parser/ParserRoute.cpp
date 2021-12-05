@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:53:38 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 15:11:56 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 15:34:24 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,8 @@ void					ParserRoute::path_valid(std::string &path_server)
 	path = path_server + _path;
 	if (!UtilsDir::is_dir(path))
 		throw std::string(UtilsString::create_reponse_parser("Le path doit etre un dossier :", _path, false));
-	std::cout << UtilsString::create_reponse_parser("Path location :", path, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Path location :", _path, true);
 }
 
 void					ParserRoute::index_valid(std::string &path_server)
@@ -61,7 +62,8 @@ void					ParserRoute::index_valid(std::string &path_server)
 	path_index += index;
 	if (!UtilsFile::is_file(path_index))
 		throw std::string(UtilsString::create_reponse_parser("L'index donné doit etre un fichier valide :", index, false));
-	std::cout << UtilsString::create_reponse_parser("Index location :", index, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Index location :", index, true);
 }
 
 void					ParserRoute::method_valid(void)
@@ -89,7 +91,8 @@ void					ParserRoute::method_valid(void)
 			throw std::string(UtilsString::create_reponse_parser("La methode " + method + " est invalide :", method, false));
 		it_begin++;
 	}
-	std::cout << UtilsString::create_reponse_parser("Methodes :", methods, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Methodes :", methods, true);
 }
 
 void                    ParserRoute::autoindex_valid(void)
@@ -102,7 +105,8 @@ void                    ParserRoute::autoindex_valid(void)
 		throw std::string(UtilsString::create_reponse_parser("L'autoindex ne peut etre vide :", autoindex, false));
 	if (autoindex != "on" && autoindex != "off")
 		throw std::string(UtilsString::create_reponse_parser("L'autoindex donné est invalide :", autoindex, false));
-	std::cout << UtilsString::create_reponse_parser("Autoindex :", autoindex, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Autoindex :", autoindex, true);
 }
 
 void                    ParserRoute::upload_dir_valid(void)
@@ -117,7 +121,8 @@ void                    ParserRoute::upload_dir_valid(void)
 		throw std::string(UtilsString::create_reponse_parser("Le path donné est invalide (veuillez supprimer le '/' a la fin du upload_dir) :", upload_dir, false));
 	if (!UtilsDir::is_dir(upload_dir))
 		throw std::string(UtilsString::create_reponse_parser("L'upload dir donné doit etre un dossier :", upload_dir, false));
-	std::cout << UtilsString::create_reponse_parser("Path upload dir :", upload_dir, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Path upload dir :", upload_dir, true);
 }
 
 void					ParserRoute::cgi_bin_valid(void)
@@ -142,7 +147,8 @@ void					ParserRoute::cgi_bin_valid(void)
 			throw std::string(UtilsString::create_reponse_parser("Le CGI bin donné est invalide :", cgi_bin, false));
 		it_begin++;
 	}
-	std::cout << UtilsString::create_reponse_parser("CGI bin :", cgi_bin, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("CGI bin :", cgi_bin, true);
 }
 
 void					ParserRoute::cgi_extension_valid(void)
@@ -168,7 +174,8 @@ void					ParserRoute::cgi_extension_valid(void)
 			throw std::string(UtilsString::create_reponse_parser("L'extension du cgi doit commencer par un '.' :", *it_begin, false));
 		it_begin++;
 	}
-	std::cout << UtilsString::create_reponse_parser("CGI extension :", cgi_extension, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("CGI extension :", cgi_extension, true);
 }
 
 bool					ParserRoute::check_key_m_parser(std::map<std::string, std::string>	&map_tmp, std::string key)

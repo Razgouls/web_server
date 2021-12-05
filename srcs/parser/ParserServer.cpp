@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/23 22:54:00 by elie              #+#    #+#             */
-/*   Updated: 2021/11/29 15:50:57 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 15:30:15 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,8 @@ void				ParserServer::port_valid(void)
 	int	num_port = atoi(port.c_str());
 	if (num_port <= 0 || num_port > 65535)
 		throw std::string(UtilsString::create_reponse_parser("Le port donné est en dehors des plages [1 ; 65535] :", port, false));
-	std::cout << UtilsString::create_reponse_parser("Port :", port, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Port :", port, true);
 }
 
 void				ParserServer::host_valid(void)
@@ -107,7 +108,8 @@ void				ParserServer::host_valid(void)
 		throw std::string(UtilsString::create_reponse_parser("L'adresse IP ne peut etre vide :", host, false));
 	if (host != "127.0.0.1")
 		throw std::string(UtilsString::create_reponse_parser("L'adresse IP donnée est invalide :", host, false));
-	std::cout << UtilsString::create_reponse_parser("Adresse IP :", host, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Adresse IP :", host, true);
 }
 
 void				ParserServer::name_valid(void)
@@ -118,7 +120,8 @@ void				ParserServer::name_valid(void)
 	UtilsParser::check_point_virgule(server_name);
 	if (server_name.empty())
 		throw std::string(UtilsString::create_reponse_parser("Le nom du serveur ne peut etre vide :", server_name, false));
-	std::cout << UtilsString::create_reponse_parser("Server name :", server_name, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Server name :", server_name, true);
 }
 
 void				ParserServer::root_valid(void)
@@ -133,7 +136,8 @@ void				ParserServer::root_valid(void)
 		throw std::string(UtilsString::create_reponse_parser("Le root donné est invalide (veuillez supprimer le '/' a la fin du path) :", root, false));
 	if (!UtilsDir::is_dir(root))
 		throw std::string(UtilsString::create_reponse_parser("Le path du root doit etre un dossier :", root, false));
-	std::cout << UtilsString::create_reponse_parser("Root server :", root, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Root server :", root, true);
 }
 
 void				ParserServer::limit_body_size_valid(void)
@@ -151,7 +155,8 @@ void				ParserServer::limit_body_size_valid(void)
 	int	limit_client = atoi(limit.c_str());
 	if (limit_client < 0 || limit_client > 2147483647)
 		throw std::string(UtilsString::create_reponse_parser("La limite client body size donné est invalide :", limit, false));
-	std::cout << UtilsString::create_reponse_parser("Limite client body size :", limit, true);
+	if (PRINT_CONFIG)
+		std::cout << UtilsString::create_reponse_parser("Limite client body size :", limit, true);
 }
 
 void				ParserServer::error_page_valid(void)
@@ -167,7 +172,8 @@ void				ParserServer::error_page_valid(void)
 			throw std::string(UtilsString::create_reponse_parser("Configuration des fichiers errors incomplete dans le server :", it_begin->second, false));
 		if (!UtilsFile::is_file(it_begin->second))
 			throw std::string(UtilsString::create_reponse_parser("Le fichier erreur donné doit etre valide :", it_begin->second, false));
-		std::cout << UtilsString::create_reponse_parser("Fichier page erreur :", it_begin->second, true);
+		if (PRINT_CONFIG)
+			std::cout << UtilsString::create_reponse_parser("Fichier page erreur :", it_begin->second, true);
 		it_begin++;
 	}
 }
@@ -194,7 +200,7 @@ void				ParserServer::map_parser_valid(void)
 		check_key_m_parser("Server_name manquant :", "server_name");
 		check_key_m_parser("Root manquant :", "root");
 		check_key_m_parser("Limit_client_body_size manquant :", "limit_client_body_size");
-		check_key_m_parser("Bracket de fin manquante", "}");
+		check_key_m_parser("Erreur dans la bracket de fin", "}");
 	}
 	catch(const std::string &error) {
 		throw;
@@ -212,7 +218,8 @@ void				ParserServer::route_valid(void)
 	std::vector<ParserRoute>::iterator		it_end = _v_route.end();
 	while (it_begin != it_end)
 	{
-		std::cout << std::endl << BOLDCYAN << "Location : " << WHITE << std::endl;
+		if (PRINT_CONFIG)
+			std::cout << std::endl << BOLDCYAN << "Location : " << WHITE << std::endl;
 		try {
 			(*it_begin).route_valid(_m_parser["root"]);
 		}
@@ -227,10 +234,13 @@ void				ParserServer::server_valid(void)
 {
 	try
 	{
-		std::cout << BOLDRED << "=================================================================" << std::endl;
-		std::cout << BOLDRED << "====================== PARSER SERVER CONFIG =====================" << std::endl;
-		std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
-		std::cout << BOLDCYAN << "Server :" << WHITE << std::endl;
+		if (PRINT_CONFIG)
+		{
+			std::cout << BOLDRED << "=================================================================" << std::endl;
+			std::cout << BOLDRED << "====================== PARSER SERVER CONFIG =====================" << std::endl;
+			std::cout << BOLDRED << "=================================================================" << WHITE << std::endl;
+			std::cout << BOLDCYAN << "Server :" << WHITE << std::endl;
+		}
 		map_parser_valid();
 		name_valid();
 		head_valid();
@@ -240,7 +250,8 @@ void				ParserServer::server_valid(void)
 		limit_body_size_valid();
 		error_page_valid();
 		route_valid();
-		std::cout << std::endl << std::endl;
+		if (PRINT_CONFIG)
+			std::cout << std::endl << std::endl;
 	}
 	catch(const std::string &error)
 	{

@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 16:32:57 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 15:40:30 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,12 +147,16 @@ void				Request::parse_request(void)
 int					Request::is_valid(void)
 {
 	if (_version != "HTTP/1.1")
-		return (-1);
+		return (-2);
 	if (_method != "GET" && _method != "POST" && _method != "DELETE")
 		return (-1);
 	if (_path.empty() || _path == ".")
 		return (-1);
 	if (_host.empty() || _host.substr(0, _host.find(":")) != "localhost")
+		return (-1);
+	std::vector<std::string>	elements;
+	UtilsString::split(_host, " ", elements);
+	if (elements.size() != 1)
 		return (-1);
 	if (_error)
 		return (-1);
