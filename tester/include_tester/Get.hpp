@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 12:10:08 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 16:30:54 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/06 00:38:54 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ class Get : public Requete_tester
 		void			get_cgi_hello(std::string &requete);
 		void			get_cgi_long(std::string &requete);
 		void			get_cgi_chunked(std::string &requete);
+		void			get_cgi_chunked_bad_length(std::string &requete);
 		void			get_cgi_multi_chunked(std::string &requete);
 
 	private:

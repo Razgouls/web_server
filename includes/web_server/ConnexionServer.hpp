@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/24 15:51:57 by elie              #+#    #+#             */
-/*   Updated: 2021/12/02 11:58:52 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/05 22:03:53 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@
 # include "Server.hpp"
 
 # define RECV_SIZE 131072
-# define SIZE_PFDS 100
+# define SIZE_PFDS 1000
 # define MAX_CONN 200000
 
 class ConnexionServer

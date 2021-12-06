@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 12:11:06 by elie              #+#    #+#             */
-/*   Updated: 2021/12/03 17:37:57 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/06 01:23:37 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,10 @@ class Post : public Requete_tester
 		void			post_no_file(std::string &request);
 		void			post_create_file_empty(std::string &request);
 		void			post_create_file_data(std::string &request);
+		void			post_create_file_data_bad_length(std::string &request);
 		void			post_update_file(std::string &request);
+		void			post_update_file_no_length(std::string &request);
+		void			post_update_file_no_length2(std::string &request);
 		void			post_update_file_no_data(std::string &request);
 
 		/*

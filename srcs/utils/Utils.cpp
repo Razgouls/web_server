@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/19 10:01:43 by elie              #+#    #+#             */
-/*   Updated: 2021/12/05 19:39:28 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/06 01:21:13 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,14 +177,22 @@ namespace UtilsString
 		int base = 1;
 		int dec_val = 0;
 	
-		for (int i = len - 1; i >= 0; i--) {
-			if (hexVal[i] >= '0' && hexVal[i] <= '9') {
+		for (int i = len - 1; i >= 0; i--)
+		{
+			if (hexVal[i] >= '0' && hexVal[i] <= '9')
+			{
 				dec_val += (int(hexVal[i]) - 48) * base;
 				base = base * 16;
 			}
-			else if (hexVal[i] >= 'A' && hexVal[i] <= 'F') {
+			else if (hexVal[i] >= 'A' && hexVal[i] <= 'F')
+			{
 				dec_val += (int(hexVal[i]) - 55) * base;
 				base = base * 16;
+			}
+			else if(hexVal[i] >= 'a' && hexVal[i] <= 'f')
+			{
+				dec_val += (hexVal[i] - 87) * base;
+				base *= 16;
 			}
 		}
 		return (dec_val);

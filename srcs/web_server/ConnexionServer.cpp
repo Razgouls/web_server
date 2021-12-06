@@ -5,10 +5,11 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/11/24 15:52:40 by elie              #+#    #+#             */
-/*   Updated: 2021/12/05 19:40:46 by elie             ###   ########.fr       */
+/*   Created: 2021/12/05 23:06:45 by eoliveir          #+#    #+#             */
+/*   Updated: 2021/12/06 00:02:51 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
+
 
 #include "ConnexionServer.hpp"
 
@@ -178,7 +179,6 @@ void					ConnexionServer::run(void)
 	catch(const std::string &error) {
 		throw ;
 	}
-	
 	nfds = _vect_listen_fd.size();
 	while (true)
 	{
@@ -197,6 +197,8 @@ void					ConnexionServer::run(void)
 					if (j < size && _pfds[i].fd == _vect_listen_fd[j])
 					{
 						int index = get_pos_socket();
+						if (index >= nfds)
+							nfds++;
 						if (index == 0)
 							index = nfds;
 						try {
@@ -206,9 +208,6 @@ void					ConnexionServer::run(void)
 							throw ;
 						}
 						_pfds[index].events = POLLIN;
-						_pfds[index].revents = 0;
-						if (index >= nfds)
-							nfds++;
 						break ;
 					}
 					j++;

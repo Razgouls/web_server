@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/26 15:23:07 by elie              #+#    #+#             */
-/*   Updated: 2021/12/05 15:40:30 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/06 01:28:41 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,10 @@ void				Request::fill_map_request(void)
 
 void				Request::parse_body(void)
 {
-	_body = _request.substr(_request.find("\r\n\r\n") + 4);
+	if (!_content_length.empty() && _content_length != "0")
+		_body = _request.substr(_request.find("\r\n\r\n") + 4, atoi(_content_length.c_str()));
+	else
+		_body = _request.substr(_request.find("\r\n\r\n") + 4);
 	if (!_map_request["Transfer-Encoding"].empty())
 	{
 		std::vector<std::pair<int, std::string> >	v_pair;
@@ -106,7 +109,7 @@ void				Request::parse_body(void)
 				if ((it_begin + 1)->second.find("=") != std::string::npos)
 					_path_query += "&";
 			}
-			_body += it_begin->second;
+			_body += (it_begin->second.substr(0, it_begin->first));
 			it_begin++;
 		}
 	}
@@ -153,6 +156,8 @@ int					Request::is_valid(void)
 	if (_path.empty() || _path == ".")
 		return (-1);
 	if (_host.empty() || _host.substr(0, _host.find(":")) != "localhost")
+		return (-1);
+	if (_method == "POST" && _content_length.empty() && _map_request["Transfer-Encoding"].empty())
 		return (-1);
 	std::vector<std::string>	elements;
 	UtilsString::split(_host, " ", elements);

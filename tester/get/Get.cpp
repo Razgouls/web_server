@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get.cpp                                            :+:      :+:    :+:   */
+/*   Get.cpp                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 12:09:25 by elie              #+#    #+#             */
-/*   Updated: 2021/12/05 19:03:50 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/06 00:52:59 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,6 +192,21 @@ void			Get::get_cgi_chunked(std::string &requete)
 	requete += "a\r\nhello=test\r\n0\r\n\r\n";
 	_requete = requete;
 	_entete = "GET BASIC FILE CHUNKED";
+	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;
+}
+
+void			Get::get_cgi_chunked_bad_length(std::string &requete)
+{
+	_code.first = 200;
+	_code.second = "OK";
+	_attendu = "QS=hello=test";
+	requete = "GET /cgi/script_sh.sh HTTP/1.1\r\n";
+	requete += "Host: localhost:" + int_to_string(PORT) + "\r\n";
+	requete += "Transfer-Encoding: chunked\r\n";
+	requete += "Content-Type: application/x-www-form-urlencoded\r\n\r\n";
+	requete += "8\r\nhello=test\r\n0\r\n\r\n";
+	_requete = requete;
+	_entete = "GET BASIC FILE CHUNKED BAD LENGTH";
 	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;
 }
 

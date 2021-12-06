@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 12:10:56 by elie              #+#    #+#             */
-/*   Updated: 2021/12/05 19:04:43 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/06 01:23:45 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,11 +68,27 @@ void			Post::post_create_file_data(std::string &request)
 	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;
 }
 
+void			Post::post_create_file_data_bad_length(std::string &request)
+{
+	_code.first = 200;
+	_code.second = "OK";
+	_attendu = "Bonjour tout le monde et bienvenue !!!! ";
+	request = "POST /post/data.html HTTP/1.1\r\n";
+	request += "Host: localhost:" + int_to_string(PORT) + "\r\n";
+	request += "Content-Type: application/x-www-form-urlencoded\r\n";
+	request += "Content-Length: 18\r\n";
+	request += "\r\n";
+	request += "et bienvenue !!!! !!! ";
+	_requete = request;
+	_entete = "POST CREATE FILE DATA BAD LENGTH";
+	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;
+}
+
 void			Post::post_update_file(std::string &request)
 {
 	_code.first = 200;
 	_code.second = "OK";
-	_attendu = "Bonjour tout le monde comment allez-vous ?";
+	_attendu = "Bonjour tout le monde et bienvenue !!!! comment allez-vous ?";
 	request = "POST /post/data.html HTTP/1.1\r\n";
 	request += "Host: localhost:" + int_to_string(PORT) + "\r\n";
 	request += "Content-Type: application/x-www-form-urlencoded\r\n";
@@ -84,11 +100,42 @@ void			Post::post_update_file(std::string &request)
 	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;
 }
 
+void			Post::post_update_file_no_length(std::string &request)
+{
+	_code.first = 200;
+	_code.second = "OK";
+	_attendu = "Bonjour tout le monde et bienvenue !!!! comment allez-vous ?";
+	request = "POST /post/data.html HTTP/1.1\r\n";
+	request += "Host: localhost:" + int_to_string(PORT) + "\r\n";
+	request += "Content-Type: application/x-www-form-urlencoded\r\n";
+	request += "Content-Length: 0\r\n";
+	request += "\r\n";
+	request += "comment allez-vous ?";
+	_requete = request;
+	_entete = "POST UPDATE FILE DATA NO LENGTH";
+	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;
+}
+
+void			Post::post_update_file_no_length2(std::string &request)
+{
+	_code.first = 400;
+	_code.second = "Bad Request";
+	_attendu = "Bonjour tout le monde et bienvenue !!!! comment allez-vous ?";
+	request = "POST /post/data.html HTTP/1.1\r\n";
+	request += "Host: localhost:" + int_to_string(PORT) + "\r\n";
+	request += "Content-Type: application/x-www-form-urlencoded\r\n";
+	request += "\r\n";
+	request += "comment allez-vous ?";
+	_requete = request;
+	_entete = "POST UPDATE FILE DATA NO LENGTH 2";
+	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;
+}
+
 void			Post::post_update_file_no_data(std::string &request)
 {
 	_code.first = 204;
 	_code.second = "No Content";
-	_attendu = "Bonjour tout le monde comment allez-vous ?";
+	_attendu = "Bonjour tout le monde et bienvenue !!!! comment allez-vous ?";
 	request = "POST /post/data.html HTTP/1.1\r\n";
 	request += "Host: localhost:" + int_to_string(PORT) + "\r\n";
 	request += "Content-Type: application/x-www-form-urlencoded\r\n";
@@ -157,12 +204,12 @@ void			Post::post_create_file_data_multi_chunked(std::string &request)
 {
 	_code.first = 201;
 	_code.second = "Created";
-	_attendu = "hello=testhell01=test1hello22=test22";
+	_attendu = "hello=testhell01=test1hello22=test";
 	request = "POST /post/data_multi_chunked.html HTTP/1.1\r\n";
 	request += "Host: localhost:" + int_to_string(PORT) + "\r\n";
 	request += "Transfer-Encoding: chunked\r\n";
 	request += "Content-Type: application/x-www-form-urlencoded\r\n\r\n";
-	request += "a\r\nhello=test\r\nc\r\nhell01=test1\r\ne\r\nhello22=test22\r\n0\r\n\r\n";
+	request += "a\r\nhello=test\r\nc\r\nhell01=test1\r\nc\r\nhello22=test22\r\n0\r\n\r\n";
 	_requete = request;
 	_entete = "POST FILE MULTI CHUNKED";
 	_first_line = "HTTP/1.1 " + int_to_string(_code.first) + " " + _code.second;

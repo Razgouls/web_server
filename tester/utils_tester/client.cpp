@@ -6,7 +6,7 @@
 /*   By: elie <elie@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/12/03 11:36:08 by elie              #+#    #+#             */
-/*   Updated: 2021/12/05 19:15:54 by elie             ###   ########.fr       */
+/*   Updated: 2021/12/06 01:25:15 by elie             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -133,6 +133,10 @@ void	send_get(void)
 	manage_requete(get, requete);
 	std::cin >> c;
 
+	get.get_cgi_chunked_bad_length(requete);
+	manage_requete(get, requete);
+	std::cin >> c;
+
 	get.get_cgi_multi_chunked(requete);
 	manage_requete(get, requete);
 	std::cin >> c;
@@ -156,7 +160,19 @@ void	send_post(void)
 	manage_requete(post, requete);
 	std::cin >> c;
 
+	post.post_create_file_data_bad_length(requete);
+	manage_requete(post, requete);
+	std::cin >> c;
+
 	post.post_update_file(requete);
+	manage_requete(post, requete);
+	std::cin >> c;
+
+	post.post_update_file_no_length(requete);
+	manage_requete(post, requete);
+	std::cin >> c;
+
+	post.post_update_file_no_length2(requete);
 	manage_requete(post, requete);
 	std::cin >> c;
 
@@ -279,10 +295,10 @@ void	send_headers(void)
 
 void	send(void)
 {
-	send_get();
+	// send_get();
 	send_post();
-	send_delete();
-	send_headers();
+	// send_delete();
+	// send_headers();
 	remove("./tester/www/post/data_chunked.html");
 	remove("./tester/www/post/data_multi_chunked.html");
 	remove("./tester/www/post/data.html");

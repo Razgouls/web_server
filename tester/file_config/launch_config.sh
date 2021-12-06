@@ -13,13 +13,15 @@ echo "====================================================================="
 echo -ne "${ENDCOLOR}"
 
 read $VAR
-clear
+
+make full >> /dev/null 2>> /dev/null
 
 test_file_config()
 {
 	cmp=1
 	find $1 -type f -name "*.conf" | while read line; do
 	./webserv $line & >> /dev/null 2>> /dev/null
+	sleep 1
 	ps -a | grep "webserv" >> /dev/null 2>> /dev/null
 	if [[ $? -ge 1 ]]; then
 		if [[ $cmp -ge 10 ]]; then
@@ -308,7 +310,30 @@ test_blank()
 	read $VAR
 }
 
+test_siege()
+{
+	echo -e "${CYAN}"
+	echo "====================================================================="
+	echo "============================= TEST SIEGE ============================"
+	echo -ne "${ENDCOLOR}"
+	./webserv &
+	sleep 1
+	siege -b http://localhost:8005/siege.txt &
+	sleep 1
+	for i in `seq 1 45`;
+	do
+		sleep 1
+	done
 
+	var=$(pgrep webserv)
+	kill $var
+
+	var=$(pgrep siege)
+	kill $var
+	read $VAR
+}
+
+test_siege
 test_brackets
 test_entete
 test_listen
